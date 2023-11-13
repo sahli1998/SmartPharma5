@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxco="clr-namespace:DevExpress.Maui.Controls;assembly=DevExpress.Maui.Controls"
+             xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
+             x:Class="SmartPharma5.View.LoginView"
+           
+             NavigationPage.HasBackButton="false"
+              xmlns:local="clr-namespace:SmartPharma5.ViewModel"
+             NavigationPage.HasNavigationBar="true"
+             Title="LoginView">
+
+    <ContentPage.Background>
+        <LinearGradientBrush EndPoint="0,1" >
+            <GradientStop Color="#6BF6C3" Offset="0.1" />
+            <GradientStop Color="#3D79F8" Offset="1.0"/>
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+
+        <Grid Margin="50,20,50,50" RowSpacing="10" >
+
+            <Grid.RowDefinitions >
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+
+
+
+            </Grid.RowDefinitions>
+
+            <!--<Image Grid.Row="0"  Source="Logopharma.png" HeightRequest="170"/>-->
+            <Label Grid.Row="0" Text="Welcome to our mobile application" TextColor="White" FontSize="14" VerticalTextAlignment="Center" HorizontalOptions="Center" />
+
+            <dxe:TextEdit Grid.Row="1"  Text="{Binding User.Login,Mode=TwoWay}" PlaceholderText="User name" CornerMode="Round" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" />
+            <dxe:PasswordEdit Grid.Row="2" Text="{Binding User.Password,Mode=TwoWay}" PlaceholderText="Password" CornerMode="Round" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" IconColor="White" />
+
+            <Label Grid.Row="3" Text="Server Parameters " TextColor="White" FontSize="14" VerticalTextAlignment="Center" HorizontalOptions="Center" />
+
+            <dxe:PasswordEdit  Grid.Row="4" PasswordIconVisibility="Never" LabelColor="White" CornerMode="Round" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" IconColor="White" LabelText="Server IP Adress" LabelFontSize="12" Text="{Binding Server.Address}"/>
+            <dxe:PasswordEdit  Grid.Row="5" PasswordIconVisibility="Never" LabelColor="White" CornerMode="Round" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" IconColor="White" LabelText="User name" LabelFontSize="12" Text="{Binding Server.Name}"/>
+           
+            <dxe:PasswordEdit   Grid.Row="6" PasswordIconVisibility="Never" CornerMode="Round" LabelColor="White" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" IconColor="White" LabelText="Data base name" LabelFontSize="12" Text="{Binding Server.Data_base}"/>
+            <dxe:PasswordEdit  Grid.Row="7" PasswordIconVisibility="Never" CornerMode="Round" LabelColor="White" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" IconColor="White" LabelText="Port" LabelFontSize="12" Text="{Binding Server.Port}"/>
+            <dxe:PasswordEdit  Grid.Row="8" PasswordIconVisibility="Never" CornerMode="Round" LabelColor="White" CornerRadius="25" BackgroundColor="#6CC5DE" BorderThickness="0" PlaceholderColor="White" TextFontSize="16" IconColor="White" LabelText="Password" LabelFontSize="12" Text="{Binding Server.Password}" />
+            <dxco:SimpleButton  Grid.Row="9" Text="LOGIN" BackgroundColor="White" TextColor="#3F82E6" CornerMode="Round" CornerRadius="25" Command="{Binding LoginCommand}"/>
+            <Label  Grid.Row="10" Text="Forgot your password? Call us now" TextColor="White" FontSize="12" VerticalTextAlignment="Center" HorizontalOptions="Center" />
+            <StackLayout HeightRequest="200" Grid.Row="11"></StackLayout>
+
+
+
+            <dxco:DXPopup BackgroundColor="White" IsOpen="{Binding ActPopup}" AllowScrim="True" >
+                <StackLayout HorizontalOptions="FillAndExpand" WidthRequest="200">
+                    <ActivityIndicator IsRunning="True" BackgroundColor="White" Color="#6CC5DE" Margin="20,20"></ActivityIndicator>
+                    <Label HorizontalTextAlignment="Center" Text="Trying to connect..." Margin="10, 10" VerticalOptions="Center" HorizontalOptions="Center" FontSize="15"/>
+                </StackLayout>
+            </dxco:DXPopup>
+            <dxco:DXPopup BackgroundColor="White" IsOpen="{Binding SuccessPopup}" AllowScrim="True" >
+                <StackLayout WidthRequest="200" HorizontalOptions="FillAndExpand">
+                    <Label Text="Success" Margin="10, 10" VerticalOptions="Center" HorizontalOptions="Center" FontSize="17"/>
+                    <Image  Source="circlecheck.png" HeightRequest="50" Margin="0,20"/>
+                    <Label HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" Text="Login success! Redirecting..." Margin="10, 10" VerticalOptions="Center"  FontSize="15"/>
+                </StackLayout>
+            </dxco:DXPopup>
+            <dxco:DXPopup IsOpen="{Binding FieldPopup}" AllowScrim="True" >
+
+                <StackLayout BackgroundColor="White" HorizontalOptions="FillAndExpand" WidthRequest="200">
+                    <Label Text="Warning" Margin="10, 10" VerticalOptions="Center" HorizontalOptions="CenterAndExpand" FontSize="17"/>
+                    <Image Source="circlexmark.png" HeightRequest="50" Margin="0,20"/>
+                    <Label HorizontalTextAlignment="Center" Text="{Binding Message}" Margin="10, 10" VerticalOptions="Center" HorizontalOptions="CenterAndExpand" FontSize="15"/>
+                    <Button Text="Try again" Command="{Binding Tryagain}" HorizontalOptions="CenterAndExpand" FontSize="Default" VerticalOptions="Center" BackgroundColor="White" TextColor="#3D79F8" Margin="0,20"/>
+                </StackLayout>
+            </dxco:DXPopup>
+
+
+        </Grid>
+    </ScrollView>
+
+
+
+
+
+
+
+</ContentPage>
