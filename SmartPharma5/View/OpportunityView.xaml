@@ -80,19 +80,9 @@
 
                     <RefreshView IsRefreshing="{Binding ActPopup}" Command="{Binding RefreshCommand}" HorizontalOptions="CenterAndExpand" RefreshColor="#4B9EE8" >
 
-                        <dxcv:DXCollectionView x:Name="CollectionV"  ItemsSource="{Binding Opportunity.opportunity_lines, Mode=TwoWay}" BackgroundColor="#E6E6E6" Margin="0" >
-                            <dxcv:DXCollectionView.GroupHeaderTemplate>
-                                <DataTemplate>
-                                    <StackLayout>
-                                        <ImageButton  Source="editregular.png"    VerticalOptions="Center" HorizontalOptions="End" HeightRequest="60" WidthRequest="60" Padding="10"  CornerRadius="6" BackgroundColor="#4DBF49" Command="{Binding EditCommand}" IsVisible="{Binding EditActive,Mode=TwoWay}"  />
-                                        <ImageButton  Source="baselineadd.png"   VerticalOptions="Center" HorizontalOptions="End" HeightRequest="60" WidthRequest="60" Padding="10"  CornerRadius="6" BackgroundColor="#4DBF49" Command="{Binding AddCommand}" IsVisible="{Binding AddActive,Mode=TwoWay}" />
-                                    </StackLayout>
-                                  
-
-
-                                </DataTemplate>
-                            </dxcv:DXCollectionView.GroupHeaderTemplate>
-                            <dxcv:DXCollectionView.ItemTemplate>
+                        <CollectionView x:Name="CollectionV"  ItemsSource="{Binding Opportunity.opportunity_lines, Mode=TwoWay}" BackgroundColor="#E6E6E6" Margin="0" >
+                            
+                            <CollectionView.ItemTemplate>
                                 
 
                                 <DataTemplate>
@@ -125,7 +115,7 @@
                                                 <Label  VerticalOptions="Center" FontSize="13" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" HorizontalOptions="Center" Text="*"/>
 
 
-                                                <dxe:NumericEdit  VerticalOptions="Start"  TextHorizontalAlignment="Center" HorizontalOptions="Center" WidthRequest="50" HeightRequest="40" TextFontSize="14" TextVerticalAlignment="Center"   TextColor="#55575c" DisplayFormat="n0" IsReadOnly="{Binding Source={x:Reference Shopping},Path=BindingContext.QuantityEdit}"  Value="{Binding quantity}" >
+                                                <dxe:NumericEdit  VerticalOptions="Start"  TextHorizontalAlignment="Center" HorizontalOptions="Center" WidthRequest="50" HeightRequest="40" TextFontSize="14" TextVerticalAlignment="Center"   TextColor="#55575c" MaxDecimalDigitCount="0" DisplayFormat="N0" IsReadOnly="{Binding Source={x:Reference Shopping},Path=BindingContext.QuantityEdit}"  Value="{Binding quantity}" >
                                                     <dxe:NumericEdit.Behaviors>
                                                         <xct:EventToCommandBehavior
                                                                         EventName="Unfocused"
@@ -152,14 +142,14 @@
 
 
                                 </DataTemplate>
-                            </dxcv:DXCollectionView.ItemTemplate>
-                        </dxcv:DXCollectionView>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
 
                     </RefreshView>
                 </StackLayout>
 
 
-                <ImageButton Grid.Row="1" Source="editregular.png" Margin="0,-150,-1,0" Opacity="1"  VerticalOptions="Center" HorizontalOptions="End" HeightRequest="50" WidthRequest="50" Padding="5"  CornerRadius="6" BackgroundColor="#4DBF49" Command="{Binding EditCommand}" IsVisible="{Binding EditActive,Mode=TwoWay}"  />
+                <ImageButton Grid.Row="1" Source="editregular.png" Margin="0,-180,-1,0" Opacity="1"  VerticalOptions="Center" HorizontalOptions="End" HeightRequest="50" WidthRequest="50" Padding="5"  CornerRadius="6" BackgroundColor="#4DBF49" Command="{Binding EditCommand}" IsVisible="{Binding EditActive,Mode=TwoWay}"  />
                 <ImageButton Grid.Row="1"   Source="baselineadd.png"  Margin="0,-180,-1,0" Opacity="10" VerticalOptions="Center" HorizontalOptions="End" HeightRequest="50" WidthRequest="50" Padding="5"  CornerRadius="6" BackgroundColor="#4DBF49" Command="{Binding AddCommand}" IsVisible="{Binding AddActive,Mode=TwoWay}" />
 
 

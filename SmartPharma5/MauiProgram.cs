@@ -11,6 +11,7 @@ namespace SmartPharma5
             builder.ConfigureSyncfusionCore();
             _ = builder
                 .UseMauiApp<App>()
+                .ConfigureSyncfusionCore()
                 .UseDevExpress(useLocalization: true)
                 .ConfigureFonts(fonts =>
                 {

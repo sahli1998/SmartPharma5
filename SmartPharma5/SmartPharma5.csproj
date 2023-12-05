@@ -45,9 +45,11 @@
 		<None Remove="Resources\AppIcon\logo.png" />
 		<None Remove="Resources\Images\done.png" />
 		<None Remove="Resources\Images\done_pichon.png" />
+		<None Remove="Resources\Images\grid.png" />
 		<None Remove="Resources\Images\logout.svg" />
 		<None Remove="Resources\Images\logo_systematic.jpeg" />
 		<None Remove="Resources\Images\menu_pichon.png" />
+		<None Remove="Resources\Images\parametrage.png" />
 		<None Remove="Resources\Images\pichon_dashboard.png" />
 		<None Remove="Resources\Images\pichon_form.png" />
 		<None Remove="Resources\Images\pichon_home.png" />
@@ -117,6 +119,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ChangeProfile.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\ChartView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\CustomerListView.xaml">
@@ -189,6 +194,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\PayView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\PieDashboard.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ProductListView.xaml">

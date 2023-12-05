@@ -86,11 +86,30 @@ public partial class HomeView : ContentPage
     }
     private async void TapGestureRecognizer_Tapped_summary(object sender, TappedEventArgs e)
     {
+
+        
         var OVM = BindingContext as HomeViewModel;
         OVM.MenuVisisble = !OVM.MenuVisisble;
         UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
         await Task.Delay(500);
-        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView()));
+        if (OVM.AllOppIsVisible)
+        {
+
+            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView()));
+        }
+        else
+        {
+            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView((uint)Preferences.Get("idagent", Convert.ToUInt32(null)))));
+       }
+       
+        UserDialogs.Instance.HideLoading();
+    }
+
+    private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+        await Task.Delay(500);
+        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PieDashboard()));
         UserDialogs.Instance.HideLoading();
     }
 }

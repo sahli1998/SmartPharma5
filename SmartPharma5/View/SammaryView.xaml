@@ -60,8 +60,9 @@
                     <RowDefinition Height="AUTO"/>
                     <RowDefinition Height="AUTO"/>
                     <RowDefinition Height="auto"/>
-                    <RowDefinition Height="0"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
@@ -233,33 +234,48 @@
                     </StackLayout>
 
                 </Frame>
-                <Frame IsVisible="false" Grid.Row="3" Margin="0" Padding="5" >
-                    <StackLayout IsVisible="false">
-                        <Label Text="Target" HorizontalOptions="FillAndExpand" TextColor="White" FontSize="Subtitle" BackgroundColor="#2296F3"  VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5" />
-
-
-                        <!--<radial:Gauge x:Name="jauge" 
-                      MaxValue="{Binding GaugeMaxValue,Mode=TwoWay}"
-                      CurrentValue="{Binding GaugeValue,Mode=TwoWay,StringFormat='{0:#.###}'}"
-                      
-                      
-                      UnitOfMeasurement="DT" 
-                      BottomText="{Binding ToGoal, StringFormat='Target | {0:}' ,Mode=TwoWay} "
-                      
-                      HasAnimation="True"
-                      TextColor="Black"
-                      />-->
+                <StackLayout Grid.Row="3" HorizontalOptions="FillAndExpand" Margin="3" >
+                    <StackLayout BackgroundColor="#2296F3">
+                        <Label Text="Target" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                     </StackLayout>
-                </Frame>
-                <Frame Grid.Row="4" Padding="5">
+                    <Label FontAttributes="Bold" Margin="5,20,5,5" FontSize="20" HorizontalOptions="CenterAndExpand" TextColor="Green" Text="{Binding GaugeValue, StringFormat='{0:#.###} DT' ,Mode=TwoWay} "></Label>
 
-                    <StackLayout Orientation="Vertical" HorizontalOptions="FillAndExpand">
-                        <StackLayout BackgroundColor="#2296F3">
-                            <Label Grid.Row="0" Text="Turnover" TextColor="White" FontSize="Subtitle"   VerticalOptions="Fill"  HorizontalTextAlignment="Center"  HorizontalOptions="CenterAndExpand" VerticalTextAlignment="Center" Padding="5" />
-                        </StackLayout>
+                    <Label FontAttributes="Bold"  FontSize="25" HorizontalOptions="CenterAndExpand" Text="{Binding ToGoal, StringFormat='Target | {0:} DT' ,Mode=TwoWay} "></Label>
+
+                    <control:SfRadialGauge VerticalOptions="StartAndExpand" Margin="0,-150,0,0">
+                        <control:SfRadialGauge.Axes>
+                            <control:RadialAxis Minimum="0"  Maximum="{Binding GaugeMaxValue,Mode=TwoWay}"  Interval="{Binding GaugeMaxValue,Mode=TwoWay}"
                      
+                                EnableLoadingAnimation="True" RadiusFactor="50" 
+                                 CanRotateLabels="True" 
+                                StartAngle="180" EndAngle="360">
 
-                        <dxc:PieChartView Grid.Row="1" Margin="0" IsVisible="false" FlowDirection="MatchParent" Visual="Material">
+                                <control:RadialAxis.Ranges>
+                                    <control:RadialRange StartValue="0" EndValue="{Binding GaugeValue,Mode=TwoWay,StringFormat='{0:#.###}'}" Fill="Green"></control:RadialRange>
+
+                                </control:RadialAxis.Ranges>
+                                <control:RadialAxis.Pointers >
+                                    <control:NeedlePointer  Value="{Binding GaugeValue,Mode=TwoWay,StringFormat='{0:#.###}'}" EnableAnimation="True" 
+                                           AnimationEasing="{x:Static Easing.SpringOut }"
+                                           AnimationDuration="3000"></control:NeedlePointer>
+                                </control:RadialAxis.Pointers>
+                             
+                                
+                               
+
+                            </control:RadialAxis>
+                        </control:SfRadialGauge.Axes>
+                    </control:SfRadialGauge>
+                   
+                </StackLayout>
+
+
+                <StackLayout Grid.Row="4" BackgroundColor="#2296F3" Margin="3">
+                    <Label Text="Turnover" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
+                </StackLayout>
+
+
+                <dxc:PieChartView Grid.Row="5"  Margin="0"  FlowDirection="MatchParent" Visual="Material">
 
                             <dxc:PieChartView.Hint>
                                 <dxc:PieHint Enabled="True"/>
@@ -310,21 +326,11 @@
                         </dxc:PieChartView>
                      
                        
-                    </StackLayout>
-                    
+                 
                
+                       
 
-
-                </Frame>
-                <Frame Grid.Row="6" Padding="5" IsVisible="false">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <!--<Label Grid.Row="0" Text="Total CA" TextColor="White" FontSize="Subtitle" BackgroundColor="#2296F3" HorizontalOptions="Fill" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5" />-->
-
-                        <dxc:PieChartView Grid.Row="1" Margin="0" FlowDirection="MatchParent" Visual="Material">
+                        <dxc:PieChartView Grid.Row="6" Margin="0" FlowDirection="MatchParent" Visual="Material">
 
                             <dxc:PieChartView.Hint>
                                 <dxc:PieHint Enabled="True"/>
@@ -332,8 +338,8 @@
 
                             <dxc:PieChartView.Legend>
                                 <dxc:Legend Orientation="TopToBottom"
-                                HorizontalPosition="Center"
-                                VerticalPosition="Center"/>
+                                HorizontalPosition="Left"
+                                VerticalPosition="BottomOutside"/>
                             </dxc:PieChartView.Legend>
 
                             <dxc:PieChartView.Series >
@@ -366,11 +372,11 @@
                                 </dxc:DonutSeries>
                             </dxc:PieChartView.Series>
                         </dxc:PieChartView>
-                    </Grid>
+                   
 
 
-                </Frame>
-                <Frame Grid.Row="6" Padding="5">
+             
+                <Frame Grid.Row="7" Padding="5">
                     <StackLayout>
                         <dxc:ChartView x:Name="bar_chart"
                                               SelectionMode="Single"
@@ -413,61 +419,8 @@
                         </dxc:ChartView>
                     </StackLayout>
                 </Frame>
-                <Frame Grid.Row="5" Padding="5">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <!--<Label Grid.Row="0" Text="Total CA" TextColor="White" FontSize="Subtitle" BackgroundColor="#2296F3" HorizontalOptions="Fill" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5" />-->
-
-                        <dxc:PieChartView Grid.Row="1" Margin="0" FlowDirection="MatchParent" Visual="Material">
-
-                            <dxc:PieChartView.Hint>
-                                <dxc:PieHint Enabled="True"/>
-                            </dxc:PieChartView.Hint>
-
-                            <dxc:PieChartView.Legend>
-                                <dxc:Legend Orientation="TopToBottom"
-                                HorizontalPosition="Left"
-                                VerticalPosition="BottomOutside"/>
-                            </dxc:PieChartView.Legend>
-
-                            <dxc:PieChartView.Series >
-
-                                <dxc:PieSeries>
-
-                                    <dxc:PieSeries.HintOptions>
-                                        <dxc:PieSeriesHintOptions PointTextPattern="{}{L}: {VP}%"/>
-                                    </dxc:PieSeries.HintOptions>
-
-                                    <dxc:PieSeries.Label>
-                                        <dxc:PieSeriesLabel x:Name="PieLabel3"  Position="Inside" TextPattern="{}{V}"  Indent="30">
-                                            <dxc:PieSeriesLabel.Style>
-                                                <dxc:PieSeriesLabelStyle>
-                                                    <dxc:PieSeriesLabelStyle.TextStyle>
-                                                        <dxc:TextStyle Color="White" Size="15"  />
-                                                    </dxc:PieSeriesLabelStyle.TextStyle>
-                                                </dxc:PieSeriesLabelStyle>
-                                            </dxc:PieSeriesLabel.Style>
-                                        </dxc:PieSeriesLabel>
-                                    </dxc:PieSeries.Label>
-
-                                    <dxc:PieSeries.Data>
-                                        <dxc:PieSeriesDataAdapter DataSource="{Binding LandAreasNbDirectAndIndirect }"
-                                                                  LabelDataMember="Name"
-                                                                  ValueDataMember="Number" AutomationProperties.IsInAccessibleTree="True"
-                                                                  />
-                                    </dxc:PieSeries.Data>
-
-                                </dxc:PieSeries>
-                            </dxc:PieChartView.Series>
-                        </dxc:PieChartView>
-                    </Grid>
-
-
-                </Frame>
-                <Frame Grid.Row="7" Padding="5" IsVisible="{Binding LandAreasTOBbyAgentIsVisible}">
+                
+                <Frame Grid.Row="8" Padding="5" IsVisible="{Binding LandAreasTOBbyAgentIsVisible}">
                     <StackLayout Padding="0,0,0,50" >
                         <dxc:ChartView 
                                               SelectionMode="Single"
@@ -582,7 +535,7 @@
                         </dxc:ChartView>
                     </StackLayout>
                 </Frame>
-                <Frame Grid.Row="8" Padding="5" IsVisible="{Binding LandAreasTOBbyAgentIsVisible}">
+                <Frame Grid.Row="9" Padding="5" IsVisible="{Binding LandAreasTOBbyAgentIsVisible}">
                     <StackLayout Padding="0,0,0,50" >
                         <Label Grid.Row="0" Text="KPI By Agent" TextColor="White" FontSize="Subtitle" BackgroundColor="#2296F3" HorizontalOptions="Fill" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5" />
 
@@ -708,7 +661,7 @@
                         </dxc:ChartView>
                     </StackLayout>
                 </Frame>
-                <Frame Grid.Row="9" Padding="5" IsVisible="{Binding LandAreasTOBbyAgentIsVisible}">
+                <Frame Grid.Row="10" Padding="5" IsVisible="{Binding LandAreasTOBbyAgentIsVisible}">
                     <StackLayout Padding="0,0,0,50" >
                         <Label Grid.Row="0" Text="KPI By Job Position" TextColor="White" FontSize="Subtitle" BackgroundColor="#2296F3" HorizontalOptions="Fill" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5" />
 
@@ -836,7 +789,7 @@
                         </dxc:ChartView>
                     </StackLayout>
                 </Frame>
-                <Frame Grid.Row="7" Padding="5" IsVisible="false" >
+                <Frame Grid.Row="8" Padding="5" IsVisible="false" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
