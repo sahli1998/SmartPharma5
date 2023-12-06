@@ -46,6 +46,7 @@
 		<None Remove="Resources\Images\done.png" />
 		<None Remove="Resources\Images\done_pichon.png" />
 		<None Remove="Resources\Images\grid.png" />
+		<None Remove="Resources\Images\grid1.png" />
 		<None Remove="Resources\Images\logout.svg" />
 		<None Remove="Resources\Images\logo_systematic.jpeg" />
 		<None Remove="Resources\Images\menu_pichon.png" />
@@ -128,6 +129,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\CustomerView2.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\DashboardingView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\Day_Off_requestList.xaml">

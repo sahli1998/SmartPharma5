@@ -62,12 +62,12 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
                 <StackLayout VerticalOptions="Start" IsVisible="{Binding FilterDateIsVisible}" Grid.Row="0">
@@ -330,7 +330,7 @@
                
                        
 
-                        <dxc:PieChartView Grid.Row="6" Margin="0" FlowDirection="MatchParent" Visual="Material">
+                        <dxc:PieChartView IsVisible="false" Grid.Row="6" Margin="0" FlowDirection="MatchParent" Visual="Material">
 
                             <dxc:PieChartView.Hint>
                                 <dxc:PieHint Enabled="True"/>

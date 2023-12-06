@@ -73,10 +73,10 @@ namespace SmartPharma5.ModelView
 
         }
 
-        public GridMV()
+        public GridMV(int id)
         {
          
-            XML_FILE=GetXMLFILE();
+            XML_FILE=GetXMLFILE(id);
             List<GridModel> AllGrids = ExtractGridTags(XML_FILE);
             List<QueryModel> querrys = GetQueryContents(XML_FILE);
             List<string> Params = ExtractParameters(XML_FILE);
@@ -480,12 +480,12 @@ namespace SmartPharma5.ModelView
 
 
         #region DataBase => XMLFILE
-        public static string GetXMLFILE()
+        public static string GetXMLFILE(int id)
         {
             string Result="";
             try
             {
-                string sqlCmd1 = "SELECT * FROM atooerp_app_dashboard";
+                string sqlCmd1 = "SELECT * FROM atooerp_app_dashboard where Id="+id+"";
 
                 DbConnection.Deconnecter();
                 DbConnection.Connecter();

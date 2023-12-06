@@ -690,13 +690,7 @@
                                 <Label TextColor="Black" Margin="10" HorizontalOptions="StartAndExpand">INFO SESSION</Label>
                             </StackLayout>
 
-                            <StackLayout Orientation="Horizontal" Padding="5">
-                                <StackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
-                                </StackLayout.GestureRecognizers>
-                                <Image Margin="10,0,10,0" Source="Images/grid.png" WidthRequest="20" HeightRequest="20" VerticalOptions="CenterAndExpand"></Image>
-                                <Label TextColor="Black" Margin="10" HorizontalOptions="StartAndExpand">My Grid</Label>
-                            </StackLayout>
+                         
 
 
 

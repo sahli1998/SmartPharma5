@@ -166,10 +166,10 @@ public partial class ChartView : ContentPage
 
 
     }
-    public ChartView()
+    public ChartView(int id)
     {
         InitializeComponent();
-        BindingContext = new GridMV();
+        BindingContext = new GridMV(id);
         var ovm = BindingContext as GridMV;
 
         DataGridView data = new DataGridView
@@ -180,6 +180,7 @@ public partial class ChartView : ContentPage
             AllowVirtualHorizontalScrolling = true,
             FilterIconColor = Colors.BlueViolet,
             ShowAutoFilterRow = true,
+            
 
 
 
@@ -306,8 +307,23 @@ public partial class ChartView : ContentPage
 
 
 
+        /* 
+         * 
+        <dxg:DataGridView.ColumnHeaderStyle>
+            <dxg:ColumnHeaderStyle BackgroundColor="#333333" BorderColor="#515151" 
+                                   FontSize="17" FontColor="#929292" FontAttributes="Bold" 
+                                   HorizontalLineThickness="1" Padding="0" />
+        </dxg:DataGridView.ColumnHeaderStyle>
+*/
 
+        data.ColumnHeaderAppearance = new ColumnHeaderAppearance
+        {
+            BackgroundColor= Colors.Black,
+            FontColor=Colors.White,
+            BorderColor= Colors.White,
+            FontAttributes= FontAttributes.Bold,
 
+        };
 
         scroll.Add(new Button { Text = "Parametrage", Margin = 10 });
 
