@@ -234,7 +234,7 @@
                     </StackLayout>
 
                 </Frame>
-                <StackLayout Grid.Row="3" HorizontalOptions="FillAndExpand" Margin="3" >
+                <StackLayout Grid.Row="3" IsVisible="false" HorizontalOptions="FillAndExpand" Margin="3" >
                     <StackLayout BackgroundColor="#2296F3">
                         <Label Text="Target" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                     </StackLayout>
@@ -270,12 +270,12 @@
                 </StackLayout>
 
 
-                <StackLayout Grid.Row="4" BackgroundColor="#2296F3" Margin="3">
+                <StackLayout Grid.Row="4" IsVisible="false" BackgroundColor="#2296F3" Margin="3">
                     <Label Text="Turnover" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                 </StackLayout>
 
 
-                <dxc:PieChartView Grid.Row="5"  Margin="0"  FlowDirection="MatchParent" Visual="Material">
+                <dxc:PieChartView Grid.Row="5" IsVisible="false" Margin="0"  FlowDirection="MatchParent" Visual="Material">
 
                             <dxc:PieChartView.Hint>
                                 <dxc:PieHint Enabled="True"/>
