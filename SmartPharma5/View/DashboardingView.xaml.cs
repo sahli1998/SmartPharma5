@@ -15,6 +15,7 @@ public partial class DashboardingView : ContentPage
             foreach (DashBoardingModel item in OVM.List_Dashboard)
             {
                 StackLayout st = new StackLayout();
+
                 st.HorizontalOptions = LayoutOptions.Center;
                 ImageButton img = new ImageButton
                 {
