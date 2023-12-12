@@ -14,13 +14,11 @@ public partial class SammaryView : ContentPage
         InitializeComponent();
 
         BindingContext = new SammaryViewModel();
-        /*  PieLabel.TextProvider = new LabelTextProvider();
+         PieLabel.TextProvider = new LabelTextProvider();
           PieLabel2.TextProvider = new LabelTextProvider();
-          PieLabel3.TextProvider = new LabelTextProvider();
+         // PieLabel3.TextProvider = new LabelTextProvider();
           bar_chart2.TextProvider = new LabelTextProvider();
-          jauge.FromColor = Color.FromRgb(76, 191, 72);
-          jauge.ToColor = Color.FromRgb(76, 191, 72);
-          jauge.ViaColor = Color.FromRgb(76, 191, 72);*/
+         
 
     }
     public SammaryView(uint idAgent)
@@ -28,24 +26,22 @@ public partial class SammaryView : ContentPage
 
         InitializeComponent();
         BindingContext = new SammaryViewModel(idAgent);
-        /*  PieLabel.TextProvider = new LabelTextProvider();
+          PieLabel.TextProvider = new LabelTextProvider();
           PieLabel2.TextProvider = new LabelTextProvider();
-          PieLabel3.TextProvider = new LabelTextProvider();
-          jauge.FromColor = Color.FromRgb(34, 150, 243);
-          jauge.ToColor = Color.FromRgb(255, 83, 83);
-          jauge.ViaColor = Color.FromRgb(76, 175, 80);*/
+          //PieLabel3.TextProvider = new LabelTextProvider();
+       
 
     }
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
         UserDialogs.Instance.ShowLoading("Loading Please wait ...");
 
-        // Ajoutez un délai de 1000 ms (1 seconde)
+     
         await Task.Delay(1000);
 
         await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new HomeView()));
 
-        // Attendez que la page soit poussée et affichée avant de masquer le chargement
+       
         UserDialogs.Instance.HideLoading();
     }
     private void bar_chart2_SelectionChanged(object sender, DevExpress.Maui.Charts.SelectionChangedEventArgs e)

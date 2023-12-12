@@ -20,7 +20,7 @@ namespace SmartPharma5.ViewModel
 {
     class SammaryViewModel : BaseViewModel
     {
-        public Command RefreshCommand { get; set; }
+        public AsyncCommand RefreshCommand { get; set; }
 
         private List<LandAreaItem> landareas;
         public List<LandAreaItem> LandAreas { get => landareas; set => SetProperty(ref landareas, value); }
@@ -57,7 +57,7 @@ namespace SmartPharma5.ViewModel
         private int gaugevalue;
         public int GaugeValue { get => gaugevalue; set => SetProperty(ref gaugevalue, value); }
         private int gaugemaxvalue;
-        public Int32 GaugeMaxValue { get => gaugemaxvalue; set => SetProperty(ref gaugemaxvalue, value); }
+        public int GaugeMaxValue { get => gaugemaxvalue; set => SetProperty(ref gaugemaxvalue, value); }
         private int togoal;
         public int ToGoal { get => togoal; set => SetProperty(ref togoal, value); }
         private DateTime startdate = DateTime.Now - new TimeSpan(30, 0, 0, 0);
@@ -141,9 +141,9 @@ namespace SmartPharma5.ViewModel
             {
 
 
-                RefreshCommand = new Command(Load);
+                RefreshCommand = new AsyncCommand(Load);
                 Task.Run(() => Load());
-                //Init();
+                Init();
                 LogoutCommand = new AsyncCommand(Logout);
             }
             catch (Exception ex)
@@ -157,7 +157,7 @@ namespace SmartPharma5.ViewModel
             LandAreasTOBbyAgentIsVisible = false;
             agentName = "";
             IdAgent = idAgent;
-            RefreshCommand = new Command(LoadByAgent);
+            RefreshCommand = new AsyncCommand(LoadByAgent);
             Task.Run(() => LoadByAgent());
             Init();
 
@@ -169,7 +169,7 @@ namespace SmartPharma5.ViewModel
 
 
 
-        public async void Load()
+        public async Task  Load()
         {
             Load_finish = false;
             Loading = true;
@@ -220,7 +220,7 @@ namespace SmartPharma5.ViewModel
 
 
         }
-        public async void LoadByAgent()
+        public async Task LoadByAgent()
         {
             Load_finish = false;
             Loading = true;
@@ -429,16 +429,25 @@ namespace SmartPharma5.ViewModel
                     ToDirect = (int)querydirect.Sum(x => x.Field<decimal>("TotalHT"));
                     ToGross = (int)queryindirect.Select(x => x.Field<decimal>("TotalHT")).Sum();
 
-                    if (ToDirect + ToGross >= ToGoal)
+                    try
                     {
-                        GaugeMaxValue = ToDirect + ToGross;
-                        GaugeValue = ToDirect + ToGross;
+
+                        if (ToDirect + ToGross >= ToGoal)
+                        {
+                            GaugeMaxValue = ToDirect + ToGross;
+                            GaugeValue = ToDirect + ToGross;
+                        }
+                        else if (ToDirect + ToGross > 0)
+                        {
+                            GaugeMaxValue = ToGoal;
+                            GaugeValue = ToDirect + ToGross;
+                        }
                     }
-                    else if (ToDirect + ToGross > 0)
+                    catch(Exception ex)
                     {
-                        GaugeMaxValue = ToGoal;
-                        GaugeValue = ToDirect + ToGross;
+
                     }
+                   
 
 
 
