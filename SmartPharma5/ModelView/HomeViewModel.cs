@@ -1078,7 +1078,7 @@ namespace SmartPharma5.ViewModel
 
         private async Task Dashboard()
         {
-
+            
                await App.Current.MainPage.Navigation.PushAsync(new DashboardingView());
 
 

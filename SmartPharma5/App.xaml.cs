@@ -29,78 +29,79 @@ namespace SmartPharma5
             user_contrat.getInfo().GetAwaiter();
             user_contrat.getModules().GetAwaiter();
             //user_contrat.getResponsabilities();
-           // MainPage = new NavigationPage(new NavigationPage(new ShowMenuItemPages()));
+            // MainPage = new NavigationPage(new NavigationPage(new ShowMenuItemPages()));
+
+            //MainPage = new NavigationPage(new BarPieGaugeViews());
+
+             try
+             {
+                 IdEmploye = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                 IdUser = Preferences.Get("iduser", 0);
+                 try
+                 {
+                     if (User.UserIsActif(Convert.ToUInt32(IdEmploye)) == null)
+                     {
 
 
+                         MainPage = new NavigationPage(new NavigationPage(new TestInternet()));
+                     }
+                     else
+                     {
 
-            try
-            {
-                IdEmploye = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
-                IdUser = Preferences.Get("iduser", 0);
-                try
-                {
-                    if (User.UserIsActif(Convert.ToUInt32(IdEmploye)) == null)
-                    {
+                         int CrmGroupe = 0;
 
-
-                        MainPage = new NavigationPage(new NavigationPage(new TestInternet()));
-                    }
-                    else
-                    {
-
-                        int CrmGroupe = 0;
-
-                        if (IdEmploye == 0)
-                        {
-                            MainPage = new NavigationPage(new NavigationPage(new LoginView()));
+                         if (IdEmploye == 0)
+                         {
+                             MainPage = new NavigationPage(new NavigationPage(new LoginView()));
 
 
-                        }
+                         }
 
 
-                        else
-                        {
-                            CrmGroupe = Task.Run(async () => await UserCheckModule()).Result;
+                         else
+                         {
+                             CrmGroupe = Task.Run(async () => await UserCheckModule()).Result;
 
-                            switch (CrmGroupe)
-                            {
-                                case 27:
+                             switch (CrmGroupe)
+                             {
+                                 case 27:
 
-                                    MainPage = new NavigationPage(new NavigationPage(new HomeView()));
-                                    break;
-                                case 28:
-                                    // Shell.Current.GoToAsync("/HomeView").GetAwaiter();
-                                    MainPage = new NavigationPage(new NavigationPage(new HomeView()));
-                                    break;
-                                case 32:
+                                     MainPage = new NavigationPage(new NavigationPage(new HomeView()));
+                                     break;
+                                 case 28:
 
-                                    MainPage = new NavigationPage(new NavigationPage(new HomeView()));
-                                    break;
-                                case 37:
+                                     MainPage = new NavigationPage(new NavigationPage(new SammaryView()));
+                                     break;
+                                 case 32:
 
-                                    MainPage =  new NavigationPage(new NavigationPage(new HomeView()));
-                                    break;
-                                default:
+                                     MainPage = new NavigationPage(new NavigationPage(new SammaryView(IdEmploye)));
+                                     break;
+                                 case 37:
 
-                                    MainPage = new NavigationPage(new NavigationPage(new HomeView()));
-                                    break;
-                            }
-                        }
+                                     MainPage =  new NavigationPage(new NavigationPage(new SammaryView()));
+                                     break;
+                                 default:
 
-                        taxList = Tax.getList();
-                        taxTypeList = Tax.Type.getList();
-                    }
+                                     MainPage = new NavigationPage(new NavigationPage(new HomeView()));
+                                     break;
+                             }
+                         }
 
-                }
-                catch (Exception ex)
-                {
+                         taxList = Tax.getList();
+                         taxTypeList = Tax.Type.getList();
+                     }
 
-                    MainPage =new LoginView();
-                }
+                 }
+                 catch (Exception ex)
+                 {
 
+                     MainPage =new LoginView();
+                 }
+
+             }
+             catch (Exception ex)
+             { 
             }
-            catch (Exception ex)
-            { }
 
         }
 

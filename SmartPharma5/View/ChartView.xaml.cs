@@ -334,23 +334,7 @@ public partial class ChartView : ContentPage
 
 
     }
-    protected override bool OnBackButtonPressed()
-    {
-        GoHome().GetAwaiter();
-
-
-        return true;
-    }
-
-    public async Task GoHome()
-    {
-        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-        await Task.Delay(500);
-        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new HomeView()));
-        UserDialogs.Instance.HideLoading();
-
-
-    }
+   
 
     private void ImageButton_Clicked(object sender, EventArgs e)
     {

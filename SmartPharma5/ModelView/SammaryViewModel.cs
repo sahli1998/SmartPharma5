@@ -954,17 +954,21 @@ namespace SmartPharma5.ViewModel
         public string Name { get; set; } = string.Empty;
         public double Number { get; set; } = 0;
 
+        public double Number2 { get; set; } = 10;
+
         public LandAreaItem(int id, string name, double number)
         {
             Id = id;
             Name = name;
             Number = number;
+            Number2 = 10;
         }
 
         public LandAreaItem(string name, double number)
         {
             this.Name = name;
             this.Number = number;
+            Number2 = 10;
         }
     }
 

@@ -172,7 +172,7 @@ public class DashBoardingModel{
         {
             UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
             await Task.Delay(500);
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new ChartView(this.Id)));
+            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new DashBoardCustomazedView(this.Id)));
             UserDialogs.Instance.HideLoading();
         }
         catch (Exception ex)

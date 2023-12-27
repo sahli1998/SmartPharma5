@@ -21,7 +21,7 @@
                 <ColumnDefinition Width="100"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Text="{Binding Title }" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center" FontSize="19" TextColor="White" VerticalOptions="CenterAndExpand"></Label>
-            <!--<ImageButton  Grid.Column="1"  HorizontalOptions="EndAndExpand"  Source="Images/home.png" Clicked="ImageButton_Clicked" WidthRequest="40"  IsVisible="{Binding Load_finish,Mode=TwoWay}"></ImageButton>-->
+            <ImageButton  Grid.Column="1"  HorizontalOptions="EndAndExpand"  Source="Images/home.png" Clicked="ImageButton_Clicked" WidthRequest="40"  IsVisible="{Binding Load_finish,Mode=TwoWay}"></ImageButton>
             <Label Grid.Column="1" Text="Loading..." HorizontalOptions="CenterAndExpand" FontSize="19" TextColor="White" VerticalOptions="CenterAndExpand" IsVisible="{Binding Loading,Mode=TwoWay}"></Label>
 
         </Grid>
@@ -72,6 +72,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                   
                 </Grid.RowDefinitions>
 
                 <StackLayout VerticalOptions="Start" IsVisible="{Binding FilterDateIsVisible}" Grid.Row="0">
@@ -238,7 +239,7 @@
                     </StackLayout>
 
                 </Frame>
-                <StackLayout Grid.Row="3" Padding="5,-5,5,-80" IsVisible="true" HorizontalOptions="FillAndExpand" Margin="3" >
+                <StackLayout IsVisible="false" Grid.Row="3" Padding="5,-5,5,-80"  HorizontalOptions="FillAndExpand" Margin="3" >
                     <StackLayout BackgroundColor="#2296F3">
                         <Label   Text="Target" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                     </StackLayout>
@@ -272,10 +273,10 @@
                 </StackLayout>
 
 
-                <StackLayout Grid.Row="4" IsVisible="true" BackgroundColor="#2296F3" Margin="3">
+                <StackLayout Grid.Row="4" IsVisible="false" BackgroundColor="#2296F3" Margin="3">
                     <Label Text="Turnover" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                 </StackLayout>
-                <Frame  Grid.Row="5" Padding="5" VerticalOptions="Fill" HeightRequest="400"> 
+                <Frame IsVisible="false"  Grid.Row="5" Padding="5" VerticalOptions="Fill" HeightRequest="400"> 
                     <dxc:PieChartView  Margin="0"  FlowDirection="MatchParent" Visual="Material">
 
                         <dxc:PieChartView.Hint>
@@ -335,7 +336,7 @@
                
                        
 
-                        <dxc:PieChartView IsVisible="true" Grid.Row="6" Margin="0" HeightRequest="400" FlowDirection="MatchParent" Visual="Material">
+                        <dxc:PieChartView IsVisible="false" Grid.Row="6" Margin="0" HeightRequest="400" FlowDirection="MatchParent" >
 
                             <dxc:PieChartView.Hint>
                                 <dxc:PieHint Enabled="True"/>
@@ -370,7 +371,7 @@
                                     <dxc:DonutSeries.Data>
                                         <dxc:PieSeriesDataAdapter DataSource="{Binding LandAreasAvrgDirectAndIndirect }"
                                                                   LabelDataMember="Name"
-                                                                  ValueDataMember="Number" AutomationProperties.IsInAccessibleTree="True"
+                                                                  ValueDataMember="Number" 
                                                                   />
                                     </dxc:DonutSeries.Data>
 
@@ -383,16 +384,21 @@
              
                 <Frame Grid.Row="7" IsVisible="true" Padding="5">
                     <StackLayout>
+                        
                         <dxc:ChartView x:Name="bar_chart"
                                               SelectionMode="Single"
+                                       
                                               HeightRequest="400" 
                                               WidthRequest="300" 
                                               ScrollIndicatorsEnabled="True">
                             <dxc:ChartView.Series>
+                               
                                 <dxc:BarSeries>
                                     <dxc:BarSeries.Data>
                                         <dxc:SeriesDataAdapter DataSource="{Binding LandAreasAvrgDirectAndIndirect}" ArgumentDataMember="Name">
+                                            
                                             <dxc:ValueDataMember Type="Value" Member="Number" />
+
                                         </dxc:SeriesDataAdapter>
                                     </dxc:BarSeries.Data>
                                     <dxc:BarSeries.Label>
@@ -410,6 +416,31 @@
 
                                     <dxc:BarSeries.Style>
                                         <dxc:BarSeriesStyle Fill="#03ABFF" />
+                                    </dxc:BarSeries.Style>
+                                </dxc:BarSeries>
+                                <dxc:BarSeries>
+                                    <dxc:BarSeries.Data>
+                                        <dxc:SeriesDataAdapter DataSource="{Binding LandAreasAvrgDirectAndIndirect}" ArgumentDataMember="Name">
+
+                                            <dxc:ValueDataMember Type="Value" Member="Number3" />
+
+                                        </dxc:SeriesDataAdapter>
+                                    </dxc:BarSeries.Data>
+                                    <dxc:BarSeries.Label>
+                                        <dxc:BarSeriesLabel Position="InsideTop"
+                                                                TextPattern="{}{V}">
+                                            <dxc:BarSeriesLabel.Style>
+                                                <dxc:SeriesLabelStyle>
+                                                    <dxc:SeriesLabelStyle.TextStyle>
+                                                        <dxc:TextStyle Color="White"/>
+                                                    </dxc:SeriesLabelStyle.TextStyle>
+                                                </dxc:SeriesLabelStyle>
+                                            </dxc:BarSeriesLabel.Style>
+                                        </dxc:BarSeriesLabel>
+                                    </dxc:BarSeries.Label>
+
+                                    <dxc:BarSeries.Style>
+                                        <dxc:BarSeriesStyle Fill="Red" />
                                     </dxc:BarSeries.Style>
                                 </dxc:BarSeries>
                             </dxc:ChartView.Series>
@@ -822,6 +853,8 @@
                         </dxc:PieChartView>
                     </Grid>
                 </Frame>
+    
+              
 
 
 

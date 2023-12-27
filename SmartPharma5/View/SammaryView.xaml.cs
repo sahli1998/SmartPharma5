@@ -12,13 +12,20 @@ public partial class SammaryView : ContentPage
     {
 
         InitializeComponent();
+     
 
         BindingContext = new SammaryViewModel();
          PieLabel.TextProvider = new LabelTextProvider();
           PieLabel2.TextProvider = new LabelTextProvider();
          // PieLabel3.TextProvider = new LabelTextProvider();
           bar_chart2.TextProvider = new LabelTextProvider();
-         
+    
+
+
+       // AddPart.Content = pieChartView;
+
+
+
 
     }
     public SammaryView(uint idAgent)
