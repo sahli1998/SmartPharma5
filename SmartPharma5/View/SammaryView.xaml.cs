@@ -19,10 +19,12 @@ public partial class SammaryView : ContentPage
           PieLabel2.TextProvider = new LabelTextProvider();
          // PieLabel3.TextProvider = new LabelTextProvider();
           bar_chart2.TextProvider = new LabelTextProvider();
-    
+
+        
 
 
-       // AddPart.Content = pieChartView;
+
+        // AddPart.Content = pieChartView;
 
 
 
@@ -39,11 +41,13 @@ public partial class SammaryView : ContentPage
        
 
     }
+ 
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
         UserDialogs.Instance.ShowLoading("Loading Please wait ...");
+       
 
-     
+
         await Task.Delay(1000);
 
         await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new HomeView()));

@@ -94,7 +94,7 @@ namespace SmartPharma5.ViewModel
             */
             {
 
-               Opportunity.opportunity_lines.Add(new OpportunityLine(0, Product.name, Product.price_sale, Product.Id, Convert.ToDecimal(Quantity), Product.sale_tax1, Product.sale_tax2, Product.sale_tax3, Product.sale_tax4, Product.sale_tax5, Product.Discount));
+               Opportunity.Opportunity_lines.Add(new OpportunityLine(0, Product.name, Product.price_sale, Product.Id, Convert.ToDecimal(Quantity), Product.sale_tax1, Product.sale_tax2, Product.sale_tax3, Product.sale_tax4, Product.sale_tax5, Product.Discount));
                 await App.Current.MainPage.Navigation.PopAsync();
                 //await Shell.Current.Navigation.PopAsync();
                 //await Shell.Current.GoToAsync("../ProductListView");

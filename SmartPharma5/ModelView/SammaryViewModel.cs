@@ -98,6 +98,11 @@ namespace SmartPharma5.ViewModel
         public int ToDirect { get; set; }
         public int ToGross { get; set; }
 
+
+        private double progress;
+        public double Progress { get => progress; set => SetProperty(ref progress, value); }
+        
+
         private int nowvisited;
         public int NowVisited { get => nowvisited; set => SetProperty(ref nowvisited, value); }
         private int nowvisit;
@@ -442,6 +447,9 @@ namespace SmartPharma5.ViewModel
                             GaugeMaxValue = ToGoal;
                             GaugeValue = ToDirect + ToGross;
                         }
+
+                        Progress=Convert.ToDouble(GaugeValue)/Convert.ToDouble(ToGoal);
+
                     }
                     catch(Exception ex)
                     {

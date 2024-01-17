@@ -13,7 +13,7 @@ namespace SmartPharma5
         public int IdUser { get; set; }
         public App()
         {
-           Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mjk2MzIxMEAzMjMzMmUzMDJlMzBnRkF1USsva0FUWndDOXpUUWtEZWsyQW9RcEg1Y0NDQmN6VURaemkwb0tZPQ==");
+           Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzAyMzE5M0AzMjM0MmUzMDJlMzBtY2lxOXBDZmJZOUVlRlhzVEd5QVBVV2VDeStPZDI1L1BUTStOU0VtUXBBPQ==");
             InitializeComponent();
             Routing.RegisterRoute(nameof(HomeView), typeof(HomeView));
             Routing.RegisterRoute(nameof(SammaryView), typeof(SammaryView));

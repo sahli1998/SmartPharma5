@@ -1,4 +1,5 @@
-﻿using MvvmHelpers;
+﻿//using GameplayKit;
+using MvvmHelpers;
 
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
 Avant :
@@ -29,6 +30,7 @@ using System.Threading.Tasks;
 using Color = System.Drawing.Color;
 */
 Model;
+using SmartPharma5.Services;
 using SmartPharma5.View;
 using Color = System.Drawing.Color;
 
@@ -173,6 +175,14 @@ namespace SmartPharma5.ViewModel
         {
             Partners = new List<Partner>();
             BtnFiltred = false;
+            int CrmGroupe = 0;
+            int iduser = Preferences.Get("iduser", 0);
+            var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
+
+            if (UMG != null)
+            {
+                CrmGroupe = UMG.IdGroup;
+            }
 
 
             IsPullToRefreshEnabled = false;
@@ -198,11 +208,22 @@ namespace SmartPharma5.ViewModel
              TestLoad = false;*/
             try
             {
-                var P = Task.Run(() => Partner.GetPartnerList());
-                Partners = new List<Partner>(await P);
+                if (CrmGroupe == 32)
+                {
+                    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                    var P = Task.Run(() => Partner.GetPartnerListByAgent(idagent));
+                    Partners = new List<Partner>(await P);
+                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
 
-               Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-                State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                }
+                else
+                {
+                    var P = Task.Run(() => Partner.GetPartnerList());
+                    Partners = new List<Partner>(await P);
+                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                }
 
             }
             catch (Exception ex)
@@ -232,7 +253,14 @@ namespace SmartPharma5.ViewModel
             ActPopup = true;
 
 
+            int CrmGroupe = 0;
+            int iduser = Preferences.Get("iduser", 0);
+            var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
 
+            if (UMG != null)
+            {
+                CrmGroupe = UMG.IdGroup;
+            }
             await Task.Delay(500);
 
             /* bool Testcon = false;
@@ -253,10 +281,30 @@ namespace SmartPharma5.ViewModel
 
             try
             {
-                var P = Task.Run(() => Partner.GetPartnerList());
-                Partners = new List<Partner>(await P);
-                Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-                State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+
+                if (CrmGroupe == 32)
+                {
+                    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                    var P = Task.Run(() => Partner.GetPartnerListByAgent(idagent));
+                    Partners = new List<Partner>(await P);
+                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+
+                }
+                else
+                {
+                    var P = Task.Run(() => Partner.GetPartnerList());
+                    Partners = new List<Partner>(await P);
+                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                }
+
+               
+                   // var C = Task.Run(() => Partner.GetPartnaireByIdAgent(idagent));
+                   // Partners = new List<Partner>(await C);
+              
+
+               
 
             }
             catch (Exception ex)

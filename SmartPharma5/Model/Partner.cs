@@ -274,7 +274,77 @@ namespace SmartPharma5.Model
         }
 
         //--------------------------------------------------------------Get All Partner By Med Sahli --------------------------------------------------- 
+        public async static Task<List<Partner>> GetPartnerListByAgent(uint id_agent)
+        {
+            List<Partner> list = new List<Partner>();
+            ImageSource img = ImageSource.FromResource("@drawable/userregular.png");
+            MySqlDataReader reader = null;
+            if (await DbConnection.Connecter3())
+            {
+                string sqlCmd = "select commercial_partner.Id,commercial_partner.name,category,commercial_partner.phone,commercial_partner.street,commercial_partner.city,commercial_partner.postal_code,commercial_partner.state,commercial_partner.email,commercial_partner_category.name as category_name from commercial_partner\r\nleft join commercial_partner_category on commercial_partner_category.Id =  commercial_partner.category " +
+                    "where not(customer=0 and supplier=1) and sale_agent = " + id_agent + ";";
 
+                try
+                {
+
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        int id = Convert.ToInt32(reader["Id"]);
+                        try
+                        {
+                            list.Add(new Partner(
+                  Convert.ToInt32(reader["Id"]),
+                  reader["name"] is null ? "" : reader["name"].ToString(),
+                  reader["category"] is null ? 0 : Convert.ToUInt32(reader["category"]),
+                  reader["phone"] is null ? "" : reader["phone"].ToString(),
+                  reader["street"] is null ? "" : reader["street"].ToString(),
+                  reader["city"] is null ? "" : reader["city"].ToString(),
+                  reader["postal_code"] is null ? "" : reader["postal_code"].ToString(),
+                  reader["state"] is null ? "" : reader["state"].ToString(),
+                  reader["email"] is null ? "" : reader["email"].ToString(),
+                  img,
+                   reader["category_name"] is null ? "" : reader["category_name"].ToString()));
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+
+                    reader.Close();
+                    return null;
+                    //App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+                    //App.Current.MainPage.Navigation.PopAsync();
+                }
+
+
+
+
+            }
+            else
+            {
+
+                reader.Close();
+                return null;
+                //App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+                //App.Current.MainPage.Navigation.PopAsync();
+
+
+
+
+
+            }
+
+            return list;
+
+        }
         public async static Task<List<Partner>> GetPartnerList()
         {
             List<Partner> list = new List<Partner>();
@@ -957,7 +1027,7 @@ namespace SmartPharma5.Model
         {
             if (await DbConnection.Connecter3())
             {
-                string sqlCmd = "insert into commercial_partner(create_date,name,street,city,state,postal_code,country,email,fax,customer,supplier,category,vat_code) values ('" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + name + "','" + street + "','" + city + "','" + state + "','" + postal_code + "','" + country + "','" + email + "','" + fax + "'," + customer + "," + supplier + "," + category + ",'" + vat_code + "' );select max(id) from commercial_partner ; ";
+                string sqlCmd = "insert into commercial_partner(create_date,name,street,city,state,postal_code,country,email,fax,customer,supplier,category,vat_code,customer_discount,supplier_discount,Custumer_withholding_tax,Supplier_withholding_tax) values ('" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + name + "','" + street + "','" + city + "','" + state + "','" + postal_code + "','" + country + "','" + email + "','" + fax + "'," + customer + "," + supplier + "," + category + ",'" + vat_code + "'," +0+","+0+","+0+","+0+" );select max(id) from commercial_partner ; ";
                 MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
                 try
                 {

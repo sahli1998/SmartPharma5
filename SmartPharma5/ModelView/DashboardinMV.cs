@@ -5,6 +5,7 @@ using MvvmHelpers.Commands;
 using MySqlConnector;
 using SmartPharma5;
 using SmartPharma5.Model;
+using SmartPharma5.Services;
 using SmartPharma5.View;
 using System;
 using System.Collections.Generic;
@@ -18,12 +19,15 @@ namespace SmartPharma5.ModelView
 {
     public class DashboardinMV : BaseViewModel
     {
-    
-
-     
 
 
-       
+
+
+
+        private bool dashboardisvisible = true;
+        public bool DashboardIsVisible { get => dashboardisvisible; set => SetProperty(ref dashboardisvisible, value); }
+        private bool mydashboardisvisible = true;
+        public bool MyDashboardIsVisible { get => mydashboardisvisible; set => SetProperty(ref mydashboardisvisible, value); }
 
 
 
@@ -46,6 +50,7 @@ namespace SmartPharma5.ModelView
             GoToGrid = new AsyncCommand(goToGrid);
             MyDashBoardCommand = new AsyncCommand(MyDash);
             AllDashBoardCommand = new AsyncCommand(AllDash);
+            UserCheckModule();
 
         }
 
@@ -98,13 +103,45 @@ namespace SmartPharma5.ModelView
 
 
         }
+
+        private async void UserCheckModule()
+        {
+            int CrmGroupe = 0;
+            int iduser = Preferences.Get("iduser", 0);
+            var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
+
+            if (UMG != null)
+            {
+                CrmGroupe = UMG.IdGroup;
+            }
+
+
+            switch (CrmGroupe)
+            {
+                case 27:
+                    MyDashboardIsVisible = DashboardIsVisible = false;
+                    break;
+                case 28:
+
+                    break;
+                case 32:
+                    DashboardIsVisible = false;
+                    break;
+                case 37:
+
+                    break;
+                default:
+
+                    break;
+            }
+        }
         public async  Task<List<DashBoardingModel>> GetListDashboard()
         {
             List<DashBoardingModel> list = new List<DashBoardingModel>();
            
             try
             {
-                string sqlCmd1 = "SELECT Id,name FROM atooerp_app_dashboard";
+                string sqlCmd1 = "SELECT id,name FROM atooerp_app_dashboard";
 
                 DbConnection.Deconnecter();
                 DbConnection.Connecter();
@@ -117,7 +154,7 @@ namespace SmartPharma5.ModelView
                     try
                     {
 
-                        list.Add(new DashBoardingModel(Convert.ToInt32(reader["Id"]), reader["name"].ToString())) ;
+                        list.Add(new DashBoardingModel(Convert.ToInt32(reader["id"]), reader["name"].ToString())) ;
                         
 
 

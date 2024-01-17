@@ -8,7 +8,7 @@ using Color = System.Drawing.Color;
 
 namespace SmartPharma5.Model
 {
-    public class Opportunity : ObservableObject
+    public class Opportunity : BaseViewModel
     {
         #region attribus
         [Column("Id")]
@@ -112,9 +112,11 @@ namespace SmartPharma5.Model
         public string dealerName { get => dealername; set => SetProperty(ref dealername, value); }
         public string stateName { get; set; }
         public int state { get; set; }
-        public BindingList<OpportunityLine> opportunity_lines { get; set; }
+        private BindingList<OpportunityLine> opportunity_lines;
+        public BindingList<OpportunityLine> Opportunity_lines { get => opportunity_lines; set => SetProperty(ref opportunity_lines, value); }
+        //public BindingList<OpportunityLine> OpportunityLines { get => opportunity_lines; set => SetProperty(ref opportunity_lines, value); }
         public BindingList<State> StateLines { get; set; }
-        // public BindingList<OpportunityLine> OpportunityLines { get => opportunity_lines; set => SetProperty(ref opportunity_lines, value); }
+         
         #endregion
         #region constructeur
         public Opportunity() { this.opportunity_lines = new BindingList<OpportunityLine>(); }

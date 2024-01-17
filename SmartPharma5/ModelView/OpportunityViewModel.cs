@@ -430,7 +430,7 @@ namespace SmartPharma5.ViewModel
         private async Task Gratuite()
         {
 
-            Opportunity = new Opportunity(0, Opportunity.IdPartner, Opportunity.partnerName, Opportunity.IdPayment_method, Opportunity.IdPayment_condition, Opportunity.IdAgent, "", false, Opportunity.Id, 0, Opportunity.opportunity_lines);
+            Opportunity = new Opportunity(0, Opportunity.IdPartner, Opportunity.partnerName, Opportunity.IdPayment_method, Opportunity.IdPayment_condition, Opportunity.IdAgent, "", false, Opportunity.Id, 0, Opportunity.Opportunity_lines);
             Opportunity = Opportunity.opportunityLineGratuite(Opportunity);
             ActPopup = true;
             await Task.Delay(1000);
@@ -446,7 +446,7 @@ namespace SmartPharma5.ViewModel
             {
                 SavingPopup = true;
                 await Task.Delay(1000);
-                if (Opportunity.opportunity_lines.Count != 0)
+                if (Opportunity.Opportunity_lines.Count != 0)
                 {
                     var Connectivity = DbConnection.CheckConnectivity();
                     if (Connectivity)
@@ -563,11 +563,11 @@ namespace SmartPharma5.ViewModel
 
         }
 
-        private Task Remove(OpportunityLine arg)
+        private async Task Remove(OpportunityLine arg)
         {
-            Opportunity.opportunity_lines.Remove(arg);
+            Opportunity.Opportunity_lines.Remove(arg);
             Opportunity.totalAmount = Opportunity.getTotalAmount();
-            return Task.CompletedTask;
+            
         }
         void Checkbutton()
         {
@@ -594,7 +594,7 @@ namespace SmartPharma5.ViewModel
 
         private Task DiscountChange(decimal arg)
         {
-            foreach (OpportunityLine o in Opportunity.opportunity_lines)
+            foreach (OpportunityLine o in Opportunity.Opportunity_lines)
             {
                 o.discount = o.discount + arg / 100;
                 if (o.discount > 1)

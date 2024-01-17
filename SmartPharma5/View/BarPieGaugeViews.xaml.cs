@@ -1,6 +1,8 @@
+using Acr.UserDialogs;
 using DevExpress.Maui.Charts;
 using SmartPharma5.Model;
 using SmartPharma5.ModelView;
+using System.Collections.Generic;
 
 namespace SmartPharma5.View;
 
@@ -14,6 +16,14 @@ public partial class BarPieGaugeViews : ContentPage
 
 		BindingContext = new BarSeriesMV(this.XML_FILE);
 }
+
+    public BarPieGaugeViews(List<ModelGridParametre> List_Paramettre_final, string xml_file)
+    {
+        this.XML_FILE = xml_file;
+        InitializeComponent();
+
+        BindingContext = new BarSeriesMV(List_Paramettre_final, this.XML_FILE);
+    }
 
     private void ChartView_SelectionChanged(object sender, DevExpress.Maui.Charts.SelectionChangedEventArgs e)
     {
@@ -74,6 +84,31 @@ public partial class BarPieGaugeViews : ContentPage
 
     }
 
+    private void ImageButton_Clicked(object sender, EventArgs e)
+    {
+        Popup2.IsOpen = true;
+
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        GoDashboardingView().GetAwaiter();
+
+
+
+        return true;
+    }
+    public async Task GoDashboardingView()
+    {
+        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+        await Task.Delay(500);
+        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new DashboardingView()));
+        UserDialogs.Instance.HideLoading();
+
+
+    }
+
+
     private void bar_chart_SelectionChanged(object sender, DevExpress.Maui.Charts.SelectionChangedEventArgs e)
     {
         try
@@ -97,5 +132,15 @@ public partial class BarPieGaugeViews : ContentPage
         }
        
 
+    }
+
+    private async void Button_Clicked(object sender, EventArgs e)
+    {
+        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+        await Task.Delay(500);
+        var ovm = BindingContext as BarSeriesMV;
+        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new BarPieGaugeViews(ovm.List_Paramettre_final, ovm.xml_file)));
+        Popup2.IsOpen = false;
+        UserDialogs.Instance.HideLoading();
     }
 }

@@ -80,9 +80,9 @@
 
                     <RefreshView IsRefreshing="{Binding ActPopup}" Command="{Binding RefreshCommand}" HorizontalOptions="CenterAndExpand" RefreshColor="#4B9EE8" >
 
-                        <CollectionView x:Name="CollectionV"  ItemsSource="{Binding Opportunity.opportunity_lines, Mode=TwoWay}" BackgroundColor="#E6E6E6" Margin="0" >
+                        <dxcv:DXCollectionView x:Name="CollectionV"  ItemsSource="{Binding Opportunity.Opportunity_lines, Mode=TwoWay}" BackgroundColor="#E6E6E6" Margin="0" >
                             
-                            <CollectionView.ItemTemplate>
+                            <dxcv:DXCollectionView.ItemTemplate>
                                 
 
                                 <DataTemplate>
@@ -142,8 +142,8 @@
 
 
                                 </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                            </dxcv:DXCollectionView.ItemTemplate>
+                        </dxcv:DXCollectionView>
 
                     </RefreshView>
                 </StackLayout>

@@ -239,44 +239,26 @@
                     </StackLayout>
 
                 </Frame>
-                <StackLayout IsVisible="false" Grid.Row="3" Padding="5,-5,5,-80"  HorizontalOptions="FillAndExpand" Margin="3" >
+                <StackLayout IsVisible="true" Grid.Row="3"   HorizontalOptions="FillAndExpand" Margin="3" >
                     <StackLayout BackgroundColor="#2296F3">
                         <Label   Text="Target" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                     </StackLayout>
-                    <Label FontAttributes="Bold" Margin="5,30,5,5" FontSize="20" HorizontalOptions="CenterAndExpand" TextColor="Green" Text="{Binding GaugeValue, StringFormat='{0:#.###} DT' ,Mode=TwoWay} "></Label>
+                    <Label FontAttributes="Bold" Margin="0,10,0,0"  FontSize="20" HorizontalOptions="CenterAndExpand" TextColor="Green" Text="{Binding GaugeValue, StringFormat='{0:#.###} DT' ,Mode=TwoWay} "></Label>
+                    <ProgressBar ScaleY="2"  ScaleX="1" HeightRequest="30" Progress="{Binding Progress,Mode=TwoWay}" Margin="10,0,10,0"   ProgressColor="Green" ></ProgressBar>
 
-                    <Label FontAttributes="Bold" Margin="5,5,5,5"  FontSize="25" HorizontalOptions="CenterAndExpand" Text="{Binding ToGoal, StringFormat='Target | {0:} DT' ,Mode=TwoWay} "></Label>
+                    <Label FontAttributes="Bold" Margin="0,-10,0,0"  FontSize="25" HorizontalOptions="CenterAndExpand" Text="{Binding ToGoal, StringFormat='Target | {0:} DT' ,Mode=TwoWay} "></Label>
+                    
 
-
-                    <control:SfRadialGauge VerticalOptions="StartAndExpand" Margin="0,-170,0,0">
-                        <control:SfRadialGauge.Axes>
-                            <control:RadialAxis Minimum="0"   Maximum="{Binding ToGoal,Mode=TwoWay}" Interval="{Binding ToGoal,Mode=TwoWay}"
-                     
-                                EnableLoadingAnimation="True" RadiusFactor="20" 
-                                 
-                                StartAngle="180" EndAngle="360">
-
-                                <control:RadialAxis.Ranges>
-                                    <control:RadialRange StartValue="0" EndValue="{Binding GaugeValue,Mode=TwoWay}"  Fill="GreenYellow"></control:RadialRange>
-
-                                </control:RadialAxis.Ranges>
-                                
-                             
-                                
-                               
-
-                            </control:RadialAxis>
-                        </control:SfRadialGauge.Axes>
-                    </control:SfRadialGauge>
+                  
                   
 
                 </StackLayout>
 
 
-                <StackLayout Grid.Row="4" IsVisible="false" BackgroundColor="#2296F3" Margin="3">
+                <StackLayout Grid.Row="4" IsVisible="true" BackgroundColor="#2296F3" Margin="3">
                     <Label Text="Turnover" TextColor="White" FontSize="Subtitle"  HorizontalOptions="CenterAndExpand" VerticalOptions="Fill"  HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Padding="5"  />
                 </StackLayout>
-                <Frame IsVisible="false"  Grid.Row="5" Padding="5" VerticalOptions="Fill" HeightRequest="400"> 
+                <Frame IsVisible="true"  Grid.Row="5" Padding="5" VerticalOptions="Fill" HeightRequest="400"> 
                     <dxc:PieChartView  Margin="0"  FlowDirection="MatchParent" Visual="Material">
 
                         <dxc:PieChartView.Hint>
@@ -336,7 +318,7 @@
                
                        
 
-                        <dxc:PieChartView IsVisible="false" Grid.Row="6" Margin="0" HeightRequest="400" FlowDirection="MatchParent" >
+                        <dxc:PieChartView IsVisible="true" Grid.Row="6" Margin="0" HeightRequest="400" FlowDirection="MatchParent" >
 
                             <dxc:PieChartView.Hint>
                                 <dxc:PieHint Enabled="True"/>

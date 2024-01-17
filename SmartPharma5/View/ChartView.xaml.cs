@@ -152,7 +152,14 @@ public partial class ChartView : ContentPage
 
         }
 
+        data.ColumnHeaderAppearance = new ColumnHeaderAppearance
+        {
+            BackgroundColor = Colors.Black,
+            FontColor = Colors.White,
+            BorderColor = Colors.White,
+            FontAttributes = FontAttributes.Bold,
 
+        };
 
 
 
@@ -306,7 +313,7 @@ public partial class ChartView : ContentPage
         }
 
 
-
+        
         /* 
          * 
         <dxg:DataGridView.ColumnHeaderStyle>
@@ -341,6 +348,25 @@ public partial class ChartView : ContentPage
         Popup2.IsOpen = true;
 
     }
+    protected override bool OnBackButtonPressed()
+    {
+        GoDashboardingView().GetAwaiter();
+
+
+
+        return true;
+    }
+
+    public async Task GoDashboardingView()
+    {
+        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+        await Task.Delay(500);
+        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new DashboardingView()));
+        UserDialogs.Instance.HideLoading();
+
+
+    }
+
 
     private async void Button_Clicked(object sender, EventArgs e)
     {

@@ -4,6 +4,7 @@ using SmartPharma5.ViewModel;
 
 namespace SmartPharma5.View;
 
+[XamlCompilation(XamlCompilationOptions.Compile)]
 public partial class OpportunityView : ContentPage
 {
     public Opportunity Opportunity;
@@ -11,7 +12,7 @@ public partial class OpportunityView : ContentPage
     public OpportunityView()
     {
         InitializeComponent();
-        BindingContext = new OpportunityViewModel();
+        
     }
     private void OnButtonTouchMove(object sender, TouchEventArgs e)
     {

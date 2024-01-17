@@ -16,6 +16,11 @@ namespace SmartPharma5.ModelView
 {
     public class BarSeriesMV :BaseViewModel
     {
+        public string REQUETTE = "";
+
+        private List<ModelGridParametre> list_Paramettre_final;
+        public List<ModelGridParametre> List_Paramettre_final { get => list_Paramettre_final; set => SetProperty(ref list_Paramettre_final, value); }
+
         // public string xml_file = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<Dashboard>\r\n  <Title Text=\"Sample Dashboard\" />\r\n  <DataSources>\r\n    <ExcelDataSource Name=\"Excel Data Source 1\" FileName=\"|DataDirectory|\\Data\\Sales.xlsx\" ComponentName=\"dashboardExcelDataSource1\">\r\n      <Options Type=\"DevExpress.DataAccess.Excel.ExcelSourceOptions\" SkipEmptyRows=\"true\" UseFirstRowAsHeader=\"true\" SkipHiddenColumns=\"true\" SkipHiddenRows=\"true\">\r\n        <ImportSettings Type=\"DevExpress.DataAccess.Excel.ExcelWorksheetSettings\" WorksheetName=\"Sheet1\" />\r\n      </Options>\r\n      <Schema>\r\n        <FieldInfo Name=\"Category\" Type=\"System.String\" Selected=\"true\" />\r\n        <FieldInfo Name=\"Product\" Type=\"System.String\" Selected=\"true\" />\r\n        <FieldInfo Name=\"State\" Type=\"System.String\" Selected=\"true\" />\r\n        <FieldInfo Name=\"UnitsSoldYTD\" Type=\"System.Double\" Selected=\"true\" />\r\n        <FieldInfo Name=\"UnitsSoldYTDTarget\" Type=\"System.Double\" Selected=\"true\" />\r\n        <FieldInfo Name=\"RevenueQTD\" Type=\"System.Double\" Selected=\"true\" />\r\n        <FieldInfo Name=\"RevenueQTDTarget\" Type=\"System.Double\" Selected=\"true\" />\r\n        <FieldInfo Name=\"RevenueYTD\" Type=\"System.Double\" Selected=\"true\" />\r\n        <FieldInfo Name=\"RevenueYTDTarget\" Type=\"System.Double\" Selected=\"true\" />\r\n      </Schema>\r\n      <ResultSchema>\r\n        <View>\r\n          <Field Name=\"Category\" Type=\"String\" />\r\n          <Field Name=\"Product\" Type=\"String\" />\r\n          <Field Name=\"State\" Type=\"String\" />\r\n          <Field Name=\"UnitsSoldYTD\" Type=\"Double\" />\r\n          <Field Name=\"UnitsSoldYTDTarget\" Type=\"Double\" />\r\n          <Field Name=\"RevenueQTD\" Type=\"Double\" />\r\n          <Field Name=\"RevenueQTDTarget\" Type=\"Double\" />\r\n          <Field Name=\"RevenueYTD\" Type=\"Double\" />\r\n          <Field Name=\"RevenueYTDTarget\" Type=\"Double\" />\r\n        </View>\r\n      </ResultSchema>\r\n    </ExcelDataSource>\r\n    <SqlDataSource Name=\"SQL Data Source 1\" ComponentName=\"dashboardSqlDataSource1\">\r\n      <Connection Name=\"141.94.195.211_testprod_Connection\" ProviderKey=\"MySql\">\r\n        <Parameters>\r\n          <Parameter Name=\"server\" Value=\"141.94.195.211\" />\r\n          <Parameter Name=\"database\" Value=\"testprod\" />\r\n          <Parameter Name=\"read only\" Value=\"1\" />\r\n          <Parameter Name=\"generateConnectionHelper\" Value=\"false\" />\r\n          <Parameter Name=\"Port\" Value=\"3306\" />\r\n          <Parameter Name=\"userid\" Value=\"\" />\r\n          <Parameter Name=\"password\" Value=\"\" />\r\n        </Parameters>\r\n      </Connection>\r\n      <ConnectionOptions CloseConnection=\"true\" />\r\n    </SqlDataSource>\r\n    <SqlDataSource Name=\"SQL Data Source 2\" ComponentName=\"dashboardSqlDataSource2\">\r\n      <Connection Name=\"141.94.195.211_testprod_Connection\" ProviderKey=\"MySql\">\r\n        <Parameters>\r\n          <Parameter Name=\"server\" Value=\"141.94.195.211\" />\r\n          <Parameter Name=\"database\" Value=\"testprod\" />\r\n          <Parameter Name=\"read only\" Value=\"1\" />\r\n          <Parameter Name=\"generateConnectionHelper\" Value=\"false\" />\r\n          <Parameter Name=\"Port\" Value=\"3306\" />\r\n          <Parameter Name=\"userid\" Value=\"\" />\r\n          <Parameter Name=\"password\" Value=\"\" />\r\n        </Parameters>\r\n      </Connection>\r\n      <Query Type=\"CustomSqlQuery\" Name=\"Query\">\r\n        <Sql>select * from commercial_partner ;</Sql>\r\n      </Query>\r\n      <ResultSchema>\r\n        <DataSet Name=\"SQL Data Source 2\">\r\n          <View Name=\"Query\">\r\n            <Field Name=\"Id\" Type=\"UInt32\" />\r\n            <Field Name=\"name\" Type=\"String\" />\r\n            <Field Name=\"reference\" Type=\"String\" />\r\n            <Field Name=\"create_date\" Type=\"DateTime\" />\r\n            <Field Name=\"chec_socity\" Type=\"Boolean\" />\r\n            <Field Name=\"website\" Type=\"String\" />\r\n            <Field Name=\"phone\" Type=\"String\" />\r\n            <Field Name=\"mobile\" Type=\"String\" />\r\n            <Field Name=\"fax\" Type=\"String\" />\r\n            <Field Name=\"email\" Type=\"String\" />\r\n            <Field Name=\"note\" Type=\"String\" />\r\n            <Field Name=\"customer\" Type=\"Boolean\" />\r\n            <Field Name=\"supplier\" Type=\"Boolean\" />\r\n            <Field Name=\"payment_method_supplier\" Type=\"UInt32\" />\r\n            <Field Name=\"payment_condition_supplier\" Type=\"UInt32\" />\r\n            <Field Name=\"payment_condition_customer\" Type=\"UInt32\" />\r\n            <Field Name=\"socity\" Type=\"UInt32\" />\r\n            <Field Name=\"number\" Type=\"String\" />\r\n            <Field Name=\"street\" Type=\"String\" />\r\n            <Field Name=\"city\" Type=\"String\" />\r\n            <Field Name=\"state\" Type=\"String\" />\r\n            <Field Name=\"country\" Type=\"String\" />\r\n            <Field Name=\"postal_code\" Type=\"String\" />\r\n            <Field Name=\"delivery_number\" Type=\"String\" />\r\n            <Field Name=\"delivery_street\" Type=\"String\" />\r\n            <Field Name=\"delivery_city\" Type=\"String\" />\r\n            <Field Name=\"delivery_state\" Type=\"String\" />\r\n            <Field Name=\"delivery_country\" Type=\"String\" />\r\n            <Field Name=\"delivery_postal_code\" Type=\"String\" />\r\n            <Field Name=\"credit_limit\" Type=\"Decimal\" />\r\n            <Field Name=\"currency\" Type=\"UInt32\" />\r\n            <Field Name=\"job_position\" Type=\"String\" />\r\n            <Field Name=\"customs_code\" Type=\"String\" />\r\n            <Field Name=\"vat_code\" Type=\"String\" />\r\n            <Field Name=\"trade_register\" Type=\"String\" />\r\n            <Field Name=\"picture\" Type=\"ByteArray\" />\r\n            <Field Name=\"payment_method_customer\" Type=\"UInt32\" />\r\n            <Field Name=\"rest_amount\" Type=\"Decimal\" />\r\n            <Field Name=\"due_date\" Type=\"DateTime\" />\r\n            <Field Name=\"actif\" Type=\"Boolean\" />\r\n            <Field Name=\"customer_discount\" Type=\"Decimal\" />\r\n            <Field Name=\"supplier_discount\" Type=\"Decimal\" />\r\n            <Field Name=\"vat_exemption\" Type=\"Boolean\" />\r\n            <Field Name=\"custumer_withholding_tax\" Type=\"UInt32\" />\r\n            <Field Name=\"supplier_withholding_tax\" Type=\"UInt32\" />\r\n            <Field Name=\"activity\" Type=\"String\" />\r\n            <Field Name=\"category\" Type=\"UInt32\" />\r\n            <Field Name=\"sale_agent\" Type=\"UInt32\" />\r\n            <Field Name=\"purchase_agent\" Type=\"UInt32\" />\r\n            <Field Name=\"exoneration_purchase_tax1\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_purchase_tax2\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_purchase_tax3\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_purchase_tax4\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_purchase_tax5\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_sale_tax1\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_sale_tax2\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_sale_tax3\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_sale_tax4\" Type=\"Boolean\" />\r\n            <Field Name=\"exoneration_sale_tax5\" Type=\"Boolean\" />\r\n          </View>\r\n        </DataSet>\r\n      </ResultSchema>\r\n      <ConnectionOptions CloseConnection=\"true\" />\r\n    </SqlDataSource>\r\n  </DataSources>\r\n  <Parameters>\r\n    <Parameter Name=\"BeginDATE\" Type=\"System.DateTime\" Value=\"2000-01-01T00:00:00\" />\r\n    <Parameter Name=\"EndDate\" Type=\"System.DateTime\" Value=\"2000-01-01T00:00:00\" />\r\n    <Parameter Name=\"User\" Type=\"System.Int16\" Value=\"0\" />\r\n    <Parameter Name=\"Name\" Value=\"\" />\r\n    <Parameter Name=\"total\" Type=\"System.Decimal\" Value=\"0\" />\r\n  </Parameters>\r\n  <Items>\r\n    <Chart ComponentName=\"chartDashboardItem1\" Name=\"Chart 1\" DataSource=\"dashboardSqlDataSource2\" DataMember=\"Query\">\r\n      <DataItems>\r\n        <Measure DataMember=\"rest_amount\" DefaultId=\"DataItem0\" />\r\n        <Dimension DataMember=\"category\" TopNCount=\"200\" TopNMeasure=\"DataItem0\" DefaultId=\"DataItem1\" />\r\n      </DataItems>\r\n      <Arguments>\r\n        <Argument DefaultId=\"DataItem1\" />\r\n      </Arguments>\r\n      <Panes>\r\n        <Pane Name=\"Pane 1\">\r\n          <Series>\r\n            <Simple>\r\n              <Value DefaultId=\"DataItem0\" />\r\n            </Simple>\r\n          </Series>\r\n        </Pane>\r\n      </Panes>\r\n    </Chart>\r\n    <Chart ComponentName=\"chartDashboardItem2\" Name=\"Chart 2\" DataSource=\"dashboardSqlDataSource2\" DataMember=\"Query\">\r\n      <DataItems>\r\n        <Dimension DataMember=\"customer\" DefaultId=\"DataItem0\" />\r\n        <Measure DataMember=\"rest_amount\" DefaultId=\"DataItem1\" />\r\n        <Measure DataMember=\"sale_agent\" DefaultId=\"DataItem2\" />\r\n        <Measure DataMember=\"payment_method_customer\" DefaultId=\"DataItem3\" />\r\n      </DataItems>\r\n      <Arguments>\r\n        <Argument DefaultId=\"DataItem0\" />\r\n      </Arguments>\r\n      <Panes>\r\n        <Pane Name=\"Pane 1\">\r\n          <Series>\r\n            <Simple>\r\n              <Value DefaultId=\"DataItem1\" />\r\n            </Simple>\r\n            <Simple>\r\n              <Value DefaultId=\"DataItem2\" />\r\n            </Simple>\r\n            <Simple>\r\n              <Value DefaultId=\"DataItem3\" />\r\n            </Simple>\r\n          </Series>\r\n        </Pane>\r\n      </Panes>\r\n    </Chart>\r\n  </Items>\r\n  <LayoutTree>\r\n    <LayoutGroup Orientation=\"Vertical\" Weight=\"100\">\r\n      <LayoutGroup>\r\n        <LayoutItem DashboardItem=\"chartDashboardItem1\" />\r\n        <LayoutItem DashboardItem=\"chartDashboardItem2\" />\r\n      </LayoutGroup>\r\n    </LayoutGroup>\r\n  </LayoutTree>\r\n</Dashboard>";
         public string xml_file = "";
         /* private DataTabel successpopupmessage;
@@ -30,26 +35,84 @@ namespace SmartPharma5.ModelView
 
         public List<PieSerieModel> list_Pie;
         public List<PieSerieModel> List_Pie { get => list_Pie; set => SetProperty(ref list_Pie, value); }
+
+
+
+
         
 
 
-
-
-
-        public BarSeriesMV(string XML)
+             public BarSeriesMV(List<ModelGridParametre> List_Paramettre_final1,string XML)
         {
             this.xml_file = XML;
+            List<string> Params = ExtractParameters(xml_file);
+            List<ModelGridParametre> ParametresList = ParseParameters(Params[0]);
+
+            List<QueryModel> querrys = GetQueryContents(this.xml_file);
+            string REQUETTE = ExtractSqlFromXml(querrys[0].Contenu).Replace("&lt;", "<").Replace("&gt;", ">");
+
+
+            List_Paramettre_final = List_Paramettre_final1;
+            string querry2 = AddSpacesToParameters(REQUETTE, user_contrat.iduser);
+            string querry1 = ReplaceParameters(querry2, List_Paramettre_final);
+            this.REQUETTE = querry1;
+            //List<string> Paramettre_requette = GetParameterNames(querry2);
+            
+
+
+
             List<string> Result = new List<string>();
             List<string> ResultPie = new List<string>();
             Result = ExtractChartTags(xml_file);
             ResultPie = ExtractPieTags(xml_file);
-            List<QueryModel> querrys = GetQueryContents(this.xml_file);
-            string REQUETTE = ExtractSqlFromXml(querrys[0].Contenu).Replace("&lt;", "<").Replace("&gt;", ">");
+
 
             //AllDataForDashbord = Task.Run(() => GetGridListForDashbOARD()).Result;
 
-            List_BarSeries = BarSeriesModel.GetAllBarItems(Result, REQUETTE);
-            List_Pie = PieSerieModel.GetAllPieItems(ResultPie, REQUETTE);
+            List_BarSeries = BarSeriesModel.GetAllBarItems(Result, this.REQUETTE);
+            List_Pie = PieSerieModel.GetAllPieItems(ResultPie, this.REQUETTE);
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+        public BarSeriesMV(string XML)
+        {
+            this.xml_file = XML;
+            List<string> Params = ExtractParameters(xml_file);
+            List<ModelGridParametre> ParametresList = ParseParameters(Params[0]);
+
+            List<QueryModel> querrys = GetQueryContents(this.xml_file);
+            string REQUETTE = ExtractSqlFromXml(querrys[0].Contenu).Replace("&lt;", "<").Replace("&gt;", ">");
+
+
+
+            string querry2 = AddSpacesToParameters(REQUETTE, user_contrat.iduser);
+            string querry1 = ReplaceParameters(querry2, ParametresList);
+            this.REQUETTE = querry1;
+            List<string> Paramettre_requette = GetParameterNames(querry2);
+            List_Paramettre_final = FilterModelGridParametres(ParametresList, Paramettre_requette);
+
+
+
+            List<string> Result = new List<string>();
+            List<string> ResultPie = new List<string>();
+            Result = ExtractChartTags(xml_file);
+            ResultPie = ExtractPieTags(xml_file);
+            
+
+            //AllDataForDashbord = Task.Run(() => GetGridListForDashbOARD()).Result;
+
+            List_BarSeries = BarSeriesModel.GetAllBarItems(Result, this.REQUETTE);
+            List_Pie = PieSerieModel.GetAllPieItems(ResultPie, this.REQUETTE);
 
 
 
@@ -174,6 +237,206 @@ namespace SmartPharma5.ModelView
             adapter.Fill(dt);
             DbConnection.Deconnecter();
             return dt;
+        }
+
+        static string ReplaceParameters(string queryString, List<ModelGridParametre> parameters)
+        {
+            foreach (ModelGridParametre parameter in parameters)
+            {
+                string placeholder = " @" + parameter.Name + " ";
+
+                if (parameter.IsString is true)
+                {
+                    queryString = queryString.Replace(placeholder, $" '{parameter.StringValue}' ");
+                }
+                else if (parameter.IsDate is true)
+                {
+                    queryString = queryString.Replace(placeholder, $" '{parameter.DateValue.ToString("yyyy-M-d HH:mm:ss")}' ");
+                }
+                else if (parameter.IsInt is true)
+                {
+                    queryString = queryString.Replace(placeholder, parameter.IntValue.ToString());
+                }
+                else if (parameter.IsDecimal is true)
+                {
+                    queryString = queryString.Replace(placeholder, parameter.DecimalValue.ToString());
+                }
+                else if (parameter.IsBool is true)
+                {
+                    queryString = queryString.Replace(placeholder, parameter.BoolValue.ToString());
+                }
+                // Add additional conditions for other data types (e.g., IsBool)
+
+            }
+
+            return queryString;
+        }
+
+        public static string AddSpacesToParameters(string input, int nouveau_nom)
+        {
+
+            // Utiliser une expression régulière pour trouver les mots commençant par "@"
+            Regex regex = new Regex(@"@(\w+)");
+            string result = regex.Replace(input, " $& ");
+
+            int index = result.IndexOf("@User", StringComparison.OrdinalIgnoreCase);
+
+            // Vérification si "@User" a été trouvé
+            if (index != -1)
+            {
+                // Remplacement de "@User" par le nouveau nom
+                result = result.Substring(0, index) + nouveau_nom + result.Substring(index + "@User".Length);
+            }
+
+            return result;
+
+
+            //return result;
+        }
+        static List<string> ExtractParameters(string xmlString)
+        {
+            List<string> parametersContentList = new List<string>();
+
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(xmlString);
+
+                // Sélectionne tous les éléments "Parameters" dans le document XML qui ne sont pas des enfants de "DataSources"
+                XmlNodeList parametersNodes = xmlDoc.SelectNodes("//Parameters[not(ancestor::DataSources)]");
+
+                foreach (XmlNode node in parametersNodes)
+                {
+                    // Ajoute le contenu de chaque élément "Parameters" à la liste
+                    parametersContentList.Add(node.OuterXml);
+                }
+
+                return parametersContentList;
+            }
+            catch (Exception ex)
+            {
+                // En cas d'erreur, retourne une liste vide et affiche un message d'erreur
+                Console.WriteLine("Une erreur s'est produite : " + ex.Message);
+                return new List<string>();
+            }
+        }
+
+        static List<ModelGridParametre> ParseParameters(string xmlString)
+        {
+            List<ModelGridParametre> parametersList = new List<ModelGridParametre>();
+
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(xmlString);
+
+                // Sélectionne tous les éléments "Parameter" dans la balise "Parameters"
+                XmlNodeList parameterNodes = xmlDoc.SelectNodes("//Parameters/Parameter");
+
+                foreach (XmlNode node in parameterNodes)
+                {
+                    string paramName = node.Attributes["Name"].Value;
+                    string paramType = node.Attributes["Type"]?.Value;
+                    string paramValue = node.Attributes["Value"]?.Value;
+
+                    ModelGridParametre parameter = CreateModelGridParametre(paramName, paramType, paramValue);
+                    parametersList.Add(parameter);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Une erreur s'est produite : " + ex.Message);
+            }
+
+            return parametersList;
+        }
+
+        static List<string> GetParameterNames(string sqlQuery)
+        {
+            List<string> parameterNames = new List<string>();
+
+            try
+            {
+                // Utilise une expression régulière pour trouver tous les noms de paramètres débutant par "@"
+                Regex regex = new Regex(@"@\w+");
+                MatchCollection matches = regex.Matches(sqlQuery);
+
+                // Ajoute les noms de paramètres à la liste sans doublons et sans le caractère "@"
+                foreach (Match match in matches)
+                {
+                    string paramName = match.Value.Substring(1); // Retire le "@" au début
+                    if (!parameterNames.Contains(paramName))
+                    {
+                        parameterNames.Add(paramName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Une erreur s'est produite : " + ex.Message);
+            }
+
+            return parameterNames;
+        }
+        static ModelGridParametre CreateModelGridParametre(string paramName, string paramType, string paramValue)
+        {
+            ModelGridParametre parameter = new ModelGridParametre(paramName, paramType);
+
+            switch (paramType)
+            {
+                case "System.DateTime":
+                    if (DateTime.TryParse(paramValue, out DateTime dateValue))
+                    {
+                        parameter.DateValue = dateValue;
+                        parameter.IsDate = true;
+                    }
+                    break;
+
+                case "System.Int16":
+                case "System.Int32":
+                case "System.Int64":
+                    if (int.TryParse(paramValue, out int intValue))
+                    {
+                        parameter.IntValue = intValue;
+                        parameter.IsInt = true;
+                    }
+                    break;
+
+                case "System.Boolean":
+                    if (bool.TryParse(paramValue, out bool boolValue))
+                    {
+                        parameter.BoolValue = boolValue;
+                        parameter.IsBool = true;
+                    }
+                    else
+                    {
+                        parameter.BoolValue = false;
+                        parameter.IsBool = true;
+                    }
+                    break;
+
+                case "System.Decimal":
+                    if (decimal.TryParse(paramValue, out decimal decimalValue))
+                    {
+                        parameter.DecimalValue = decimalValue;
+                        parameter.IsDecimal = true;
+                    }
+                    break;
+
+
+
+                default:
+                    parameter.StringValue = paramValue;
+                    parameter.IsString = true;
+                    break;
+            }
+
+            return parameter;
+        }
+
+        static List<ModelGridParametre> FilterModelGridParametres(List<ModelGridParametre> inputList, List<string> allowedNames)
+        {
+            return inputList.Where(parametre => allowedNames.Contains(parametre.Name)).ToList();
         }
     }
 }

@@ -4,10 +4,10 @@
              x:Class="SmartPharma5.View.DashboardingView"
              Title="DashboardingView">
     <VerticalStackLayout>
-        <ScrollView Orientation="Horizontal">
-            <StackLayout x:Name="scroll"  Orientation="Horizontal" HorizontalOptions="CenterAndExpand" >
-                
-                <StackLayout>
+        <ScrollView Orientation="Vertical">
+            <StackLayout x:Name="scroll" >
+
+                <StackLayout  IsVisible="{Binding DashboardIsVisible, Mode=TwoWay}">
                     <ImageButton BackgroundColor="#F2798F" 
                                  CornerRadius="5" 
                                 HeightRequest="100" 
@@ -22,7 +22,7 @@
                     </ImageButton>
                     <Label VerticalTextAlignment="End" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" HorizontalTextAlignment="Center"   Text="My Dashboard" TextColor="#274476"  FontSize="12" ></Label>
                 </StackLayout>
-                <StackLayout>
+                <StackLayout  IsVisible="{Binding MyDashboardIsVisible, Mode=TwoWay}" >
                     <ImageButton BackgroundColor="#F2798F" 
                                  CornerRadius="5" 
                                 HeightRequest="100" 

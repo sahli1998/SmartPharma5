@@ -55,7 +55,7 @@ namespace SmartPharma5.ModelView
             if (Query != null)
             {
                 REQUETTE = ExtractSqlFromXml(Query.Contenu).Replace("&lt;", "<").Replace("&gt;", ">");
-                string querry2 = AddSpacesToParameters(REQUETTE);
+                string querry2 = AddSpacesToParameters(REQUETTE,user_contrat.iduser);
                 string querry1 = ReplaceParameters(querry2, list_Paramettre_final);
                 this.REQUETTE = querry1;
                 List<string> Paramettre_requette = GetParameterNames(querry2);
@@ -87,7 +87,7 @@ namespace SmartPharma5.ModelView
                 if (Query != null)
                 {
                     REQUETTE = ExtractSqlFromXml(Query.Contenu).Replace("&lt;", "<").Replace("&gt;", ">");
-                    string querry2 = AddSpacesToParameters(REQUETTE);
+                    string querry2 = AddSpacesToParameters(REQUETTE,user_contrat.iduser);
                     string querry1 = ReplaceParameters(querry2, ParametresList);
                     this.REQUETTE = querry1;
                     List<string> Paramettre_requette = GetParameterNames(querry2);
@@ -735,13 +735,26 @@ namespace SmartPharma5.ModelView
             return queryString;
         }
 
-        static string AddSpacesToParameters(string input)
+        public static string AddSpacesToParameters(string input,int nouveau_nom)
         {
+           
             // Utiliser une expression régulière pour trouver les mots commençant par "@"
             Regex regex = new Regex(@"@(\w+)");
             string result = regex.Replace(input, " $& ");
 
+            int index = result.IndexOf("@User", StringComparison.OrdinalIgnoreCase);
+
+            // Vérification si "@User" a été trouvé
+            if (index != -1)
+            {
+                // Remplacement de "@User" par le nouveau nom
+                result = result.Substring(0, index) + nouveau_nom + result.Substring(index + "@User".Length);
+            }
+
             return result;
+
+
+            //return result;
         }
         #endregion 
 
