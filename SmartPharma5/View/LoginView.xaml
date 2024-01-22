@@ -7,7 +7,7 @@
            
              NavigationPage.HasBackButton="false"
               xmlns:local="clr-namespace:SmartPharma5.ViewModel"
-             NavigationPage.HasNavigationBar="true"
+             NavigationPage.HasNavigationBar="false"
              Title="LoginView">
 
     <ContentPage.Background>

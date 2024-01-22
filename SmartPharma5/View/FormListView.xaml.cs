@@ -18,8 +18,9 @@ public partial class FormListView : ContentPage
         Partner = partner;
         InitializeComponent();
         BindingContext = new FormListViewModel(Partner);
-        var OVM = BindingContext as FormListViewModel;
-        //Task.Run(()=> OVM.Reload());
+        //var OVM = BindingContext as FormListViewModel;
+        //OVM.Partner= partner;
+        //Task.Run(()=> OVM.Reload().GetAwaiter());
     }
     public FormListView(int category)
     {
@@ -84,6 +85,9 @@ public partial class FormListView : ContentPage
 
     private async void OnItemTapped(object sender, EventArgs e)
     {
+        SavingPopup.IsOpen = false;
+        SuccessPopup.IsOpen = true;
+        await Task.Delay(100);
         if (sender is Frame frame && frame.BindingContext is Form tappedItem)
         {
             try
@@ -96,11 +100,10 @@ public partial class FormListView : ContentPage
                 if (idpartenerform != null)
                 {
                     var p = Partner_Form.GetPartnerFormById(idpartenerform);
-                    SavingPopup.IsOpen = false;
-                    SuccessPopup.IsOpen = true;
-                    await Task.Delay(1000);
-                    SuccessPopup.IsOpen = false;
+                    
                     await App.Current.MainPage.Navigation.PushAsync(new QuizQuestionView(p));
+                    SuccessPopup.IsOpen = false;
+                    
 
                 }
                 else

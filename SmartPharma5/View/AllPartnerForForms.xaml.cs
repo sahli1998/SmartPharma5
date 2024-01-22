@@ -138,11 +138,11 @@ public partial class AllPartnerForForms : ContentPage
 
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-        await Task.Delay(500);
+        //UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+        //await Task.Delay(1000);
         if (sender is Frame frame && frame.BindingContext is SmartPharma5.Model.Partner Partner)
         { await App.Current.MainPage.Navigation.PushAsync(new FormListView(Partner)); }
-        UserDialogs.Instance.HideLoading();
+       // UserDialogs.Instance.HideLoading();
 
 
     }

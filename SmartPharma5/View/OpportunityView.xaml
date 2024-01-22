@@ -87,7 +87,7 @@
 
                                 <DataTemplate>
 
-                                    <Frame HorizontalOptions="FillAndExpand" BorderColor="#CCCCCC" Margin="0" Padding="5,5">
+                                    <Frame HorizontalOptions="FillAndExpand"  BorderColor="CadetBlue" Margin="0" Padding="5,5">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="auto"></RowDefinition>

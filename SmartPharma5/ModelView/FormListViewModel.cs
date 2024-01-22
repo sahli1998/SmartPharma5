@@ -8,6 +8,7 @@ using MvvmHelpers;
 using MvvmHelpers.Commands;
 using SmartPharma5.Model;
 */
+using Acr.UserDialogs;
 using MvvmHelpers;
 using SmartPharma5.
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
@@ -43,6 +44,7 @@ namespace SmartPharma5.ViewModel
         }
         public FormListViewModel(Partner partner)
         {
+            
             Partner = partner;
             Task.Run(async () => await LoadAllForm());
 
@@ -57,13 +59,15 @@ namespace SmartPharma5.ViewModel
 
         private async Task LoadAllForm()
         {
-
+            //UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+            //await Task.Delay(500);
             var C = Task.Run(() => Form.GetFormsByPartnerCategory(Partner.Category));
             FormList = new ObservableRangeCollection<Form>(await C);
             if (FormList.Count == 0)
             {
                 NoForm = true;
             }
+           // UserDialogs.Instance.HideLoading();
 
         }
 

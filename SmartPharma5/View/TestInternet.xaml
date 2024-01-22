@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SmartPharma5.View.TestInternet"
-             Title="TestInternet">
+             Title="TestInternet"
+             NavigationPage.HasNavigationBar="false">
     <ContentPage.Content>
         <StackLayout Orientation="Vertical">
             <StackLayout Orientation="Horizontal">

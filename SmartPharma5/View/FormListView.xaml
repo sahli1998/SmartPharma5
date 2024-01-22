@@ -5,7 +5,7 @@
              xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
              x:Class="SmartPharma5.View.FormListView"
-             Title="FormListView">
+             Title="List of form">
     <ContentPage.Content>
         <StackLayout>
             <Label  Text="Choose your form" Padding="5" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" FontSize="16"/>

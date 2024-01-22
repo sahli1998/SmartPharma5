@@ -63,7 +63,7 @@
                         <DataTemplate>
 
 
-                            <Frame BorderColor="#CCCCCC" Margin="0,0,0,0" >
+                            <Frame BorderColor="BlueViolet" CornerRadius="10" Margin="0,0,0,0" >
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                                 </Frame.GestureRecognizers>
@@ -74,14 +74,14 @@
                                     </Grid.ColumnDefinitions>
 
 
-                                    <Frame HeightRequest="50" WidthRequest="50" Grid.Column="0" BackgroundColor="#EEF5FF" HasShadow="False">
+                                    <Frame HeightRequest="50" WidthRequest="50" CornerRadius="10" Grid.Column="0" BackgroundColor="#EEF5FF" HasShadow="False">
                                         <Image Source="Emptyimage.png" WidthRequest="50" HorizontalOptions="Center"/>
                                     </Frame>
 
                                     <StackLayout Grid.Column="1">
 
                                         <StackLayout HorizontalOptions="FillAndExpand" >
-                                            <Label HorizontalOptions="CenterAndExpand" Text="{Binding name}" Margin="0,2" TextColor="#55575c" FontSize="14"/>
+                                            <Label HorizontalOptions="CenterAndExpand" Text="{Binding name}" Margin="0,2" TextColor="Black" FontSize="14"/>
                                         </StackLayout>
 
                                         <Grid >
@@ -144,7 +144,7 @@
 
                     <Label Grid.Row="0" x:Name="NameLabel" FontSize="Subtitle" HorizontalOptions="CenterAndExpand" VerticalOptions="FillAndExpand" TextColor="Black" HorizontalTextAlignment="Center"   Text="{Binding Product.name}" Padding="10"/>
 
-                    <Frame  Grid.Row="1" BackgroundColor="#EEF5FF" HasShadow="False">
+                    <Frame CornerRadius="20" Grid.Row="1" BackgroundColor="#EEF5FF" HasShadow="False">
                         <Image Source="Emptyimage.png" WidthRequest="50" HorizontalOptions="Center"/>
                     </Frame>
 

@@ -1040,6 +1040,8 @@ public partial class QuizQuestionView : ContentPage
 
     private async void Submit_Clicked(object sender, EventArgs e)
     {
+        SavingPopup.IsOpen = true;
+        await Task.Delay(100);
         Partner_Form.UpdateMacAdresse(partner_Form.Id);
         int i = 0;
         bool isTrue = true;
@@ -1317,8 +1319,8 @@ public partial class QuizQuestionView : ContentPage
             {
                 try
                 {
-                    SavingPopup.IsOpen = true;
-                    await Task.Delay(1000);
+                    
+                    
                     var p = Task.Run(() => Response.Insert(List, partner_Form));
                     await p;
                     var c = Task.Run(() => Partner_Form.Update(partner_Form));
@@ -1339,6 +1341,7 @@ public partial class QuizQuestionView : ContentPage
                 await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
 
         }
+        SavingPopup.IsOpen = false;
     }
 
     private async void SimpleButton_Clicked(object sender, EventArgs e)
@@ -1352,9 +1355,11 @@ public partial class QuizQuestionView : ContentPage
 
     private async void btnSave_Clicked(object sender, EventArgs e)
     {
+        SavingPopup.IsOpen = true;
+        await Task.Delay(100);
 
-        Console.WriteLine(Stacklay.Children.Count);
-        Partner_Form.UpdateMacAdresse(partner_Form.Id);
+        //Console.WriteLine(Stacklay.Children.Count);
+
 
         int i = 0;
         var frameList = Stacklay.Children.ToList();
@@ -1483,8 +1488,8 @@ public partial class QuizQuestionView : ContentPage
         {
             try
             {
-                SavingPopup.IsOpen = true;
-                await Task.Delay(1000);
+                
+                await Task.Delay(100);
                 var p = Task.Run(() => Response.Insert(List, partner_Form));
                 await p;
                 Partner_Form.UpdateOpenDate(partner_Form);
@@ -1492,6 +1497,7 @@ public partial class QuizQuestionView : ContentPage
                 SuccessPopup.IsOpen = true;
                 await Task.Delay(1000);
                 SuccessPopup.IsOpen = false;
+                Partner_Form.UpdateMacAdresse(partner_Form.Id);
                 await App.Current.MainPage.Navigation.PopAsync();
             }
             catch (Exception ex)
@@ -1501,6 +1507,8 @@ public partial class QuizQuestionView : ContentPage
         }
         else
             await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
+
+        SavingPopup.IsOpen = false;
 
     }
 }
