@@ -212,6 +212,7 @@ namespace SmartPharma5.ViewModel
 
 
         public AsyncCommand Validation { get; }
+        public AsyncCommand MyRequests { get; }
 
         public AsyncCommand UpdatePartner { get; }
 
@@ -239,6 +240,7 @@ namespace SmartPharma5.ViewModel
         public AsyncCommand CommandAddOpp { get; }
         public AsyncCommand CommandMyOpp { get; }
         public AsyncCommand CommandAllOpp { get; }
+        public AsyncCommand Contacts { get; }
 
         public AsyncCommand CommandTest { get; }
 
@@ -345,6 +347,7 @@ namespace SmartPharma5.ViewModel
             CommandTtest = new AsyncCommand(test);
             AllPartnerCommand = new AsyncCommand(AllPartnerCommandFonction);
             Validation = new AsyncCommand(Validate);
+            MyRequests = new AsyncCommand(Requests);
             ChnageProfilePage = new AsyncCommand(changeProfilePage);
             ListePartner = new AsyncCommand(AllPartner);
             AddPartnerTemp = new AsyncCommand(addPartnerTemp);
@@ -370,6 +373,7 @@ namespace SmartPharma5.ViewModel
             CommandAllPayment = new AsyncCommand(AllPayment);
             InsertCongé = new AsyncCommand(changeInsert);
             InsertAvance = new AsyncCommand(Insert);
+            Contacts = new AsyncCommand(contactsFun);
 
             ExitCommand = new Command(Exit);
             LogoutCommand = new AsyncCommand(Logout);
@@ -390,8 +394,40 @@ namespace SmartPharma5.ViewModel
 
 
 
+        
+        private async Task contactsFun()
+        {
 
+            try
+            {
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+                //await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new opportunity_formView()));
+                UserDialogs.Instance.HideLoading();
+            }
+            catch (Exception ex)
+            {
+                await DbConnection.ErrorConnection();
+            }
 
+        }
+        
+        private async Task Requests()
+        {
+
+            try
+            {
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new MyRequestsTap()));
+                UserDialogs.Instance.HideLoading();
+            }
+            catch (Exception ex)
+            {
+                await DbConnection.ErrorConnection();
+            }
+
+        }
         private async Task Validate()
         {
 
@@ -641,22 +677,32 @@ namespace SmartPharma5.ViewModel
         }
         private async Task TestCommand()
         {
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
 
+            UserDialogs.Instance.Toast("All Partners ...");
+            await Task.Delay(200);
 
-            try
+            if (await DbConnection.Connecter3())
             {
-                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new AllPartnerForForms()));
+
+                try
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new AllPartnerForForms()));
+                }
+                catch (Exception ex)
+                {
+                    await DbConnection.ErrorConnection();
+                    UserDialogs.Instance.HideLoading();
+                }
+
             }
-            catch (Exception ex)
+            else
             {
-                await DbConnection.ErrorConnection();
-                UserDialogs.Instance.HideLoading();
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
             }
 
-            UserDialogs.Instance.HideLoading();
 
+           
 
 
 
@@ -859,14 +905,52 @@ namespace SmartPharma5.ViewModel
 
         }
 
+        private async Task MyForms()
+        {
+            UserDialogs.Instance.Toast("My Forms ...");
+            await Task.Delay(200);
+            if (await DbConnection.Connecter3())
+                try
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PartnerFormView("My_Forms")));
+
+                }
+                catch (Exception ex)
+                {
+                    await App.Current.MainPage.Navigation.PopAsync();
+                }
+
+            else
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
+
+
+
+
+
+
+
+        }
+
         private async Task AllForms()
         {
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
+            UserDialogs.Instance.Toast("All Forms ...");
+            await Task.Delay(200);
+            if (await DbConnection.Connecter3())
+                try
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PartnerFormView("All_Forms")));
 
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PartnerFormView("All_Forms")));
+                }
+                catch (Exception ex)
+                {
+                    await App.Current.MainPage.Navigation.PopAsync();
+                }
 
-            UserDialogs.Instance.HideLoading();
+            else
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
+
+
+
 
         }
 
@@ -890,15 +974,7 @@ namespace SmartPharma5.ViewModel
             //  UserDialogs.Instance.HideLoading();
         }
 
-        private async Task MyForms()
-        {
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
-
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PartnerFormView("My_Forms")));
-            UserDialogs.Instance.HideLoading();
-
-        }
+       
 
         private async Task AllCashDesk()
         {
@@ -938,31 +1014,102 @@ namespace SmartPharma5.ViewModel
         }
         private async Task AllPayment()
         {
-              UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
-             await App.Current.MainPage.Navigation.PushAsync(new PaymentListView());
-              UserDialogs.Instance.HideLoading();
+
+
+            UserDialogs.Instance.Toast("All Payment ...");
+            await Task.Delay(200);
+
+            if (await DbConnection.Connecter3())
+            {
+
+                try
+                {
+
+                    await App.Current.MainPage.Navigation.PushAsync(new PaymentListView());
+                }
+                catch (Exception ex)
+                {
+                    await DbConnection.ErrorConnection();
+                    UserDialogs.Instance.HideLoading();
+                }
+
+            }
+            else
+            {
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
+            }
+
+            
+             
         }
 
         private async Task MyPayment()
         {
-              UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
-            uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
 
-                await App.Current.MainPage.Navigation.PushAsync(new PaymentListView((int)idagent));
-               UserDialogs.Instance.HideLoading();
+
+            UserDialogs.Instance.Toast("My Payment ...");
+            await Task.Delay(200);
+
+            if (await DbConnection.Connecter3())
+            {
+
+                try
+                {
+
+                    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+
+                    await App.Current.MainPage.Navigation.PushAsync(new PaymentListView((int)idagent));
+                }
+                catch (Exception ex)
+                {
+                    await DbConnection.ErrorConnection();
+                    UserDialogs.Instance.HideLoading();
+                }
+
+            }
+            else
+            {
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
+            }
+
+
+
+              
 
         }
 
         private async Task AddPayement()
         {
+            UserDialogs.Instance.ShowLoading("Please wait ...");
+            UserDialogs.Instance.Toast("Add New Payment ...");
+            await Task.Delay(200);
+
+            if (await DbConnection.Connecter3())
+            {
+
+                try
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PaymentCustomers()));
+                }
+                catch (Exception ex)
+                {
+                    await DbConnection.ErrorConnection();
+                    UserDialogs.Instance.HideLoading();
+                }
+
+            }
+            else
+            {
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
+            }
 
 
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage (new PaymentCustomerListView(new Payment())));
-            UserDialogs.Instance.HideLoading();
+           
+           
+            
 
 
 
@@ -1040,24 +1187,40 @@ namespace SmartPharma5.ViewModel
 
         private async Task AllOpp()
         {
+            UserDialogs.Instance.Toast("All Opportunities ...");
+            await Task.Delay(200);
 
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(1000);
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage( new OpportunityListView(0)));
-            UserDialogs.Instance.HideLoading();
+            if (await DbConnection.Connecter3())
+            {
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new OpportunityListView(0)));
+            }
+            //  await App.Current.MainPage.Navigation.PushAsync(new OrderListView());
+            else
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
+   
+            
 
 
         }
 
         private async Task MyOpp()
         {
+            UserDialogs.Instance.Toast("My Opportunities ...");
+            await Task.Delay(200);
+            if (await DbConnection.Connecter3())
+            {
+                uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new OpportunityListView(idagent)));
+            }
+            //  await App.Current.MainPage.Navigation.PushAsync(new OrderListView());
+            else
+                await UserDialogs.Instance.AlertAsync("Connection failed");
 
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(1000);
-            uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
-              await App.Current.MainPage.Navigation.PushAsync(new NavigationPage( new OpportunityListView(idagent)));
 
-            UserDialogs.Instance.HideLoading();
+            
+         
+
+
 
 
 
@@ -1066,14 +1229,14 @@ namespace SmartPharma5.ViewModel
 
         private async Task AddOpp()
         {
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(1000);
-            //await Shell.Current.GoToAsync("CustomerView2");
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage( new CustomerView2()));
-            UserDialogs.Instance.HideLoading();
-
-
-
+            UserDialogs.Instance.Toast("Add New Opportunities ...");
+            await Task.Delay(200);
+            if (await DbConnection.Connecter3())
+            {
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new CustomerView2()));
+            }
+            else
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
         }
 
         private async Task Dashboard()

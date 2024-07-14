@@ -6,7 +6,10 @@
              xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
              xmlns:dxcv="clr-namespace:DevExpress.Maui.CollectionView;assembly=DevExpress.Maui.CollectionView"
              xmlns:xct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             Title="ProductListView">
+             Title="ProductListView"
+            
+             
+             >
     <NavigationPage.TitleView>
 
         <StackLayout VerticalOptions="Center">
@@ -32,8 +35,8 @@
 
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0,7*"/>
-                    <ColumnDefinition Width="0,3*"/>
+                    <ColumnDefinition Width="0,6*"/>
+                    <ColumnDefinition Width="0,4*"/>
                 </Grid.ColumnDefinitions>
 
 
@@ -63,25 +66,20 @@
                         <DataTemplate>
 
 
-                            <Frame BorderColor="BlueViolet" CornerRadius="10" Margin="0,0,0,0" >
+                            <Frame BorderColor="BlueViolet" BackgroundColor="#D0FFFFFF" CornerRadius="10" Margin="0,0,0,0" >
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
                                 </Frame.GestureRecognizers>
                                 <Grid ColumnSpacing="8" >
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                                   
 
 
-                                    <Frame HeightRequest="50" WidthRequest="50" CornerRadius="10" Grid.Column="0" BackgroundColor="#EEF5FF" HasShadow="False">
-                                        <Image Source="Emptyimage.png" WidthRequest="50" HorizontalOptions="Center"/>
-                                    </Frame>
+                                    
 
-                                    <StackLayout Grid.Column="1">
+                                    <StackLayout HorizontalOptions="CenterAndExpand" >
 
                                         <StackLayout HorizontalOptions="FillAndExpand" >
-                                            <Label HorizontalOptions="CenterAndExpand" Text="{Binding name}" Margin="0,2" TextColor="Black" FontSize="14"/>
+                                            <Label HorizontalOptions="CenterAndExpand" Text="{Binding name}" Margin="0,2" TextColor="Black" FontAttributes="Bold"/>
                                         </StackLayout>
 
                                         <Grid >
@@ -126,7 +124,7 @@
                 </dxcv:DXCollectionView>
             </StackLayout>
 
-            <dxco:DXPopup x:Name="DexPoop" MinimumWidthRequest="400"  IsOpen="{Binding ProductPopup}" HorizontalOptions="FillAndExpand" AllowScrim="True">
+            <dxco:DXPopup x:Name="DexPoop" MinimumWidthRequest="400"  IsOpen="{Binding ProductPopup,Mode=TwoWay}" HorizontalOptions="FillAndExpand" AllowScrim="True">
                 <Grid HorizontalOptions="FillAndExpand" RowSpacing="15" ColumnSpacing="13" 
                     
                     Margin="15, 15">

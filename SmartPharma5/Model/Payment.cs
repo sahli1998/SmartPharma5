@@ -1,4 +1,5 @@
-﻿using MvvmHelpers;
+﻿using Acr.UserDialogs;
+using MvvmHelpers;
 using MySqlConnector;
 using System.ComponentModel;
 using System.Data;
@@ -615,42 +616,46 @@ namespace SmartPharma5.Model
                 "WHERE(commercial_payment.piece_type = 'Sale') and((commercial_payment.validated = 0) or(commercial_payment.`date`>= (NOW() - INTERVAL 40 DAY)) or(commercial_payment.`date`>= (NOW() - INTERVAL 500 DAY))) " +
                 "ORDER BY commercial_payment.`date` DESC";
             MySqlDataReader reader = null;
-            if (DbConnection.Connecter())
+
+            // Display loading indicator
+            using (var loading = UserDialogs.Instance.Loading("Loading please wait...", null, null, true, MaskType.Black))
             {
-
-                try
+                if (DbConnection.Connecter())
                 {
-                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                    reader = cmd.ExecuteReader();
-                    while (reader.Read())
+                    try
                     {
-
-                        list.Add(new Collection(
-                            reader.GetInt32("Id"),
-                            reader["code"].ToString(),
-                            reader.GetDateTime("create_date"),
-                            reader["Partner"].ToString(),
-                            reader["PayementMethod"].ToString(),
-                            reader["reference"].ToString(),
-                            reader.GetDecimal("Amount"),
-                            reader["Due_date"] is DateTime ? reader.GetDateTime("Due_date") : (DateTime?)null,
-                            Convert.ToBoolean(reader["Ended"]),
-                            Convert.ToBoolean(reader["Validated"]),
-                            reader["IdAgent"] is uint ? reader.GetUInt32("IdAgent") : (uint?)null,
-                            reader["NameAgent"].ToString()));
+                        MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                        reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            list.Add(new Collection(
+                                reader.GetInt32("Id"),
+                                reader["code"].ToString(),
+                                reader.GetDateTime("create_date"),
+                                reader["Partner"].ToString(),
+                                reader["PayementMethod"].ToString(),
+                                reader["reference"].ToString(),
+                                reader.GetDecimal("Amount"),
+                                reader["Due_date"] is DateTime ? reader.GetDateTime("Due_date") : (DateTime?)null,
+                                Convert.ToBoolean(reader["Ended"]),
+                                Convert.ToBoolean(reader["Validated"]),
+                                reader["IdAgent"] is uint ? reader.GetUInt32("IdAgent") : (uint?)null,
+                                reader["NameAgent"].ToString()));
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
+                    catch (Exception ex)
+                    {
+                        reader.Close();
+                        return null;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    reader.Close();
                     return null;
                 }
             }
-            else
-            {
-                return null;
-            }
+
             return list;
         }
         public static async Task<BindingList<Collection>> GetCollectionListByAgent(int agent)
@@ -670,46 +675,46 @@ namespace SmartPharma5.Model
                 "ORDER BY commercial_payment.`date` DESC";
             MySqlDataReader reader = null;
 
-            if (await DbConnection.Connecter3())
+            // Display loading indicator
+            using (var loading = UserDialogs.Instance.Loading("Loading please wait...", null, null, true, MaskType.Black))
             {
-
-                try
+                if (await DbConnection.Connecter3())
                 {
-                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                    reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
+                    try
                     {
-                        list.Add(new Collection(
-                            reader.GetInt32("Id"),
-                            reader["code"].ToString(),
-                            reader.GetDateTime("create_date"),
-                            reader["Partner"].ToString(),
-                            reader["PayementMethod"].ToString(),
-                            reader["reference"].ToString(),
-                            reader.GetDecimal("Amount"),
-                            reader["Due_date"] is DateTime ? reader.GetDateTime("Due_date") : (DateTime?)null,
-                            Convert.ToBoolean(reader["Ended"]),
-                            Convert.ToBoolean(reader["Validated"]),
-                            reader["IdAgent"] is uint ? reader.GetUInt32("IdAgent") : (uint?)null,
-                            reader["NameAgent"].ToString()));
+                        MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                        reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            list.Add(new Collection(
+                                reader.GetInt32("Id"),
+                                reader["code"].ToString(),
+                                reader.GetDateTime("create_date"),
+                                reader["Partner"].ToString(),
+                                reader["PayementMethod"].ToString(),
+                                reader["reference"].ToString(),
+                                reader.GetDecimal("Amount"),
+                                reader["Due_date"] is DateTime ? reader.GetDateTime("Due_date") : (DateTime?)null,
+                                Convert.ToBoolean(reader["Ended"]),
+                                Convert.ToBoolean(reader["Validated"]),
+                                reader["IdAgent"] is uint ? reader.GetUInt32("IdAgent") : (uint?)null,
+                                reader["NameAgent"].ToString()));
+                        }
+                        reader.Close();
                     }
-                    reader.Close();
+                    catch (Exception ex)
+                    {
+                        reader.Close();
+                        return null;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    reader.Close();
                     return null;
-
                 }
-
-
-
             }
-            else
-            {
-                return null;
-            }
+
             return list;
         }
         #endregion

@@ -48,7 +48,13 @@
             <Label Text="LOADING PLEASE WAIT ..." FontSize="20" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" TextColor="#4B9EE8"></Label>
         </StackLayout>
 
-         <RefreshView   BackgroundColor="Azure"  IsRefreshing="{Binding ActPopup,Mode=TwoWay}" Command="{Binding RefreshCommand}" HorizontalOptions="CenterAndExpand" RefreshColor="#4B9EE8">
+        <StackLayout  IsVisible="{Binding TestLoad,Mode=TwoWay}" Orientation="Horizontal" Margin="20" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+            <Label Text="Failed Connection" FontAttributes="Bold" VerticalOptions="CenterAndExpand"></Label>
+            <Image Source="failed_con" VerticalOptions="CenterAndExpand"></Image>
+
+        </StackLayout>
+
+        <RefreshView   BackgroundColor="Azure"  IsRefreshing="{Binding ActPopup,Mode=TwoWay}" Command="{Binding RefreshCommand}" HorizontalOptions="CenterAndExpand" RefreshColor="#4B9EE8">
             <dxcv:DXCollectionView   ItemsSource="{Binding Partners}"  x:Name="ClientCollectionView" SelectionMode="Single"    
                 >
                 <dxcv:DXCollectionView.ItemTemplate>

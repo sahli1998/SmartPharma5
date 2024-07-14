@@ -50,7 +50,7 @@ namespace SmartPharma5.Model
         public string job_position { get; set; }
         public int sex { get; set; }
         public string key_dallas { get; set; }
-        public bool? actif { get; set; }
+        public bool? actif { get; set; } = false;
         public uint employe { get; set; }
         public User()
         { }
@@ -102,7 +102,44 @@ namespace SmartPharma5.Model
 
                 //User_module_groupe.getListeByUser(this);
             }
-            catch { }
+            catch 
+            { }
+        }
+        public async Task<bool> LoginTrue(string login1,string password1)
+        {
+            bool result = false;
+            string sqlCmd = " SELECT atooerp_user.*,hr_employe.Id as employe,hr_employe.actif FROM atooerp_user LEFT join " +
+                "hr_employe on hr_employe.user= atooerp_user.Id " +
+                "where atooerp_user.login = '" + login1 + "' and atooerp_user.password ='" + password1 + "';";
+            try
+            {
+                MySqlDataAdapter adapter = new MySqlDataAdapter(sqlCmd, DbConnection.con);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                if (dt.Rows.Count > 0)
+                {
+                    this.actif = (bool?)Convert.ToBoolean(dt.Rows[0]["actif"]);
+                    if (this.actif == null)
+                        result = false;
+                    else
+                        result = (bool)this.actif;
+
+                    this.employe = Convert.ToUInt32(dt.Rows[0]["employe"]);
+                    this.Id = Convert.ToInt32(dt.Rows[0]["Id"]);
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Current.MainPage.DisplayAlert("Warning", "Sorry you are not allowed to use this App", "Ok");
+            }
+            if (actif == true)
+            {
+
+            //    Preferences.Set("idagent", employe);
+            //    Preferences.Set("iduser", Id);
+            //     User_module_groupe.getListeByUser(this.Id) ;
+            }
+            return result;
         }
         public bool LoginTrue()
         {

@@ -118,10 +118,21 @@ namespace SmartPharma5.Model
         public DateTime? Due_date { get; set; }
 
         public AsyncCommand ShowProfile { get; set; }
+        public AsyncCommand ShowContacts { get; set; }
 
         public AsyncCommand ShowForms { get; set; }
+
+        private async Task Button_Clicked()
+        {
+            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+            await Task.Delay(500);
+            await App.Current.MainPage.Navigation.PushAsync(new ListContactsPartner(Convert.ToInt32(this.Id)));
+            UserDialogs.Instance.HideLoading();
+
+        }
         public Partner()
         {
+            ShowContacts = new AsyncCommand(Button_Clicked);
             ShowProfile = new AsyncCommand(showProfileFonc);
         }
         public Partner(uint id, string name)
@@ -129,6 +140,7 @@ namespace SmartPharma5.Model
             Id = id;
             Name = name;
             ShowProfile = new AsyncCommand(showProfileFonc);
+            ShowContacts = new AsyncCommand(Button_Clicked);
             ShowForms = new AsyncCommand(showFormFonc);
         }
         public Partner(uint id, string name, string phone, string country, string email, string reference, int pcc, uint pmc, decimal? rest, DateTime? due_date)
@@ -145,6 +157,7 @@ namespace SmartPharma5.Model
             Due_date = due_date;
             ShowProfile = new AsyncCommand(showProfileFonc);
             ShowForms = new AsyncCommand(showFormFonc);
+            ShowContacts = new AsyncCommand(Button_Clicked);
 
         }
 
@@ -164,6 +177,7 @@ namespace SmartPharma5.Model
             Number = number;
             ShowProfile = new AsyncCommand(showProfileFonc);
             ShowForms = new AsyncCommand(showFormFonc);
+            ShowContacts = new AsyncCommand(Button_Clicked);
 
 
         }
@@ -179,6 +193,7 @@ namespace SmartPharma5.Model
             Photo = img;
             Category_Name = category_name;
             ShowProfile = new AsyncCommand(showProfileFonc);
+                ShowContacts = new AsyncCommand(Button_Clicked); 
             ShowForms = new AsyncCommand(showFormFonc);
 
         }
@@ -194,6 +209,7 @@ namespace SmartPharma5.Model
             PaymentMethodCustomer = pmc;
             ShowProfile = new AsyncCommand(showProfileFonc);
             ShowForms = new AsyncCommand(showFormFonc);
+            ShowContacts = new AsyncCommand(Button_Clicked);
 
         }
         private async Task showFormFonc()
@@ -224,50 +240,56 @@ namespace SmartPharma5.Model
                     "order by due_date ) yy on cp.Id = yy.partner " +
                     "WHERE(cp.customer = 1) AND(cp.chec_socity = 1) AND(cp.actif = 1)" +
                     " order by yy.due_date is null, yy.due_date asc;";
+
             BindingList<Partner> list = new BindingList<Partner>();
 
-
-
-            if (await DbConnection.Connecter3())
+            // Display loading indicator
+            using (var loading = UserDialogs.Instance.Loading("Loading please wait ...", null, null, true, MaskType.Black))
             {
-
-                MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                try
                 {
-
-                    try
+                    if (await DbConnection.Connecter3())
                     {
-                        list.Add(new Partner(
-                            Convert.ToUInt32(reader["Id"]),
-                            reader["name"].ToString(),
-                            reader["mobile"].ToString(),
-                            reader["country"].ToString(),
-                            reader["email"].ToString(),
-                            reader["reference"].ToString(),
-                            int.Parse(reader["payment_condition_customer"].ToString()),
-                            Convert.ToUInt32(reader["payment_method_customer"]),
-                            reader["rest"] is decimal ? Convert.ToDecimal(reader["rest"]) : (decimal?)null,
-                            reader["due_date"] is DateTime ? Convert.ToDateTime(reader["due_date"].ToString()) : (DateTime?)null));
+                        MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                try
+                                {
+                                    list.Add(new Partner(
+                                        Convert.ToUInt32(reader["Id"]),
+                                        reader["name"].ToString(),
+                                        reader["mobile"].ToString(),
+                                        reader["country"].ToString(),
+                                        reader["email"].ToString(),
+                                        reader["reference"].ToString(),
+                                        int.Parse(reader["payment_condition_customer"].ToString()),
+                                        Convert.ToUInt32(reader["payment_method_customer"]),
+                                        reader["rest"] is decimal ? Convert.ToDecimal(reader["rest"]) : (decimal?)null,
+                                        reader["due_date"] is DateTime ? Convert.ToDateTime(reader["due_date"].ToString()) : (DateTime?)null
+                                    ));
+                                }
+                                catch (Exception ex)
+                                {
+                                    reader.Close();
+                                    return null;
+                                }
+                            }
+                        }
 
+                        DbConnection.Deconnecter();
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        reader.Close();
                         return null;
-                        //await App.Current.MainPage.DisplayAlert("Warning", "Connetion Time out", "Ok");
-                        //await App.Current.MainPage.Navigation.PopAsync();
                     }
-
                 }
-
-                reader.Close();
-                DbConnection.Deconnecter();
-            }
-            else
-            {
-                return null;
+                catch (Exception ex)
+                {
+                    // Handle exceptions as needed
+                    return null;
+                }
             }
 
             return list;
@@ -349,72 +371,144 @@ namespace SmartPharma5.Model
         {
             List<Partner> list = new List<Partner>();
             ImageSource img = ImageSource.FromResource("@drawable/userregular.png");
-            MySqlDataReader reader = null;
+
             if (await DbConnection.Connecter3())
             {
-                string sqlCmd = "select commercial_partner.Id,commercial_partner.name,category,commercial_partner.phone,commercial_partner.street,commercial_partner.city,commercial_partner.postal_code,commercial_partner.state,commercial_partner.email,commercial_partner_category.name as category_name from commercial_partner\r\nleft join commercial_partner_category on commercial_partner_category.Id =  commercial_partner.category where not(customer=0 and supplier=1);";
+                string sqlCmd = "SELECT commercial_partner.Id, commercial_partner.name, " +
+                                "category, commercial_partner.phone, commercial_partner.street, " +
+                                "commercial_partner.city, commercial_partner.postal_code, " +
+                                "commercial_partner.state, commercial_partner.email, " +
+                                "commercial_partner_category.name AS category_name " +
+                                "FROM commercial_partner " +
+                                "LEFT JOIN commercial_partner_category ON " +
+                                "commercial_partner_category.Id = commercial_partner.category " +
+                                "WHERE NOT(customer=0 AND supplier=1);";
 
                 try
                 {
-
-                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                    reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
+                    using (MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con))
+                    using (MySqlDataReader reader = await cmd.ExecuteReaderAsync())
                     {
-                        int id = Convert.ToInt32(reader["Id"]);
-                        try
+                        while (await reader.ReadAsync())
                         {
-                            list.Add(new Partner(
-                  Convert.ToInt32(reader["Id"]),
-                  reader["name"] is null ? "" : reader["name"].ToString(),
-                  reader["category"] is null ? 0 : Convert.ToUInt32(reader["category"]),
-                  reader["phone"] is null ? "" : reader["phone"].ToString(),
-                  reader["street"] is null ? "" : reader["street"].ToString(),
-                  reader["city"] is null ? "" : reader["city"].ToString(),
-                  reader["postal_code"] is null ? "" : reader["postal_code"].ToString(),
-                  reader["state"] is null ? "" : reader["state"].ToString(),
-                  reader["email"] is null ? "" : reader["email"].ToString(),
-                  img,
-                   reader["category_name"] is null ? "" : reader["category_name"].ToString()));
-                        }
-                        catch (Exception ex)
-                        {
-                        }
+                            try
+                            {
+                                int id = Convert.ToInt32(reader["Id"]);
 
+                                list.Add(new Partner(
+                                    id,
+                                    reader["name"] is null ? "" : reader["name"].ToString(),
+                                    reader["category"] is null ? 0 : Convert.ToUInt32(reader["category"]),
+                                    reader["phone"] is null ? "" : reader["phone"].ToString(),
+                                    reader["street"] is null ? "" : reader["street"].ToString(),
+                                    reader["city"] is null ? "" : reader["city"].ToString(),
+                                    reader["postal_code"] is null ? "" : reader["postal_code"].ToString(),
+                                    reader["state"] is null ? "" : reader["state"].ToString(),
+                                    reader["email"] is null ? "" : reader["email"].ToString(),
+                                    img,
+                                    reader["category_name"] is null ? "" : reader["category_name"].ToString()
+                                ));
+                            }
+                            catch(Exception ex)
+                            {
+
+                            }
+                           
+                        }
                     }
-                    reader.Close();
                 }
                 catch (Exception ex)
                 {
-
-                    reader.Close();
+                    // Handle exceptions here
                     return null;
-                    //App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
-                    //App.Current.MainPage.Navigation.PopAsync();
                 }
-
-
-
-
+                finally
+                {
+                    // Ensure the reader is closed in case of an exception
+                    DbConnection.con.Close();
+                }
             }
             else
             {
-
-                reader.Close();
+                // Handle the case when the database connection fails
                 return null;
-                //App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
-                //App.Current.MainPage.Navigation.PopAsync();
-
-
-
-
-
             }
 
             return list;
-
         }
+        /* public async static Task<List<Partner>> GetPartnerList()
+         {
+             List<Partner> list = new List<Partner>();
+             ImageSource img = ImageSource.FromResource("@drawable/userregular.png");
+             MySqlDataReader reader = null;
+             if (await DbConnection.Connecter3())
+             {
+                 string sqlCmd = "select commercial_partner.Id,commercial_partner.name,category,commercial_partner.phone,commercial_partner.street,commercial_partner.city,commercial_partner.postal_code,commercial_partner.state,commercial_partner.email,commercial_partner_category.name as category_name from commercial_partner\r\nleft join commercial_partner_category on commercial_partner_category.Id =  commercial_partner.category where not(customer=0 and supplier=1);";
+
+                 try
+                 {
+
+                     MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                     reader = cmd.ExecuteReader();
+
+                     while (reader.Read())
+                     {
+                         int id = Convert.ToInt32(reader["Id"]);
+                         try
+                         {
+                             list.Add(new Partner(
+                   Convert.ToInt32(reader["Id"]),
+                   reader["name"] is null ? "" : reader["name"].ToString(),
+                   reader["category"] is null ? 0 : Convert.ToUInt32(reader["category"]),
+                   reader["phone"] is null ? "" : reader["phone"].ToString(),
+                   reader["street"] is null ? "" : reader["street"].ToString(),
+                   reader["city"] is null ? "" : reader["city"].ToString(),
+                   reader["postal_code"] is null ? "" : reader["postal_code"].ToString(),
+                   reader["state"] is null ? "" : reader["state"].ToString(),
+                   reader["email"] is null ? "" : reader["email"].ToString(),
+                   img,
+                    reader["category_name"] is null ? "" : reader["category_name"].ToString()));
+                         }
+                         catch (Exception ex)
+                         {
+                             reader.Close();
+                             return null;
+
+                         }
+
+                     }
+                     reader.Close();
+                 }
+                 catch (Exception ex)
+                 {
+
+                     reader.Close();
+                    return null;
+                     //App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+                     //App.Current.MainPage.Navigation.PopAsync();
+                 }
+
+
+
+
+             }
+             else
+             {
+
+                 reader.Close();
+                 return null;
+                 //App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+                 //App.Current.MainPage.Navigation.PopAsync();
+
+
+
+
+
+             }
+             reader.Close();
+             return list;
+
+         }*/
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
         public async static Task<List<Partner>> GetPartnaireForFormByIdAgent(uint idagent)
@@ -469,6 +563,65 @@ namespace SmartPharma5.Model
             }
             else
             {
+                return null;
+            }
+
+            return list;
+        }
+        public static async Task<BindingList<Partner>> GetPartnaireForPayment()
+        {
+            string sqlCmd = "SELECT cp.Id,cp.name,cp.mobile,cp.country,cp.email,cp.reference,cp.payment_condition_customer," +
+                     "cp.payment_method_customer,yy.due_date,yy.rest " +
+                     "FROM commercial_partner cp Left Join " +
+                     "(SELECT partner, sum(restAmount) as rest, min(due_date) as due_date " +
+                     "from(SELECT  sale_balance.restAmount, sale_balance.due_date, commercial_partner.Id as partner " +
+                     "FROM     commercial_partner LEFT OUTER JOIN sale_balance " +
+                     "ON sale_balance.IdPartner = commercial_partner.Id LEFT OUTER JOIN " +
+                     "commercial_partner_category ON commercial_partner.category = commercial_partner_category.Id " +
+                     "WHERE(FORMAT(sale_balance.restAmount, 3) <> 0)) xx " +
+                     "group by partner " +
+                     "order by due_date)  yy on cp.Id = yy.partner " +
+                     "WHERE(cp.customer = 1) AND(cp.chec_socity = 1) AND(cp.actif = 1) " +
+                     " order by yy.due_date is null, yy.due_date asc;";
+            BindingList<Partner> list = new BindingList<Partner>();
+
+            DbConnection.Deconnecter();
+            if (await DbConnection.Connecter3())
+            {
+                MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    try
+                    {
+                        list.Add(new Partner(
+                            Convert.ToUInt32(reader["Id"]),
+                            reader["name"].ToString(),
+                            reader["mobile"].ToString(),
+                            reader["country"].ToString(),
+                            reader["email"].ToString(),
+                            reader["reference"].ToString(),
+                            int.Parse(reader["payment_condition_customer"].ToString()),
+                            Convert.ToUInt32(reader["payment_method_customer"]),
+                            reader["rest"] is decimal ? Convert.ToDecimal(reader["rest"]) : (decimal?)null,
+                            reader["due_date"] is DateTime ? Convert.ToDateTime(reader["due_date"].ToString()) : (DateTime?)null));
+                    }
+                    catch (Exception ex)
+                    {
+                        reader.Close();
+                        return null;
+                        //await App.Current.MainPage.DisplayAlert("Warning", "Connetion Time out", "Ok");
+                        //await App.Current.MainPage.Navigation.PopAsync();
+                    }
+
+                }
+                reader.Close();
+                DbConnection.Deconnecter();
+            }
+            else
+            {
+
                 return null;
             }
 
@@ -535,7 +688,7 @@ namespace SmartPharma5.Model
         }
         public async static Task<Partner> GetCommercialPartnerById(int idpartner)
         {
-            string sqlCmd = "SELECT partner.Id,partner.vat_code,partner.fax ,partner.category, partner.country , partner.mobile,partner.name, partner.email, partner.number, partner.phone, partner.postal_code , partner.street , partner.state ,category.name category_name FROM commercial_partner partner left join commercial_partner_category category on category.Id = partner.category  WHERE(partner.Id = " + (uint)idpartner + ");";
+            string sqlCmd = "SELECT partner.Id,partner.vat_code,partner.fax ,partner.category, partner.country , partner.mobile,partner.name, partner.email, partner.number, partner.phone, partner.postal_code , partner.street , partner.state ,category.name category_name,category.id category FROM commercial_partner partner left join commercial_partner_category category on category.Id = partner.category  WHERE(partner.Id = " + (uint)idpartner + ");";
             Partner partner = new Partner();
 
             if (await DbConnection.Connecter3())
@@ -562,6 +715,7 @@ namespace SmartPharma5.Model
                             reader["number"].ToString()
 
                             );
+                        partner.Category = Convert.ToUInt32(reader["category"]);
 
                     }
                     catch (Exception ex)
@@ -1023,11 +1177,11 @@ namespace SmartPharma5.Model
         }
 
 
-        public static async Task<int?> InsertNewPartner(string name, string street, string city, string state, string postal_code, string country, string email, string fax, bool? customer, bool? supplier, int? category, string vat_code)
+        public static async Task<int?> InsertNewPartner(string name, string street, string city, string state, string postal_code, string country, string email, string fax, bool? customer, bool? supplier, int? category, string vat_code,int id_employe)
         {
             if (await DbConnection.Connecter3())
             {
-                string sqlCmd = "insert into commercial_partner(create_date,name,street,city,state,postal_code,country,email,fax,customer,supplier,category,vat_code,customer_discount,supplier_discount,Custumer_withholding_tax,Supplier_withholding_tax) values ('" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + name + "','" + street + "','" + city + "','" + state + "','" + postal_code + "','" + country + "','" + email + "','" + fax + "'," + customer + "," + supplier + "," + category + ",'" + vat_code + "'," +0+","+0+","+0+","+0+" );select max(id) from commercial_partner ; ";
+                string sqlCmd = "insert into commercial_partner(create_date,name,street,city,state,postal_code,country,email,fax,customer,supplier,category,vat_code,customer_discount,supplier_discount,Custumer_withholding_tax,Supplier_withholding_tax,sale_agent) values ('" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + name + "','" + street + "','" + city + "','" + state + "','" + postal_code + "','" + country + "','" + email + "','" + fax + "'," + customer + "," + supplier + "," + category + ",'" + vat_code + "'," +0+","+0+","+0+","+0+","+ id_employe + " );select max(id) from commercial_partner ; ";
                 MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
                 try
                 {

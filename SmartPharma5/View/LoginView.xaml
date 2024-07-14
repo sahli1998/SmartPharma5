@@ -70,7 +70,8 @@
                 <StackLayout WidthRequest="200" HorizontalOptions="FillAndExpand">
                     <Label Text="Success" Margin="10, 10" VerticalOptions="Center" HorizontalOptions="Center" FontSize="17"/>
                     <Image  Source="circlecheck.png" HeightRequest="50" Margin="0,20"/>
-                    <Label HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" Text="Login success! Redirecting..." Margin="10, 10" VerticalOptions="Center"  FontSize="15"/>
+                    <Label HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" Text="Login success!" Margin="10, 10" VerticalOptions="Center"  FontSize="15"/>
+                    <Label HorizontalTextAlignment="Center" HorizontalOptions="CenterAndExpand" Text="Redirecting..." Margin="10, 10" VerticalOptions="Center"  FontSize="15"/>
                 </StackLayout>
             </dxco:DXPopup>
             <dxco:DXPopup IsOpen="{Binding FieldPopup}" AllowScrim="True" >

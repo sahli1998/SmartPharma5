@@ -69,6 +69,7 @@ namespace SmartPharma5.ModelView
 
         public InsertCongé()
         {
+            user_contrat.getInfo().GetAwaiter().GetResult();
             Start_date = DateTime.Now;
             End_date = DateTime.Now.AddDays(1);
             day_Off_Types = day_off_type.GetAllDay_off_type();
@@ -92,6 +93,7 @@ namespace SmartPharma5.ModelView
         */
         private async Task insert()
         {
+            //val.decimal_value.ToString().Replace(',', '.')
             UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
             await Task.Delay(500);
 

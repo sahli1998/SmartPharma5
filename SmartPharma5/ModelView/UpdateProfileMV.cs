@@ -1,8 +1,11 @@
 ﻿using Acr.UserDialogs;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+using MySqlConnector;
 using SmartPharma5.Model;
 using SmartPharma5.View;
+using System.ComponentModel;
+using System.Reflection.Metadata.Ecma335;
 
 namespace SmartPharma5.ViewModel
 {
@@ -12,22 +15,12 @@ namespace SmartPharma5.ViewModel
         private Partner partner;
         public Partner Partner { get => partner; set => SetProperty(ref partner, value); }
 
+        
+
+        private int? instance;
+        public int? Instance { get => instance; set => SetProperty(ref instance, value); }
+
         private List<MyProfileAttrubutes> listMyAttributes;
-
-        /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-        Avant :
-                public List<MyProfileAttrubutes> ListMyAttributes { get => listMyAttributes; set => SetProperty(ref listMyAttributes, value); }
-
-
-
-                private bool changeProfileBool;
-        Après :
-                public List<MyProfileAttrubutes> ListMyAttributes { get => listMyAttributes; set => SetProperty(ref listMyAttributes, value); }
-
-
-
-                private bool changeProfileBool;
-        */
         public List<MyProfileAttrubutes> ListMyAttributes { get => listMyAttributes; set => SetProperty(ref listMyAttributes, value); }
 
 
@@ -214,6 +207,10 @@ namespace SmartPharma5.ViewModel
         public List<ProfileAttributes> ListAttributes { get => listAttributes; set => SetProperty(ref listAttributes, value); }
 
 
+        private List<MyProfileAttrubutes> restAttributes;
+        public List<MyProfileAttrubutes> RestAttributes { get => restAttributes; set => SetProperty(ref restAttributes, value); }
+
+
 
 
         private List<tempValueName> nameTemValues;
@@ -261,116 +258,105 @@ namespace SmartPharma5.ViewModel
             BtnUpdateStreet = true;
             BtnUpdateFax = true;
             BtnUpdateNumber = true;
-
-            /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-            Avant :
-                        BtnUpdateVatCode = true;
-
-                        try
-            Après :
-                        BtnUpdateVatCode = true;
-
-                        try
-            */
             BtnUpdateVatCode = true;
-
             try
             {
                 Profiles = Profile.getAllProfile().Result;
                 Catgory_list = Comercial_category.GetCommercialCategory().Result;
-
                 Partner = Partner.GetCommercialPartnerById(Convert.ToInt32(id)).Result;
+                Instance = getInstance(Convert.ToInt32(Partner.Id)).Result;
                 NameTemValues = Partner.GetCommercialPartnerTempName(Convert.ToInt32(Partner.Id)).Result;
-                // CategoryTemValues=Partner.GetCommercialPartnerTempCategory(Convert.ToInt32(Partner.Id)).Result;
-                //  StateTemValues=Partner.GetCommercialPartnerTempState(Convert.ToInt32(Partner.Id)).Result;
+                //CategoryTemValues=Partner.GetCommercialPartnerTempCategory(Convert.ToInt32(Partner.Id)).Result;
+                //StateTemValues=Partner.GetCommercialPartnerTempState(Convert.ToInt32(Partner.Id)).Result;
                 //ListMyAttributes = MyProfileAttrubutes.getMyAttributValuebyId(Convert.ToInt32(partner.Id));
-                ListMyAttributes = MyProfileAttrubutes.getMyAttributValuebyId(Convert.ToInt32(Partner.Id));
+                ListMyAttributes =  MyProfileAttrubutes.getMyAttributValuebyId(Convert.ToInt32(Partner.Id));
+                RestAttributes = MyProfileAttrubutes.getMyAttributbyId(Convert.ToInt32(Partner.Id));
+                RestAttributes = RestAttributes.Where(item2 => !ListMyAttributes.Any(item1 => item1.id_attribute == item2.id_attribute)).ToList();
+               ListMyAttributes.AddRange(RestAttributes);
                 if (ListMyAttributes.Count > 0)
                 {
                     ProfileName = ListMyAttributes[0].profile_name;
                 }
-
-
-
-
             }
             catch (Exception ex)
             {
 
             }
-
-
             UpdateCategory = new AsyncCommand(update_category);
             UpdateName = new AsyncCommand(update_name);
             UpdateState = new AsyncCommand(update_state);
             UpdateStreet = new AsyncCommand(update_street);
             UpdateCountry = new AsyncCommand(update_country);
             UpdateCodePostale = new AsyncCommand(update_code_postale);
-
             UpdateFax = new AsyncCommand(update_fax);
             UpdateNumber = new AsyncCommand(update_number);
             UpdateVatCode = new AsyncCommand(update_vat_code);
-
-
-
-
             ChangeProfile = new AsyncCommand(changeProfile1);
-
-
-
             SaveCategory = new AsyncCommand(save_category);
             SaveName = new AsyncCommand(save_name);
             SaveState = new AsyncCommand(save_state);
             SaveStreet = new AsyncCommand(save_street);
             SaveCountry = new AsyncCommand(save_country);
             SaveCodePostale = new AsyncCommand(save_code_postale);
-
-
             SaveVatCode = new AsyncCommand(save_vat_code);
             SaveNumber = new AsyncCommand(save_number);
             SaveFax = new AsyncCommand(save_fax);
-
-
             CloseCategory = new AsyncCommand(close_category);
             CloseName = new AsyncCommand(close_name);
             CloseState = new AsyncCommand(close_state);
             CloseStreet = new AsyncCommand(close_street);
             CloseCountry = new AsyncCommand(close_country);
             CloseCodePostale = new AsyncCommand(close_code_postale);
-
             CloseFax = new AsyncCommand(close_fax);
             CloseNumber = new AsyncCommand(close_number);
             CloseVatCode = new AsyncCommand(close_vat);
-
             changeSearsh = new AsyncCommand(change_profile);
+        }
+        private async Task<int?> getInstance(int partner_id)
+        {
+            string sqlCmd = "select max(id) as instance from marketing_profile_instances where partner="+partner_id+";";
+            int Instance=0;
+            DbConnection.Deconnecter();
+            if (await DbConnection.Connecter3())
+            {
+                MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                MySqlDataReader reader = cmd.ExecuteReader();
+               
+
+                while (reader.Read())
+                {
+                    try
+                    {
+                        Instance =Convert.ToInt32(reader["instance"]); 
+                    }
+                    catch (Exception ex)
+                    {
+                        reader.Close();
+                        return null;
+                    }
+
+                }
+                reader.Close();
+                DbConnection.Deconnecter();
+            }
+            else
+            {
+
+                return null;
+            }
+
+            return Instance ;
+
 
         }
-
 
         private async Task changeProfile1()
-        {
-
-            ChangeProfileBool = true;
-
-
-        }
+        {ChangeProfileBool = true;}
 
 
 
         private async Task change_profile()
-
-        /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-        Avant :
-                {
-
-                    try
-        Après :
-                {
-
-                    try
-        */
         {
-
             try
             {
 
@@ -385,14 +371,23 @@ namespace SmartPharma5.ViewModel
                                 await App.Current.MainPage.Navigation.PushAsync(new ChangeProfile(Selected_profile.Id, Selected_profile.Name,p, Convert.ToInt32(Partner.Id)));
                 */
 
+                var a = Selected_profile;
+                if(a == null)
+                {
+                    await   App.Current.MainPage.DisplayAlert("Warning", "Please select profile first!", "OK");
+                }
+                else
+                {
+                    UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                    await Task.Delay(500);
+                    int p = Profile.InsertNewInstanceProfileTemp(Selected_profile.Id, Convert.ToInt32(Partner.Id)).Result;
 
-                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-                await Task.Delay(500);
-                int p = Profile.InsertNewInstanceProfileTemp(Selected_profile.Id, Convert.ToInt32(Partner.Id)).Result;
+                    await App.Current.MainPage.Navigation.PushAsync(new ChangeProfile(Selected_profile.Id, Selected_profile.Name, p, Convert.ToInt32(Partner.Id)));
+                    ListAttributes = ProfileAttributes.GetAttributesProfile(Selected_profile.Id).Result;
+                    UserDialogs.Instance.HideLoading();
+                }
 
-                await App.Current.MainPage.Navigation.PushAsync(new ChangeProfile(Selected_profile.Id, Selected_profile.Name, p, Convert.ToInt32(Partner.Id)));
-                ListAttributes = ProfileAttributes.GetAttributesProfile(Selected_profile.Id).Result;
-                UserDialogs.Instance.HideLoading();
+                
 
             }
             catch (Exception ex)
@@ -901,12 +896,62 @@ namespace SmartPharma5.ViewModel
 
 
         }
+
+
+        public static MySqlCommand cmd;
+
+
+        private async Task<Boolean> ExistVatCode(string vat_code)
+        {
+            if (await DbConnection.Connecter3())
+            {
+                string sqlCmd = "select count(id) as num from commercial_partner where vat_code= '" + vat_code + "';";
+                MySqlDataReader reader = null;
+                try
+                {
+                    cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        if (Convert.ToInt16(reader["num"]) != 0)
+                        {
+                            return true;
+
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    //await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+                    reader.Close();
+
+                }
+
+
+                DbConnection.Deconnecter();
+                reader.Close();
+            }
+            return false;
+
+        }
+
         private async Task save_vat_code()
         {
 
             try
             {
-
+                if(await ExistVatCode(InputVatCode.ToString()))
+                {
+                    await App.Current.MainPage.DisplayAlert("Warning", "Vat code is already exist", "Ok");
+                    return;
+                }
 
 
                 if (await App.Current.MainPage.DisplayAlert("INFO", "DO YOU WANT TO SAVE THIS CHANGES!", "Yes", "No"))

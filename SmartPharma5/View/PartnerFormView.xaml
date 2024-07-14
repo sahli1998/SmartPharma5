@@ -12,29 +12,30 @@
 
 
     <Grid>
-       
+
         <StackLayout>
-            
-                <StackLayout Orientation="Horizontal">
+            <StackLayout Orientation="Horizontal">
                 <Frame HorizontalOptions="Start" Margin="0,0,10,0" >
                     <ImageButton  Source="calendar.png"   HeightRequest="50"    Clicked="ImageButton_Clicked" ></ImageButton>
                 </Frame>
-                <Frame HorizontalOptions="FillAndExpand">
+                <Frame  HorizontalOptions="FillAndExpand">
                     <Button Clicked="Button_Clicked" VerticalOptions="CenterAndExpand"   HeightRequest="40"  CornerRadius="30" Text="FILTRAGE"></Button>
                 </Frame>
+                <Frame x:Name="added"  HorizontalOptions="FillAndExpand">
+                    <Button Clicked="Button_Clicked_1" VerticalOptions="CenterAndExpand" BackgroundColor="ForestGreen"   HeightRequest="40"  CornerRadius="30" Text="ADD VISIT"></Button>
+                </Frame>
+            </StackLayout>
 
-                   
+            <StackLayout  IsVisible="{Binding TestLoad,Mode=TwoWay}" Orientation="Horizontal" Margin="20" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                <Label Text="Failed Connection" FontAttributes="Bold" VerticalOptions="CenterAndExpand"></Label>
+                <Image Source="failed_con" VerticalOptions="CenterAndExpand"></Image>
+
+            </StackLayout>
 
 
-                   
-
-                </StackLayout>
-              
-           
             <RefreshView  IsRefreshing="{Binding ActPopup}" Command="{Binding RefreshCommand}" HorizontalOptions="CenterAndExpand"  RefreshColor="#4B9EE8">
-                <dxcv:DXCollectionView x:Name="PartnerCollection"  ItemsSource="{Binding PartnerFormList,Mode=TwoWay}"    ItemSpacing="5" >
+                <dxcv:DXCollectionView x:Name="PartnerCollection"  ItemsSource="{Binding PartnerFormList,Mode=TwoWay}"    ItemSpacing="1" >
                     <!--Define the item template.-->
-
                     <dxcv:DXCollectionView.ItemTemplate  >
                         <DataTemplate >
                             <Frame  Margin="8" HasShadow="True" BorderColor="{Binding ValidatedColor}" Padding="0">
@@ -46,7 +47,6 @@
                                         <ColumnDefinition Width="auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-
                                     <Frame Grid.Column="0"
                                                 BackgroundColor="{Binding ValidatedColor}"
                                                 HasShadow="False" Padding="10" >
@@ -62,7 +62,6 @@
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="*"/>
-
                                                 </Grid.ColumnDefinitions>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="auto"/>
@@ -72,10 +71,7 @@
                                                     <RowDefinition Height="auto"/>
                                                     <RowDefinition Height="auto"/>
                                                     <RowDefinition Height="auto"/>
-
                                                 </Grid.RowDefinitions>
-
-
                                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Form_name}" FontSize="Medium" TextColor="#55575c" FontAttributes="Bold"  />
                                                 <Label Grid.Row="0" Grid.Column="1" Text="{Binding Estimated_date,StringFormat='{0:dd/MM/yyyy HH:mm}'}" HorizontalOptions="EndAndExpand" VerticalOptions="Center" TextColor="{Binding Estimated_dateColor}" FontSize="Small"  FontAttributes="Bold"  />
                                                 <Label Grid.Row="1" Grid.Column="0" TextColor="{Binding ColorDefDate}" Text="{ Binding   messageRestDate }" VerticalOptions="Center" HorizontalOptions="CenterAndExpand" FontAttributes="Bold"  FontSize="11"></Label>
@@ -84,16 +80,10 @@
                                                 <Label Grid.Row="3" Grid.Column="0" Text="{Binding Open_date,StringFormat='Opened: {0: dd/MM/yyyy HH:mm:ss}'}" FontSize="Caption" TextColor="#959aa0" />
                                                 <Label Grid.Row="3" Grid.Column="1" IsVisible="{Binding Close_date_IsVisible}" Text="{Binding Close_date,StringFormat='Closed: {0:dd/MM/yyyy HH:mm}'}" FontSize="Caption" TextColor="#959aa0" HorizontalOptions="EndAndExpand"/>
                                                 <Label Grid.Row="5" Grid.Column="0" Text="{Binding Cycle_name,StringFormat='Cycle {0}'}" FontSize="Caption" TextColor="#959aa0" FontAttributes="Bold" IsVisible="{Binding Cycle_IsVisible}" VerticalOptions="Center" />
-
                                                 <Button Grid.Row="5" Margin="5" Grid.Column="1" VerticalOptions="Center"  HorizontalOptions="End" Padding="5" Text="CONFIGURATION >" FontSize="Caption" TextColor="White" FontAttributes="Bold" Command="{Binding Source={x:Reference Expander} ,Path=BindingContext.ConfigBtnCommand}" CommandParameter="{Binding .}" />
-
                                                 <Label Grid.Row="6" Grid.Column="0" Text="{Binding Begin_date,StringFormat='Begin: {0:dd/MM/yyyy HH:mm}'}" FontSize="Caption" HorizontalTextAlignment="Start" HorizontalOptions="Start" TextColor="#959aa0" />
                                                 <Label Grid.Row="6" Grid.Column="1" Text="{Binding End_date,StringFormat='End: {0:dd/MM/yyyy HH:mm}'}" FontSize="Caption" HorizontalOptions="EndAndExpand" HorizontalTextAlignment="End" TextColor="#959aa0" />
-
-
                                             </Grid>
-
-
                                         </Grid>
                                     </StackLayout>
                                 </Grid>
@@ -104,9 +94,6 @@
             </RefreshView>
 
         </StackLayout>
-
-
-
         <dxco:DXPopup  x:Name="Popup"  IsOpen="False" AllowScrim="True" CornerRadius="20"  AllowShadow="True">
             <Frame CornerRadius="20" Padding="20,25,20,25">
                 <StackLayout Orientation="Vertical" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
@@ -115,9 +102,7 @@
                     <ActivityIndicator IsRunning="True" BackgroundColor="White" Color="#6CC5DE" WidthRequest="30" HeightRequest="30" Margin="5,5"></ActivityIndicator>
                 </StackLayout>
             </Frame>
-
         </dxco:DXPopup>
-
         <dxco:DXPopup  x:Name="PopupConfig"  IsOpen="{Binding Loading,Mode=TwoWay}" AllowScrim="True" CornerRadius="20"  AllowShadow="True">
             <Frame CornerRadius="20" Padding="20,25,20,25">
                 <StackLayout Orientation="Vertical" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
@@ -128,8 +113,6 @@
             </Frame>
 
         </dxco:DXPopup>
-
-
         <dxco:DXPopup  x:Name="PopupConnection"  CornerRadius="20"  AllowShadow="True">
             <Frame CornerRadius="20">
                 <StackLayout Padding="5" WidthRequest="150" BackgroundColor="White" Orientation="Vertical" >
@@ -139,7 +122,6 @@
             </Frame>
 
         </dxco:DXPopup>
-
         <dxco:DXPopup x:Name="filtredPannel"  VerticalOptions="Fill" HorizontalOptions="FillAndExpand" CornerRadius="10" BackgroundColor="AliceBlue" Margin="30,50,30,50">
 
             <StackLayout VerticalOptions="Center"  Spacing="2" Padding="30" Margin="10" >

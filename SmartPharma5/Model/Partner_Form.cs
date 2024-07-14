@@ -18,6 +18,7 @@ using Xamarin.Essentials;
 */
 //using System.Maui.Graphics;
 //using System;
+using Acr.UserDialogs;
 using MySqlConnector;
 using System.ComponentModel;
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
@@ -90,6 +91,80 @@ namespace SmartPharma5.Model
             Form_Id = form_Id;
             Cycle_Id = cycle_id;
         }
+        //REAL
+        public async static Task<BindingList<Collection>> GetPartnerFormByOpp(int opp)
+        {
+            uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+            string sqlCmd = "select marketing_quiz_partner_form.Id as Partner_form_id,marketing_quiz_partner_form.begin_date,estimated_date, " +
+                "marketing_quiz_partner_form.end_date,marketing_quiz_partner_form.close_date,marketing_quiz_partner_form.open_date," +
+                "marketing_quiz_form.name as Form_name,commercial_partner.name as Partner_name,partner_id,cycle_id,marketing_quiz_cycle.name as Cycle_name,validated " +
+                "from marketing_quiz_partner_form left join " +
+                "commercial_partner on marketing_quiz_partner_form.partner_id = commercial_partner.Id left join " +
+                "marketing_quiz_form on marketing_quiz_partner_form.form_id=marketing_quiz_form.Id left join " +
+                "marketing_quiz_cycle on marketing_quiz_partner_form.cycle_id=marketing_quiz_cycle.Id " +
+                "where marketing_quiz_partner_form.crm_opportunity=" + opp + " group by marketing_quiz_partner_form.Id order by estimated_date";
+
+            int i = 0;
+            BindingList<Collection> list = new BindingList<Collection>();
+
+            // Display loading indicator
+            using (var loading = UserDialogs.Instance.Loading("Loading Please wait...", null, null, true, MaskType.Black))
+            {
+                // Set a timeout of 10 seconds
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                {
+                    try
+                    {
+                        if (await DbConnection.Connecter3())
+                        {
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    try
+                                    {
+                                        list.Add(new Collection(
+                                            Convert.ToInt32(reader["Partner_form_id"]),
+                                            i,
+                                            reader["Form_name"].ToString(),
+                                            Convert.ToInt32(reader["partner_Id"]),
+                                            reader["Partner_name"].ToString(),
+                                            reader["cycle_Id"] is uint ? Convert.ToInt32(reader["cycle_Id"]) : (int?)null,
+                                            reader["Cycle_name"].ToString(),
+                                            Convert.ToDateTime(reader["begin_date"]),
+                                            Convert.ToDateTime(reader["end_date"]),
+                                            Convert.ToDateTime(reader["estimated_date"]),
+                                            reader["open_date"] is DateTime ? Convert.ToDateTime(reader["open_date"]) : (DateTime?)null,
+                                            reader["close_date"] is DateTime ? Convert.ToDateTime(reader["close_date"]) : (DateTime?)null,
+                                            Convert.ToBoolean(reader["validated"])
+                                        ));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        reader.Close();
+                                        return null;
+                                    }
+                                }
+                            }
+
+                            DbConnection.Deconnecter();
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions as needed
+                        return null;
+                    }
+                }
+            }
+
+            return list;
+        }
         public async static Task<BindingList<Collection>> GetMyPartnerForm()
         {
             uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
@@ -105,58 +180,61 @@ namespace SmartPharma5.Model
             int i = 0;
             BindingList<Collection> list = new BindingList<Collection>();
 
-
-
-
-            if (await DbConnection.Connecter3())
+            // Display loading indicator
+            using (var loading = UserDialogs.Instance.Loading("Loading Please wait...", null, null, true, MaskType.Black))
             {
-
-
-                MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                // Set a timeout of 10 seconds
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
-
                     try
                     {
-                        list.Add(new Collection(
-                            Convert.ToInt32(reader["Partner_form_id"]),
-                            i,
-                            reader["Form_name"].ToString(),
-                            Convert.ToInt32(reader["partner_Id"]),
-                            reader["Partner_name"].ToString(),
-                            reader["cycle_Id"] is uint ? Convert.ToInt32(reader["cycle_Id"]) : (int?)null,
-                            reader["Cycle_name"].ToString(),
-                            Convert.ToDateTime(reader["begin_date"]),
-                            Convert.ToDateTime(reader["end_date"]),
-                            Convert.ToDateTime(reader["estimated_date"]),
-                            reader["open_date"] is DateTime ? Convert.ToDateTime(reader["open_date"]) : (DateTime?)null,
-                            reader["close_date"] is DateTime ? Convert.ToDateTime(reader["close_date"]) : (DateTime?)null,
-                            Convert.ToBoolean(reader["validated"])
-                            ));
+                        if (await DbConnection.Connecter3())
+                        {
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    try
+                                    {
+                                        list.Add(new Collection(
+                                            Convert.ToInt32(reader["Partner_form_id"]),
+                                            i,
+                                            reader["Form_name"].ToString(),
+                                            Convert.ToInt32(reader["partner_Id"]),
+                                            reader["Partner_name"].ToString(),
+                                            reader["cycle_Id"] is uint ? Convert.ToInt32(reader["cycle_Id"]) : (int?)null,
+                                            reader["Cycle_name"].ToString(),
+                                            Convert.ToDateTime(reader["begin_date"]),
+                                            Convert.ToDateTime(reader["end_date"]),
+                                            Convert.ToDateTime(reader["estimated_date"]),
+                                            reader["open_date"] is DateTime ? Convert.ToDateTime(reader["open_date"]) : (DateTime?)null,
+                                            reader["close_date"] is DateTime ? Convert.ToDateTime(reader["close_date"]) : (DateTime?)null,
+                                            Convert.ToBoolean(reader["validated"])
+                                        ));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        reader.Close();
+                                        return null;
+                                    }
+                                }
+                            }
+
+                            DbConnection.Deconnecter();
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                     catch (Exception ex)
                     {
-                        reader.Close();
+                        // Handle exceptions as needed
                         return null;
-
-                        // App.Current.MainPage.DisplayAlert("Warning", "Connetion Time out", "Ok");
-                        //App.Current.MainPage.Navigation.PopAsync();
                     }
-
                 }
-
-                reader.Close();
-
-
             }
-            else
-            {
-                return null;
-
-            }
-
 
             return list;
         }
@@ -175,58 +253,63 @@ namespace SmartPharma5.Model
 
             BindingList<Collection> list = new BindingList<Collection>();
 
-
-            // DbConnection.Deconnecter();
-            if (await DbConnection.Connecter3())
+            // Display loading indicator
+            using (var loading = UserDialogs.Instance.Loading("Loading Please wait...", null, null, true, MaskType.Black))
             {
-
-
-                MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                // Set a timeout of 5 seconds
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
                 {
-
                     try
                     {
-                        list.Add(new Collection(
-                            Convert.ToInt32(reader["Partner_form_id"]),
-                            i,
-                            reader["Form_name"].ToString(),
-                            Convert.ToInt32(reader["partner_id"]),
-                            reader["Partner_name"].ToString(),
-                            Convert.ToInt32(reader["employe_id"]),
-                            reader["agentName"].ToString(),
-                            reader["cycle_Id"] is uint ? Convert.ToInt32(reader["cycle_Id"]) : (int?)null,
-                            reader["Cycle_name"].ToString(),
-                            Convert.ToDateTime(reader["begin_date"]),
-                            Convert.ToDateTime(reader["end_date"]),
-                            Convert.ToDateTime(reader["estimated_date"]),
-                            reader["open_date"] is DateTime ? Convert.ToDateTime(reader["open_date"]) : (DateTime?)null,
-                            reader["close_date"] is DateTime ? Convert.ToDateTime(reader["close_date"]) : (DateTime?)null,
-                            Convert.ToBoolean(reader["validated"])
-                            ));
+                        // DbConnection.Deconnecter();
+                        if (await DbConnection.Connecter3())
+                        {
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    try
+                                    {
+                                        list.Add(new Collection(
+                                            Convert.ToInt32(reader["Partner_form_id"]),
+                                            i,
+                                            reader["Form_name"].ToString(),
+                                            Convert.ToInt32(reader["partner_id"]),
+                                            reader["Partner_name"].ToString(),
+                                            Convert.ToInt32(reader["employe_id"]),
+                                            reader["agentName"].ToString(),
+                                            reader["cycle_Id"] is uint ? Convert.ToInt32(reader["cycle_Id"]) : (int?)null,
+                                            reader["Cycle_name"].ToString(),
+                                            Convert.ToDateTime(reader["begin_date"]),
+                                            Convert.ToDateTime(reader["end_date"]),
+                                            Convert.ToDateTime(reader["estimated_date"]),
+                                            reader["open_date"] is DateTime ? Convert.ToDateTime(reader["open_date"]) : (DateTime?)null,
+                                            reader["close_date"] is DateTime ? Convert.ToDateTime(reader["close_date"]) : (DateTime?)null,
+                                            Convert.ToBoolean(reader["validated"])
+                                        ));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        reader.Close();
+                                        return null;
+                                    }
+                                }
+                            }
 
+                            DbConnection.Deconnecter();
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                     catch (Exception ex)
                     {
-                        reader.Close();
+                        // Handle exceptions as needed
                         return null;
-                        //App.Current.MainPage.DisplayAlert("Warning", "Connetion Time out", "Ok");
-                        //App.Current.MainPage.Navigation.PopAsync();
-
                     }
-
                 }
-
-                reader.Close();
-                DbConnection.Deconnecter();
-
-
-            }
-            else
-            {
-                return null;
             }
 
             return list;
@@ -420,6 +503,59 @@ namespace SmartPharma5.Model
 
             return idpartnerform;
         }
+        internal static async Task<int?> InsertPartnerFormWithOppAndGetLastId(Partner partner, Form item,int oppId,int contact)
+        {
+            int idpartnerform = 0;
+            string ip = DbConnection.IpAddress();
+            uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+            int iduser = Preferences.Get("iduser", 0);
+            string sqlCmd = "";
+
+            if (oppId==0 && contact == 0)
+            {
+                 sqlCmd = "INSERT INTO marketing_quiz_partner_form SET name='" + partner.Name + "', create_date=NOW(),is_gps_enable=" + item.IsGpsEnable + ",validated=0,estimated_date=Now(),begin_date=Now(),end_date=DATE_ADD(Now(), INTERVAL 1 DAY),open_date=NOW(),ip='" + ip + "',form_id=" + item.Id + ",partner_id=" + partner.Id + ",employe_id=" + idagent + ",user_id=" + iduser + "; Select MAX(Id) From marketing_quiz_partner_form;";
+
+
+            }
+            else if(oppId==0 && contact != 0)
+            {
+                 sqlCmd = "INSERT INTO marketing_quiz_partner_form SET name='" + partner.Name + "', create_date=NOW(),is_gps_enable=" + item.IsGpsEnable + ",validated=0,estimated_date=Now(),contact=" + contact + ",begin_date=Now(),end_date=DATE_ADD(Now(), INTERVAL 1 DAY),open_date=NOW(),ip='" + ip + "',form_id=" + item.Id + ",partner_id=" + partner.Id + ",employe_id=" + idagent + ",user_id=" + iduser + "; Select MAX(Id) From marketing_quiz_partner_form;";
+
+
+            }
+            else if(oppId!=0 && contact == 0)
+            {
+                 sqlCmd = "INSERT INTO marketing_quiz_partner_form SET name='" + partner.Name + "', create_date=NOW(),is_gps_enable=" + item.IsGpsEnable + ",validated=0,estimated_date=Now(),crm_opportunity=" + oppId + ",begin_date=Now(),end_date=DATE_ADD(Now(), INTERVAL 1 DAY),open_date=NOW(),ip='" + ip + "',form_id=" + item.Id + ",partner_id=" + partner.Id + ",employe_id=" + idagent + ",user_id=" + iduser + "; Select MAX(Id) From marketing_quiz_partner_form;";
+
+            }
+            else
+            {
+                 sqlCmd = "INSERT INTO marketing_quiz_partner_form SET name='" + partner.Name + "', create_date=NOW(),is_gps_enable=" + item.IsGpsEnable + ",validated=0,estimated_date=Now(),crm_opportunity=" + oppId + ",contact="+contact+",begin_date=Now(),end_date=DATE_ADD(Now(), INTERVAL 1 DAY),open_date=NOW(),ip='" + ip + "',form_id=" + item.Id + ",partner_id=" + partner.Id + ",employe_id=" + idagent + ",user_id=" + iduser + "; Select MAX(Id) From marketing_quiz_partner_form;";
+
+            }
+            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+            if (await DbConnection.Connecter3())
+            {
+                try
+                {
+                    idpartnerform = int.Parse(cmd.ExecuteScalar().ToString());
+                }
+                catch (Exception ex)
+                {
+                    return null;
+
+                }
+
+            }
+            else
+            {
+                return null;
+            }
+
+
+            return idpartnerform;
+        }
+
         //internal static async Task<Partner_Form.Collection> GetPartnerFormById(int idpartenerform)
         //{
         //    Partner_Form.Collection partnerform = null;

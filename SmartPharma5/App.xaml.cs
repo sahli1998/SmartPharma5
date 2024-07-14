@@ -1,7 +1,9 @@
-﻿using SmartPharma5.Model;
+﻿using MySqlConnector;
+using SmartPharma5.Model;
 using SmartPharma5.Services;
 using SmartPharma5.View;
 using System.ComponentModel;
+using System.Data;
 
 namespace SmartPharma5
 {
@@ -11,97 +13,140 @@ namespace SmartPharma5
         public static BindingList<Tax.Type> taxTypeList;
         public uint IdEmploye { get; set; }
         public int IdUser { get; set; }
+        public User User { get; set; } 
         public App()
         {
-           Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzAyMzE5M0AzMjM0MmUzMDJlMzBtY2lxOXBDZmJZOUVlRlhzVEd5QVBVV2VDeStPZDI1L1BUTStOU0VtUXBBPQ==");
-            InitializeComponent();
-            Routing.RegisterRoute(nameof(HomeView), typeof(HomeView));
-            Routing.RegisterRoute(nameof(SammaryView), typeof(SammaryView));
-            Routing.RegisterRoute(nameof(SalesModule), typeof(SalesModule));
-            Routing.RegisterRoute(nameof(ProfilingModule), typeof(ProfilingModule));
-            Routing.RegisterRoute(nameof(PaymentModule), typeof(PaymentModule));
-            Routing.RegisterRoute(nameof(HrModule), typeof(HrModule));
-            Routing.RegisterRoute(nameof(LoginView), typeof(LoginView));
-            Routing.RegisterRoute(nameof(OpportunityView), typeof(OpportunityView));
-           
+            try
+            {
+                //user_contrat.GetLogoFromDatabase().GetAwaiter() ;
+                Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MzAyMzE5M0AzMjM0MmUzMDJlMzBtY2lxOXBDZmJZOUVlRlhzVEd5QVBVV2VDeStPZDI1L1BUTStOU0VtUXBBPQ==");
+                InitializeComponent();
 
-            Routing.RegisterRoute(nameof(CustomerView2), typeof(CustomerView2));
-            user_contrat.getInfo().GetAwaiter();
-            user_contrat.getModules().GetAwaiter();
-            //user_contrat.getResponsabilities();
-            // MainPage = new NavigationPage(new NavigationPage(new ShowMenuItemPages()));
+                user_contrat.getInfo().GetAwaiter();
+                user_contrat.getModules().GetAwaiter();
+                //user_contrat.getResponsabilities();
+                // MainPage = new NavigationPage(new NavigationPage(new ShowMenuItemPages()));
 
-            //MainPage = new NavigationPage(new BarPieGaugeViews());
+                //MainPage = new NavigationPage(new BarPieGaugeViews());
 
-             try
-             {
-                 IdEmploye = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
-                 IdUser = Preferences.Get("iduser", 0);
-                 try
-                 {
-                     if (User.UserIsActif(Convert.ToUInt32(IdEmploye)) == null)
-                     {
+                try
+                {
+
+                    string login = Preferences.Get("UserName", "");
+                    string password = Preferences.Get("Password", "");
+                    User = new User(login, password);
+                    IdEmploye = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                    IdUser = Preferences.Get("iduser", 0);
+                    var LoginSuccess = false;
+
+                    if (login == "" && password == "")
+                    {
 
 
-                         MainPage = new NavigationPage(new NavigationPage(new TestInternet()));
-                     }
-                     else
-                     {
 
-                         int CrmGroupe = 0;
+                        LoginSuccess = false;
 
-                         if (IdEmploye == 0)
-                         {
-                             MainPage = new NavigationPage(new NavigationPage(new LoginView()));
-
-
-                         }
+                    }
+                    else
+                    {
+                        LoginSuccess = true;
+                        // LoginSuccess = User.LoginTrue(login,password).Result;
+                    }
 
 
-                         else
-                         {
-                             CrmGroupe = Task.Run(async () => await UserCheckModule()).Result;
+                    //Task.Run(async()=>await User_Module_Groupe_Services.DeleteAll()) ;
 
-                             switch (CrmGroupe)
-                             {
-                                 case 27:
+                    // Task.Run(async () => await updateLocalDataBase(IdUser));
 
-                                     MainPage = new NavigationPage(new NavigationPage(new HomeView()));
-                                     break;
-                                 case 28:
 
-                                     MainPage = new NavigationPage(new NavigationPage(new SammaryView()));
-                                     break;
-                                 case 32:
 
-                                     MainPage = new NavigationPage(new NavigationPage(new SammaryView(IdEmploye)));
-                                     break;
-                                 case 37:
 
-                                     MainPage =  new NavigationPage(new NavigationPage(new SammaryView()));
-                                     break;
-                                 default:
 
-                                     MainPage = new NavigationPage(new NavigationPage(new HomeView()));
-                                     break;
-                             }
-                         }
+                    var CrmGroupe = Task.Run(async () => await UserCheckModule()).Result;
 
-                         taxList = Tax.getList();
-                         taxTypeList = Tax.Type.getList();
-                     }
+                    try
+                    {
+                        bool? IsActif = User.UserIsActif(Convert.ToUInt32(IdEmploye));
+                        if (IsActif == null)
+                        {
 
-                 }
-                 catch (Exception ex)
-                 {
 
-                     MainPage =new LoginView();
-                 }
+                            MainPage = new NavigationPage(new NavigationPage(new TestInternet()));
+                        }
+                        else
+                        {
 
-             }
-             catch (Exception ex)
-             { 
+
+                            if (IsActif == false)
+                            {
+                                MainPage = new NavigationPage(new NavigationPage(new LoginView()));
+                                return;
+
+                            }
+
+
+
+
+                            if (IdEmploye == 0)
+                            {
+                                MainPage = new NavigationPage(new NavigationPage(new LoginView()));
+                                return;
+
+
+                            }
+
+
+                            else
+                            {
+
+
+                                switch (CrmGroupe)
+                                {
+                                    case 27:
+
+                                        MainPage = new NavigationPage(new NavigationPage(new HomeView()));
+                                        break;
+                                    case 28:
+
+                                        MainPage = new NavigationPage(new NavigationPage(new SammaryView()));
+                                        break;
+                                    case 32:
+
+                                        MainPage = new NavigationPage(new NavigationPage(new SammaryView(IdEmploye)));
+                                        break;
+                                    case 37:
+
+                                        MainPage = new NavigationPage(new NavigationPage(new SammaryView()));
+                                        break;
+                                    default:
+
+                                        MainPage = new NavigationPage(new NavigationPage(new HomeView()));
+                                        break;
+                                }
+                            }
+
+                            taxList = Tax.getList();
+                            taxTypeList = Tax.Type.getList();
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        MainPage = new LoginView();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                }
+
             }
+            catch (Exception ex)
+            {
+
+            }
+
 
         }
 
@@ -117,6 +162,41 @@ namespace SmartPharma5
 
             // Naviguer vers la page souhaitée
             shell.GoToAsync("//appshell/LoginView");*/
+        }
+        public async Task updateLocalDataBase(int iduser)
+        {
+            string sqlCmd = "SELECT Id ,atooerp_user_module_group.user, module,atooerp_user_module_group.group FROM atooerp_user_module_group WHERE(atooerp_user_module_group.user = " + iduser + ");";
+            try
+            {
+                MySqlDataAdapter adapter = new MySqlDataAdapter(sqlCmd, DbConnection.con);
+                adapter.SelectCommand.CommandType = CommandType.Text;
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                try
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        await User_Module_Groupe_Services.
+
+
+
+
+                                Adddb(new User_module_groupe(
+                            Convert.ToInt32(row["Id"]),
+                            Convert.ToInt32(row["user"]),
+                            Convert.ToInt32(row["module"]),
+                            Convert.ToInt32(row["group"])));
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
         public static async Task<int> UserCheckModule()
         {

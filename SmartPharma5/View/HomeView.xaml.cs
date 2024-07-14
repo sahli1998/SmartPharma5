@@ -4,6 +4,8 @@ using SmartPharma5.ViewModel;
 
 namespace SmartPharma5.View;
 
+
+
 public partial class HomeView : ContentPage
 {
     public HomeView()
@@ -15,9 +17,17 @@ public partial class HomeView : ContentPage
 
         foreach (string btn in user_contrat.ListInVisibleBtn)
         {
-            StackLayout st1 = (StackLayout)FindByName(btn);
-            st1.IsVisible = false;
+            try
+            {
+                StackLayout st1 = (StackLayout)FindByName(btn);
+                st1.IsVisible = false;
+            }catch (Exception ex)
+            {
+
+            }
+            
         }
+
 
         /*   Grid gridInsideFrame = (Grid)frame.Content;
       StackLayout stackLayout1 = (StackLayout)gridInsideFrame.FindByName("achat_all_opportunity");
@@ -28,7 +38,8 @@ public partial class HomeView : ContentPage
 
 
 
-
+        var logo = user_contrat.GetLogoFromDatabase();
+        Image.Source = ByteArrayToImageConverter.Convert(logo);
 
         //Popup.IsOpen = false;
         //Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;

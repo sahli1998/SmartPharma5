@@ -70,7 +70,9 @@ namespace SmartPharma5.Model
                     DbConnection.Deconnecter();
                 }
                 catch (Exception ex)
-                { }
+                {
+                    
+                }
             }
             return list;
         }

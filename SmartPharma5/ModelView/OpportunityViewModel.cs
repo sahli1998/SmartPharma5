@@ -15,6 +15,8 @@ using Acr.UserDialogs;
 using DevExpress.Data.Svg;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
+using MySqlConnector;
+
 
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
 Avant :
@@ -37,15 +39,19 @@ namespace SmartPharma5.ViewModel
     {
         public Command EnAttenteCommand { get; }
         public Command BcCommand { get; }
+        public Command QuotationCommand { get; }
+        
         public Command GangneCommand { get; }
         public Command PerduCommand { get; }
         public Command Tryagain { get; }
+        
         public AsyncCommand ClosePopupWholesalerCommand { get; }
         public AsyncCommand RefreshCommand { get; }
         
         public AsyncCommand<OpportunityLine> RemoveCommand { get; }
         public AsyncCommand<decimal> DiscountChangeCommand { get; }
         public AsyncCommand CancelMoreDetailCommand { get; set; }
+        public AsyncCommand GetQuotation { get; }
 
 
         public AsyncCommand WholeSalerRemoveCommand { get; set; }
@@ -63,14 +69,16 @@ namespace SmartPharma5.ViewModel
         public AsyncCommand CancelCommand { get; }
         public AsyncCommand GratuiteCommand { get; }
         public AsyncCommand ValidateCommand { get; }
+        public AsyncCommand GetForms { get; }
         private bool successpopup = false;
+        public bool SuccessPopup { get => successpopup; set => SetProperty(ref successpopup, value); }
         private bool fieldpopup = false;
         private string successpopupmessage;
         public string SuccessPopupMessage { get => successpopupmessage; set => SetProperty(ref successpopupmessage, value); }
 
         private string message;
         public string Message { get => message; set => SetProperty(ref message, value); }
-        public bool SuccessPopup { get => successpopup; set => SetProperty(ref successpopup, value); }
+        
         public bool FieldPopup { get => fieldpopup; set => SetProperty(ref fieldpopup, value); }
         public bool savingpopup = false;
         public bool SavingPopup { get => savingpopup; set => SetProperty(ref savingpopup, value); }
@@ -142,10 +150,11 @@ namespace SmartPharma5.ViewModel
 
         public OpportunityViewModel(Opportunity opportunity)
         {
-            EnAttenteCommand = new Command(EnAttente);
+            EnAttenteCommand = new Command(EnAttente); 
             BcCommand = new Command(Bc);
+            QuotationCommand = new Command(quotationFun);
             GangneCommand = new Command(Gangne);
-            PerduCommand = new Command(Perdu);
+            PerduCommand = new Command(Perdu); 
             CancelMoreDetailCommand = new AsyncCommand(CancelMoreDetail);
             AddCommand = new AsyncCommand(AddItems);
             WholeSalerRemoveCommand = new AsyncCommand(WholeSalerRemove);
@@ -163,10 +172,12 @@ namespace SmartPharma5.ViewModel
             GratuiteCommand = new AsyncCommand(Gratuite);
             ValidateWithWholeSalerCommand = new Command(ValidateWithWholeSaler);
             CancelCommand = new AsyncCommand(Cancel);
+            GetForms = new AsyncCommand(getForms);
             ClosePopupWholesalerCommand = new AsyncCommand(ClosePopupWholesaler);
             Tryagain = new Command(() => FieldPopup = false);
             Opportunity = opportunity;
             RefreshCommand = new AsyncCommand(Refresh);
+            GetQuotation = new AsyncCommand(GetQuotationFun);
 
 
             Title = "Opportunity";
@@ -204,7 +215,39 @@ namespace SmartPharma5.ViewModel
             }
 
             ValidatedControl(Opportunity.validated);
+            ActPopup = false;
 
+
+        }
+        
+        public async Task GetQuotationFun()
+        {
+            try
+            {
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SaleQuotationView(Opportunity)));
+                UserDialogs.Instance.HideLoading();
+            }
+            catch (Exception ex)
+            {
+                await DbConnection.ErrorConnection();
+            }
+
+        }
+        public async Task getForms()
+        {
+            try
+            {
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new PartnerFormView(Opportunity.Id,Opportunity.IdPartner)));
+                UserDialogs.Instance.HideLoading();
+            }
+            catch (Exception ex)
+            {
+                await DbConnection.ErrorConnection();
+            }
 
         }
 
@@ -212,6 +255,41 @@ namespace SmartPharma5.ViewModel
         {
             await Task.Delay(200);
             ActPopup = false;
+
+        }
+        static async Task<bool> checkPermissionState(int id_user)
+        {
+            bool permissoion = false;
+            if (await DbConnection.Connecter3())
+            {
+                string sqlCmd = "SELECT max(opportunity_state) as opportunity_state \r\nFROM atooerp_app_permission_temp inner join\r\natooerp_user_module_group usg on usg.group = atooerp_app_permission_temp.group\r\nwhere user =" + id_user + ";";
+
+                try
+                {
+
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        if (Convert.ToInt32(reader["opportunity_state"]) == 1)
+                        {
+                            reader.Close();
+                            return true;
+                        }
+                        reader.Close();
+
+                    }
+
+                }
+
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+            }
+            return false;
 
         }
         private async void UserCheckModule()
@@ -226,24 +304,22 @@ namespace SmartPharma5.ViewModel
             }
 
 
-            switch (CrmGroupe)
+            if (await checkPermissionState(iduser))
             {
 
-                case 28:
+                
                     ButtonStateIsVisible = true;
                     StateButtonEnable();
-                    break;
-                case 32:
-                    ButtonStateIsVisible = false;
-                    break;
-                case 37:
-                    ButtonStateIsVisible = true;
-                    StateButtonEnable();
-                    break;
-                default:
-                    ButtonStateIsVisible = false;
-                    break;
+
             }
+            else
+            {
+                ButtonStateIsVisible = false;
+                StateButtonEnable();
+
+            }
+
+            ActPopup = false;
 
         }
         private void StateButtonEnable()
@@ -350,6 +426,32 @@ namespace SmartPharma5.ViewModel
             }
 
         }
+        private async void quotationFun()
+        {
+            var r = await App.Current.MainPage.DisplayAlert("Warning", "Are you sure you want to generate New Quotation for this Opportunity!", "Yes", "No");
+            if (r)
+            {
+                SavingPopup = true;
+                await Task.Delay(1000);
+                if (DbConnection.Connecter())
+                {
+                    Opportunity.TransferToQuotation();
+                    SavingPopup = false;
+                    SuccessPopupMessage = "'Quotation' has been successfully generated ";
+                    SuccessPopup = true;
+                    await Task.Delay(1000);
+                    SuccessPopup = false;
+                    await App.Current.MainPage.Navigation.PopAsync();
+                }
+                else
+                {
+                    SavingPopup = false;
+                    await Task.Delay(1000);
+                    Message = "Connection Failed";
+                    FieldPopup = true;
+                }
+            }
+        }
         private async void Bc()
         {
             var r = await App.Current.MainPage.DisplayAlert("Warning", "Are you sure you want to generate BC for this Opportunity!", "Yes", "No");
@@ -400,17 +502,26 @@ namespace SmartPharma5.ViewModel
         }
         private async Task LoadProductAndWholesaler()
         {
-            ActPopup = true;
-            AddActive = false;
-            //await Task.Delay(1000);
-            var C = Task.Run(() => Product.
-            GetProduct(Opportunity.IdPartner));
-            var P = Task.Run(() => Partner.GetWholesalerList());
-            WholesalerList = new ObservableRangeCollection<Partner>(await P);
-            ProductList = new ObservableRangeCollection<Product>(await C);
-            if (Opportunity.Id == 0)
-                AddActive = true;
+            try
+            {
+                ActPopup = true;
+                AddActive = false;
+                //await Task.Delay(1000);
+                var C = Task.Run(() => Product.
+                GetProduct(Opportunity.IdPartner));
+                var P = Task.Run(() => Partner.GetWholesalerList());
+                WholesalerList = new ObservableRangeCollection<Partner>(await P);
+                ProductList = new ObservableRangeCollection<Product>(await C);
+                if (Opportunity.Id == 0)
+                    AddActive = true;
+                ActPopup = false;
+            }
+            catch(Exception ex)
+            {
+                ActPopup = false;
+            }
             ActPopup = false;
+
 
         }
         private async Task Cancel()

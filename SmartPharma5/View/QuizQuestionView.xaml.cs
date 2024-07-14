@@ -1,4 +1,5 @@
 //using DevExpress.Android.Editors;
+//using AndroidX.Lifecycle;
 using DevExpress.Maui.Editors;
 using MvvmHelpers;
 using SmartPharma5.Model;
@@ -32,6 +33,8 @@ public partial class QuizQuestionView : ContentPage
     public BindingList<Question> QuestionList { get; set; }
     public ObservableRangeCollection<Type_element> RequestList { get; set; }
     public ObservableRangeCollection<Response> ResponseList { get; set; }
+    public int oppId=0;
+    public int contactId = 0;
 
     bool Edit_IsEnable { get; set; }
     public QuizQuestionView()
@@ -106,7 +109,100 @@ public partial class QuizQuestionView : ContentPage
 
 
     }
-    public void Forms(BindingList<Question> questionList, ObservableRangeCollection<Type_element> requestlist)
+    public QuizQuestionView(Partner_Form.Collection partner_form,int contact)
+    {
+        this.contactId = contact;
+        partner_Form = partner_form;
+
+        try
+        {
+            BindingContext = new QuizQuestionViewModel(partner_Form);
+            InitializeComponent();
+
+            Edit_IsEnable = !partner_Form.Validated && !(partner_Form.End_date < DateTime.Now);
+
+            var qvm = BindingContext as QuizQuestionViewModel;
+
+            if (qvm != null)
+            {
+                try
+                {
+                    QuestionList = qvm.QuestionList;
+                    RequestList = qvm.ElementList;
+                    ResponseList = qvm.ResponseList;
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
+            }
+            Title = partner_Form.Form_name;
+            Partner_name.Text = partner_Form.Partner_name;
+            Forms(QuestionList, RequestList);
+
+            btnGroupe.IsVisible = Edit_IsEnable;
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
+
+
+
+    }
+    public QuizQuestionView(Partner_Form.Collection partner_form,int opp,int contact)
+    {
+        this.oppId = opp;
+        this.contactId = contact;
+        partner_Form = partner_form;
+
+        try
+        {
+            BindingContext = new QuizQuestionViewModel(partner_Form);
+            InitializeComponent();
+
+            Edit_IsEnable = !partner_Form.Validated && !(partner_Form.End_date < DateTime.Now);
+
+            var qvm = BindingContext as QuizQuestionViewModel;
+
+            if (qvm != null)
+            {
+                try
+                {
+                    QuestionList = qvm.QuestionList;
+                    RequestList = qvm.ElementList;
+                    ResponseList = qvm.ResponseList;
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
+            }
+            Title = partner_Form.Form_name;
+            Partner_name.Text = partner_Form.Partner_name;
+            Forms(QuestionList, RequestList);
+
+            btnGroupe.IsVisible = Edit_IsEnable;
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+
+
+
+
+    }
+    public async void Forms(BindingList<Question> questionList, ObservableRangeCollection<Type_element> requestlist)
     {
 
 
@@ -173,6 +269,7 @@ public partial class QuizQuestionView : ContentPage
             ComboBoxEdit comboBoxEdit = new ComboBoxEdit()
             {
                 HeightRequest = 50,
+                TextFontSize=10,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 IsReadOnly = !Edit_IsEnable
             };
@@ -741,18 +838,30 @@ public partial class QuizQuestionView : ContentPage
             }
             else
             {
-                ObservableRangeCollection<Type_element> list = new ObservableRangeCollection<Type_element>();
-                foreach (Type_element Request in requestlist)
+                BindingList<Type_element> list = new BindingList<Type_element>();
+                if (question.By_ref == "")
                 {
-                    if (question.System_Type_Id == Request.Type_id)
+                    foreach (Type_element Request in requestlist)
                     {
-                        list.Add(Request);
+                        if (question.System_Type_Id == Request.Type_id)
+                        {
+                            list.Add(Request);
+                        }
                     }
+
                 }
+                else
+                {
+                    list = Type_element.GetElementByRequest(question.By_ref).Result;
+
+                }
+
+                   
 
 
                 if (question.Is_Multi)
                 {
+                    
                     stackLayoutQuestionResponse.Orientation = StackOrientation.Horizontal;
                     if (ResponseList.Count(r => r.QuestionId == question.Id) != 0)
                     {
@@ -766,6 +875,7 @@ public partial class QuizQuestionView : ContentPage
                                 comboBoxEdit = new ComboBoxEdit()
                                 {
                                     HeightRequest = 50,
+                                    TextFontSize = 10,
                                     HorizontalOptions = LayoutOptions.FillAndExpand,
                                     IsReadOnly = !Edit_IsEnable
                                 };
@@ -797,6 +907,7 @@ public partial class QuizQuestionView : ContentPage
                                 comboBoxEdit = new ComboBoxEdit()
                                 {
                                     HeightRequest = 50,
+                                    TextFontSize = 10,
                                     HorizontalOptions = LayoutOptions.FillAndExpand,
                                     IsReadOnly = !Edit_IsEnable
                                 };
@@ -832,6 +943,7 @@ public partial class QuizQuestionView : ContentPage
                         comboBoxEdit = new ComboBoxEdit()
                         {
                             HeightRequest = 50,
+                            TextFontSize = 10,
                             HorizontalOptions = LayoutOptions.FillAndExpand,
                             IsReadOnly = !Edit_IsEnable
                         };
@@ -861,6 +973,7 @@ public partial class QuizQuestionView : ContentPage
                         comboBoxEdit = new DevExpress.Maui.Editors.ComboBoxEdit()
                         {
                             HeightRequest = 50,
+                            TextFontSize = 10,
                             HorizontalOptions = LayoutOptions.FillAndExpand,
                             IsReadOnly = !Edit_IsEnable
                         };
@@ -884,6 +997,7 @@ public partial class QuizQuestionView : ContentPage
                         comboBoxEdit = new ComboBoxEdit()
                         {
                             HeightRequest = 50,
+                            TextFontSize = 10,
                             HorizontalOptions = LayoutOptions.FillAndExpand,
                             IsReadOnly = !Edit_IsEnable
                         };
@@ -979,6 +1093,7 @@ public partial class QuizQuestionView : ContentPage
             ComboBoxEdit comboBoxEdit = new ComboBoxEdit()
             {
                 HeightRequest = 50,
+                TextFontSize = 10,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 ItemsSource = LastItem.ItemsSource,
                 DisplayMember = "Name",
@@ -1355,10 +1470,92 @@ public partial class QuizQuestionView : ContentPage
 
     private async void btnSave_Clicked(object sender, EventArgs e)
     {
+        var ovm = BindingContext as QuizQuestionViewModel;
+        ovm.Save_config = true;
+
+
+
+
+
+        estimated_date.Date=DateTime.Now;
+        start_date.Date=DateTime.Now;
+        end_date.Date=DateTime.Now.AddDays(1);
+
+
+        //estimated_time.TimeSpan = DateTime.Now.TimeOfDay;
+
+        estimated_time.TimeSpan = new TimeSpan(
+           DateTime.Now.Hour,
+           DateTime.Now.Minute,
+           DateTime.Now.Second
+       );
+
+
+        //start_time.TimeSpan = DateTime.Now.TimeOfDay;
+
+
+        start_time.TimeSpan = new TimeSpan(
+         DateTime.Now.Hour,
+         DateTime.Now.Minute,
+         DateTime.Now.Second
+     );
+
+
+        //end_time.TimeSpan = DateTime.Now.TimeOfDay;
+
+        end_time.TimeSpan = new TimeSpan(
+         DateTime.Now.Hour,
+         DateTime.Now.Minute,
+         DateTime.Now.Second
+     );
+
+
+
+
+
+
+
+
+    }
+
+    private async void Save(object sender, EventArgs e)
+    {
+
+
+
+        DateTime estilmated_date = (DateTime)estimated_date.Date;
+
+       
+
+        TimeSpan estilmated_time = estimated_time.TimeSpan.Value;
+
+        DateTime Start_date = (DateTime)start_date.Date;
+        TimeSpan Start_time = start_time.TimeSpan.Value;
+
+
+        DateTime End_date = (DateTime)end_date.Date;
+        TimeSpan End_time = end_time.TimeSpan.Value;
+
+       
+
+
+        if (Start_date >= End_date)
+        {
+            await App.Current.MainPage.DisplayAlert("Warning", "begin date bigger then end date", "Ok");
+            return;
+        }
+
+
+
+
+
+        //*************************************************
+
+
         SavingPopup.IsOpen = true;
         await Task.Delay(100);
 
-        //Console.WriteLine(Stacklay.Children.Count);
+
 
 
         int i = 0;
@@ -1488,9 +1685,9 @@ public partial class QuizQuestionView : ContentPage
         {
             try
             {
-                
+
                 await Task.Delay(100);
-                var p = Task.Run(() => Response.Insert(List, partner_Form));
+                var p = Task.Run(() => Response.Insert(List, partner_Form,  estilmated_date,  estilmated_time,  Start_date,  Start_time,  End_date,  End_time));
                 await p;
                 Partner_Form.UpdateOpenDate(partner_Form);
                 SavingPopup.IsOpen = false;
@@ -1509,6 +1706,14 @@ public partial class QuizQuestionView : ContentPage
             await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
 
         SavingPopup.IsOpen = false;
+    }
+
+    private void Button_Clicked(object sender, EventArgs e)
+    {
+        var ovm = BindingContext as QuizQuestionViewModel;
+        ovm.Save_config = false;
 
     }
+
+   
 }

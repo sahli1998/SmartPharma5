@@ -14,7 +14,6 @@
                 <Label Text="Agenda of Notifications" FontAttributes="Bold" TextColor="Black" FontSize="Medium" HorizontalOptions="StartAndExpand" VerticalOptions="CenterAndExpand"/>
                 <Button Text="History" WidthRequest="100" IsVisible="{Binding BtnHitstoricNotif,Mode=TwoWay}" Command="{Binding HistoriqueCommand,Mode=TwoWay}"></Button>
                 <Button Text="Current" WidthRequest="100" IsVisible="{Binding BtnCurrentNotif,Mode=TwoWay}" Command="{Binding CurrentCommand,Mode=TwoWay}"></Button>
-
             </StackLayout>
             <RefreshView Grid.Row="4"  Margin="5,20,5,5" HorizontalOptions="FillAndExpand"  Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy,Mode=TwoWay}" RefreshColor="#455399">
 

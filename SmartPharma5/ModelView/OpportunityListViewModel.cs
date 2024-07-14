@@ -10,6 +10,7 @@ using MvvmHelpers;
 using MvvmHelpers.Commands;
 using SmartPharma5.Model;
 */
+using Acr.UserDialogs;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
 
@@ -44,7 +45,7 @@ namespace SmartPharma5.ViewModel
         private bool loading;
         public bool Loading { get => loading; set => SetProperty(ref loading, value); }
 
-
+        
 
         public AsyncCommand<SmartPharma5.Model.Opportunity.Collection> TapCommand { get; set; }
         public AsyncCommand RefreshCommand { get; }
@@ -201,70 +202,37 @@ namespace SmartPharma5.ViewModel
         }
         public async Task RefreshOnApp()
         {
-            OpportunityList = new ObservableRangeCollection<SmartPharma5.Model.Opportunity.Collection>();
-            IsPullToRefreshEnabled = false;
-            ActPopup = true;
-
-            /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-            Avant :
-                        OpportunityList.Clear();
-
-                        await Task.Delay(500);
-            Après :
-                        OpportunityList.Clear();
-
-                        await Task.Delay(500);
-            */
-            OpportunityList.Clear();
-
-            await Task.Delay(500);
-
-            try
-
-            /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-            Avant :
-                        {
-
-
-                            if (agentId != 0)
-            Après :
-                        {
-
-
-                            if (agentId != 0)
-            */
+            using (UserDialogs.Instance.Loading("Refreshing, please wait..."))
             {
+                OpportunityList = new ObservableRangeCollection<SmartPharma5.Model.Opportunity.Collection>();
+                IsPullToRefreshEnabled = false;
+                ActPopup = true;
 
+                OpportunityList.Clear();
 
-                if (agentId != 0)
+                await Task.Delay(500);
+
+                try
                 {
-                    var O = Task.Run(() => SmartPharma5.Model.Opportunity.Collection.GetOpportunityByAgent((uint)agentId));
-                    OpportunityList = new ObservableRangeCollection<SmartPharma5.Model.Opportunity.Collection>(await O);
-
+                    if (agentId != 0)
+                    {
+                        var O = Task.Run(() => SmartPharma5.Model.Opportunity.Collection.GetOpportunityByAgent((uint)agentId));
+                        OpportunityList = new ObservableRangeCollection<SmartPharma5.Model.Opportunity.Collection>(await O);
+                    }
+                    else
+                    {
+                        var O = Task.Run(() => SmartPharma5.Model.Opportunity.Collection.GetOpportunities());
+                        OpportunityList = new ObservableRangeCollection<SmartPharma5.Model.Opportunity.Collection>(await O);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-
-                    var O = Task.Run(() => SmartPharma5.Model.Opportunity.Collection.GetOpportunities());
-
-                    OpportunityList = new ObservableRangeCollection<SmartPharma5.Model.Opportunity.Collection>(await O);
-
+                    TestLoad = true;
                 }
 
-
+                ActPopup = false;
+                IsPullToRefreshEnabled = true;
             }
-            catch (Exception ex)
-            {
-                TestLoad = true;
-            }
-
-
-
-
-
-            ActPopup = false;
-            //IsBusy = false;
-            IsPullToRefreshEnabled = true;
         }
         public async Task ChangeConnexionState()
         {

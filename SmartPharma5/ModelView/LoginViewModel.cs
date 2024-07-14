@@ -154,12 +154,15 @@ namespace SmartPharma5.ViewModel
 
 
                             uint IdAgent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+
                             ActPopup = false;
                             await Task.Delay(1000);
                             SuccessPopup = true;
                             await Task.Delay(2000);
                             //await App.Current.MainPage.DisplayAlert("Success", "Login success! Redirecting...", "OK");
                             var CrmGroupe = Task.Run(async () => await UserCheckModule()).Result;
+                            Preferences.Set("UserName", User.Login) ;
+                            Preferences.Set("Password", User.Password);
                             switch (CrmGroupe)
                             {
 

@@ -31,7 +31,7 @@
                                         <dxe:TextEdit IsEnabled="false"  Text="{Binding String_Type_value , Mode=TwoWay}" LabelText="{Binding Label,Mode=TwoWay}"  IsVisible="{Binding HasType}"  HorizontalOptions="FillAndExpand" IsLabelFloating="False"></dxe:TextEdit>
                                     </StackLayout>
                                     <StackLayout Grid.Column="1">
-                                        <CheckBox IsChecked="{Binding Valid_attribute,Mode=TwoWay}" HorizontalOptions="End"   VerticalOptions="CenterAndExpand"></CheckBox>
+                                        <CheckBox  IsChecked="{Binding Valid_attribute,Mode=TwoWay}" HorizontalOptions="End"   VerticalOptions="CenterAndExpand"></CheckBox>
                                     </StackLayout>
                                 </Grid>
                             </Frame>
@@ -39,7 +39,7 @@
                     </dxcv:DXCollectionView.ItemTemplate>
                 </dxcv:DXCollectionView>
             </ScrollView>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+            <StackLayout  Orientation="Horizontal" HorizontalOptions="FillAndExpand">
 
                 <Button  BackgroundColor="Red" HorizontalOptions="FillAndExpand" TextColor="White" Text="Refuse" Command="{Binding RefuseAttrubutes,Mode=TwoWay}"></Button>
                 <Button  BackgroundColor="Green" HorizontalOptions="FillAndExpand" TextColor="White" Text="Validate" Command="{Binding ValidateAttrubutes,Mode=TwoWay}"></Button>

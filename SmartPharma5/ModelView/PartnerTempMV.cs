@@ -13,6 +13,8 @@ namespace SmartPharma5.ViewModel
         public List<PartnerTemp> ListPartnerTemp { get => listPartnerTemp; set => SetProperty(ref listPartnerTemp, value); }
 
         public AsyncCommand HistoriqueCommand { get; set; }
+        public AsyncCommand RefusedHistoriqueCommand { get; set; }
+        public AsyncCommand AcceptedHistoriqueCommand { get; set; }
 
         public AsyncCommand CurrentCommand { get; set; }
 
@@ -49,6 +51,47 @@ namespace SmartPharma5.ViewModel
 
             }
         }
+        public PartnerTempMV(string name)
+        {
+            RefreshCommand = new AsyncCommand(MyRefresh);
+            HistoriqueCommand = new AsyncCommand(Myhistory);
+            RefusedHistoriqueCommand = new AsyncCommand(MyRefusedhistory);
+            AcceptedHistoriqueCommand = new AsyncCommand(MyAcceptedhistory);
+            CurrentCommand = new AsyncCommand(Mycurrent);
+            ShowAttributes = new AsyncCommand(showAttributes);
+
+            try
+            {
+                BtnHitstoricNotif = true;
+                btnCurrentNotif = false;
+
+
+                ListPartnerTemp = new List<PartnerTemp>(PartnerTemp.GetMyPartnerTemp().Result);
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        public async Task MyRefresh()
+        {
+            ListPartnerTemp = new List<PartnerTemp>();
+            try
+            {
+                BtnHitstoricNotif = true;
+                btnCurrentNotif = false;
+
+
+                ListPartnerTemp = new List<PartnerTemp>(PartnerTemp.GetMyPartnerTemp().Result);
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            IsBusy = false;
+        }
         public async Task Refresh()
         {
             ListPartnerTemp = new List<PartnerTemp>();
@@ -84,8 +127,26 @@ namespace SmartPharma5.ViewModel
             }
 
         }
+        
 
-
+        public async Task MyRefusedhistory()
+        {
+            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+            await Task.Delay(500);
+            BtnCurrentNotif = false;
+            BtnHitstoricNotif = true;
+            ListPartnerTemp = PartnerTemp.GetMyPartnerHistoryRefusedTemp().Result;
+            UserDialogs.Instance.HideLoading();
+        }
+        public async Task MyAcceptedhistory()
+        {
+            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+            await Task.Delay(500);
+            BtnCurrentNotif = false;
+            BtnHitstoricNotif = true;
+            ListPartnerTemp = PartnerTemp.GetMyPartnerHistoryAcceptedTemp().Result;
+            UserDialogs.Instance.HideLoading();
+        }
         public async Task current()
         {
            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
@@ -102,6 +163,26 @@ namespace SmartPharma5.ViewModel
             BtnCurrentNotif = true;
             BtnHitstoricNotif = false;
             ListPartnerTemp = PartnerTemp.GetAllPartnerHistoryTemp().Result;
+            UserDialogs.Instance.HideLoading();
+
+        }
+
+        public async Task Mycurrent()
+        {
+            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+            await Task.Delay(500);
+            BtnCurrentNotif = false;
+            BtnHitstoricNotif = true;
+            ListPartnerTemp = PartnerTemp.GetMyPartnerTemp().Result;
+            UserDialogs.Instance.HideLoading();
+        }
+        public async Task Myhistory()
+        {
+            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+            await Task.Delay(500);
+            BtnCurrentNotif = true;
+            BtnHitstoricNotif = false;
+            ListPartnerTemp = PartnerTemp.GetMyPartnerHistoryTemp().Result;
             UserDialogs.Instance.HideLoading();
 
         }

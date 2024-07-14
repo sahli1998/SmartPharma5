@@ -9,7 +9,7 @@
 		<RootNamespace>SmartPharma5</RootNamespace>
 
 		<!-- Display name -->
-		<ApplicationTitle>SmartPharma</ApplicationTitle>
+		<ApplicationTitle>SystematicERP</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.SmartPharma5</ApplicationId>
@@ -24,15 +24,12 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
-		<!--<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />-->
-
-  
-      <MauiIcon Include="Resources\AppIcon\logo.png" />
+		<MauiIcon Include="Resources\AppIcon\icon1.jpeg" />
   
    
  
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\AppIcon\logo.png" Color="#FFFF" />
+		<MauiSplashScreen Include="Resources\Images\logo_systematic2.png" Color="#FFFF" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -42,7 +39,7 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-		<None Remove="Resources\AppIcon\logo.png" />
+		<None Remove="Resources\AppIcon\workmanlogo.jpeg" />
 		<None Remove="Resources\Images\done.png" />
 		<None Remove="Resources\Images\done_pichon.png" />
 		<None Remove="Resources\Images\grid.png" />
@@ -51,6 +48,8 @@
 		<None Remove="Resources\Images\logo_systematic.jpeg" />
 		<None Remove="Resources\Images\menu_pichon.png" />
 		<None Remove="Resources\Images\parametrage.png" />
+		<None Remove="Resources\Images\pending.png" />
+		<None Remove="Resources\Images\pending1.png" />
 		<None Remove="Resources\Images\pichon_dashboard.png" />
 		<None Remove="Resources\Images\pichon_form.png" />
 		<None Remove="Resources\Images\pichon_home.png" />
@@ -61,9 +60,12 @@
 		<None Remove="Resources\Images\pichon_sales.png" />
 		<None Remove="Resources\Images\time_pichon.png" />
 		<None Remove="Resources\Images\T_pichon.png" />
-  
+		<None Remove="Resources\Images\workmanlogo..jpeg" />
+
+   
+
     
-      <MauiIcon Include="Resources\AppIcon\logo.png" />
+   
 
 	</ItemGroup>
 
@@ -89,6 +91,9 @@
 
 
 	<ItemGroup>
+	  <MauiXaml Update="View\AddNewContact.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\AddPartnerTemp.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -128,6 +133,9 @@
 	  <MauiXaml Update="View\ChartView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="View\ContactPartnerPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\CustomerListView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -152,6 +160,12 @@
 	  <MauiXaml Update="View\DétailsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="View\edit-quotationView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\EditContactPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\FormListView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -159,6 +173,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\HrModule.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\ListContactsPartner.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ListOfOpportunity.xaml">
@@ -170,7 +187,25 @@
 	  <MauiXaml Update="View\MyCash_deskView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="View\MyNotificationsProfilePartner.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\MyPartnerTempAttributesView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\MyPartnerTempView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\MyRequestsTap.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\MyTransferListView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\MyValidateAttributeChangeProfile.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\MyValidateUpdateOfProfile.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\NotificationsProfilePartner.xaml">
@@ -180,6 +215,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\OpportunityView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\opportunity_formView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\PartnerFormView.xaml">
@@ -192,6 +230,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\PaymentCustomerListView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\PaymentCustomers.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\PaymentListView.xaml">
@@ -218,10 +259,16 @@
 	  <MauiXaml Update="View\ProfilingModule.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="View\QuizForm2.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\QuizPartnerFormCalender.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\QuizQuestionView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\SaleQuotationView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\SalesModule.xaml">
@@ -263,11 +310,6 @@
 	  <MauiXaml Update="View\ValidateUpdateOfProfile.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <Folder Include="Platforms\Android\Resources\drawable\" />
 	</ItemGroup>
 
 </Project>

@@ -10,4 +10,5 @@ public partial class ValidateAttributeChangeProfile : ContentPage
         InitializeComponent();
         BindingContext = new ValidateChnageProfileAttributesMV(id, id_partner, id_profile);
     }
+  
 }

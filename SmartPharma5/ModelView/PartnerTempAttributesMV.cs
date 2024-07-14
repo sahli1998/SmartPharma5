@@ -11,6 +11,8 @@ namespace SmartPharma5.ViewModel
     public class PartnerTempAttributesMV : BaseViewModel
     {
 
+        public int Id_employe { get; set; }
+
         public int partner_temp { get; set; }
         public int id_profile { get; set; }
 
@@ -20,8 +22,9 @@ namespace SmartPharma5.ViewModel
         public AsyncCommand ValidateTemp { get; set; }
         public AsyncCommand RefuseTemp { get; set; }
 
-        public PartnerTempAttributesMV(int partner_temp, int id_profile)
+        public PartnerTempAttributesMV(int partner_temp, int id_profile,int id_employe)
         {
+            Id_employe = id_employe;
             this.partner_temp = partner_temp;
             this.id_profile = id_profile;
             ValidateTemp = new AsyncCommand(validate);
@@ -130,7 +133,7 @@ namespace SmartPharma5.ViewModel
 
                 }
 
-                id_new_partner = await Partner.InsertNewPartner(Partner_name, Partner_Street, Partner_City, Partner_State, Partner_Postal, Partner_Country, Partner_Email, Partner_Fax, Partner_Customer, Partner_Supplier, Partner_Category, Partner_Vat_Code);
+                id_new_partner = await Partner.InsertNewPartner(Partner_name, Partner_Street, Partner_City, Partner_State, Partner_Postal, Partner_Country, Partner_Email, Partner_Fax, Partner_Customer, Partner_Supplier, Partner_Category, Partner_Vat_Code,Id_employe);
 
 
                 foreach (PartnerTempAttributesModel item in ListPartnerTempAttributes)

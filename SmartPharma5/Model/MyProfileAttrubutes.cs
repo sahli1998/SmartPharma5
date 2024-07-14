@@ -1,6 +1,11 @@
-﻿using MvvmHelpers;
+﻿//using Android.Renderscripts;
+//using DevExpress.iOS.DataForm;
+using MvvmHelpers;
 using MvvmHelpers.Commands;
 using MySqlConnector;
+//using static CoreFoundation.DispatchQueue;
+using static DevExpress.Maui.Core.Internal.Either;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Command = MvvmHelpers.Commands.Command;
 
 namespace SmartPharma5.Model
@@ -15,7 +20,7 @@ namespace SmartPharma5.Model
         public bool HasUpdatedValues { get; set; } = false;
 
         //public Command SaveTempValue { get; }
-        public Command getTemp { get; }
+        public MvvmHelpers.Commands.Command<int?> getTemp { get; }
         public string nameAttribute { get; set; }
         public string labelAttribute { get; set; }
         public string value { get; set; }
@@ -25,6 +30,8 @@ namespace SmartPharma5.Model
         public int id_type { get; set; } = 0;
         public int id_element { get; set; } = 0;
         public bool HasTempValue { get; set; } = false;
+        public int id_attribute { get; set; } = 0;
+        public bool IsAffected { get; set; }
 
 
         //------------------------------------------------ selected value ------------------------------------
@@ -88,7 +95,7 @@ namespace SmartPharma5.Model
             this.value = value;
             this.Update = new AsyncCommand(update_fnc);
         }
-        public MyProfileAttrubutes(int id, string nameAttribute, string labelAttribute, string type, string type_editor, bool hasValue, string value, string profile_name)
+        public MyProfileAttrubutes(int id, string nameAttribute, string labelAttribute, string type, string type_editor, bool hasValue, string value, string profile_name,int type_id,int id_attribute,bool isAffected )
         {
             BtnUpdated = true;
             BtnDown = true;
@@ -101,13 +108,17 @@ namespace SmartPharma5.Model
             this.labelAttribute = labelAttribute;
             this.type_editor = type_editor;
             this.profile_name = profile_name;
+            this.id_type=type_id;
+            this.id_attribute = id_attribute;
+            this.IsAffected = isAffected;
             this.Update = new AsyncCommand(update_fnc);
             ShowTempValues = new AsyncCommand(showTemp);
             CloseTempValues = new AsyncCommand(closeTemp);
 
 
-            getTemp = new Command(async () =>
+            getTemp = new MvvmHelpers.Commands.Command<int?>(async (param) =>
             {
+                var parametre = param;
 
                 string sqlcmd = "";
 
@@ -118,6 +129,7 @@ namespace SmartPharma5.Model
 
                         sqlcmd = "insert into marketing_profile_attribut_value_temp(name,string_value,attribut_value,create_date,user,state,employe) " +
                         "values ('string','" + this.string_value + "'," + this.id + ",'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + user_contrat.iduser + ",1," + user_contrat.id_employe + " );";
+                      
 
                     }
                     else if (this.HasMemo == true)
@@ -162,8 +174,25 @@ namespace SmartPharma5.Model
                         }
                         else
                         {
-                            sqlcmd = "insert into marketing_profile_attribut_value_temp(name,type,attribut_value,create_date,user,state,employe) " +
-                       "values ('string'," + Convert.ToInt32(this.selected_element.id) + "," + this.id + ",'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + user_contrat.iduser + ",1," + user_contrat.id_employe + " );";
+                            if (!this.IsAffected)
+                            {
+
+                                string sqlcmd1 = "insert into marketing_profile_attribut_value(create_date,attribut,profile_instance,type) values ('"+ DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "',"+ this.id + ","+parametre+ ",null);select max(id) from marketing_profile_attribut_value;";
+                                DbConnection.Deconnecter();
+                                await DbConnection.Connecter3();
+                                MySqlCommand cmd1 = new MySqlCommand(sqlcmd1, DbConnection.con);
+                                int  result = int.Parse(cmd1.ExecuteScalar().ToString());
+
+
+                                sqlcmd = "insert into marketing_profile_attribut_value_temp(name,type,attribut_value,create_date,user,state,employe) " +
+                                    "values ('string'," + Convert.ToInt32(this.selected_element.id) + "," + result + ",'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + user_contrat.iduser + ",1," + user_contrat.id_employe + " );";
+
+                            }
+                            else
+                            {
+                                sqlcmd = "insert into marketing_profile_attribut_value_temp(name,type,attribut_value,create_date,user,state,employe) " +
+                                        "values ('string'," + Convert.ToInt32(this.selected_element.id) + "," + this.id + ",'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + user_contrat.iduser + ",1," + user_contrat.id_employe + " );";
+                            }
                         }
 
                     }
@@ -245,31 +274,98 @@ namespace SmartPharma5.Model
             BtnUp = true;
 
         }
+        
+
+
+        public static List<MyProfileAttrubutes> getMyAttributbyId(int id_partner)
+        {
+            string sqlCmd1 = "select marketing_profile_attribut.Id ,  marketing_profile_attribut.label , marketing_profile_attribut.name as name_attribute ,\r\n    " +
+                "marketing_profile.name as profile_name , atooerp_type.name as name_type , atooerp_type.Id as type_id,atooerp_type.name as name_type ,\r\n    " +
+                "atooerp_input_editors.name as editor_type from marketing_profile_attribut\r\n    " +
+                "left join marketing_profile on marketing_profile.Id=marketing_profile_attribut.profile\r\n    " +
+                "left join atooerp_type on atooerp_type.id = marketing_profile_attribut.attribut_type\r\n    " +
+                "left join atooerp_input_editors on atooerp_input_editors.id = marketing_profile_attribut.editor\r\n " +
+                "where marketing_profile_attribut.profile= (select marketing_profile_instances.profil " +
+                "FROM marketing_profile_instances where marketing_profile_instances.Id =\r\n " +
+                "(select max(marketing_profile_instances.Id) from marketing_profile_instances where marketing_profile_instances.partner = "+ id_partner + "));";
+            DbConnection.Deconnecter();
+            DbConnection.Connecter();
+            List<MyProfileAttrubutes> list = new List<MyProfileAttrubutes>();
+            MySqlCommand cmd = new MySqlCommand(sqlCmd1, DbConnection.con);
+            MySqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                try
+                {
+                    MyProfileAttrubutes attribute = new MyProfileAttrubutes();
+
+                    if (Convert.ToInt64(reader["type_id"]) == 1)
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, "", Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]),Convert.ToInt32(reader["Id"]),false);
+                        attribute.HasText = true;
+
+                    }
+                    else if (Convert.ToInt64(reader["type_id"]) == 2)
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, "", Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]),Convert.ToInt32(reader["Id"]), false);
+                        attribute.HasNumber = true;
+                    }
+                    else if (Convert.ToInt64(reader["type_id"]) == 3)
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, "", Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]),Convert.ToInt32(reader["Id"]), false);
+                        attribute.HasDecimal = true;
+                    }
+                    else if (Convert.ToInt64(reader["type_id"]) == 4)
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, "", Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]),Convert.ToInt32(reader["Id"]), false);
+                        attribute.HasCheck = true;
+                    }
+                    else if (Convert.ToInt64(reader["type_id"]) == 6)
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, "", Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]),Convert.ToInt32(reader["Id"]), false);
+                        attribute.HasDate = true;
+                    }
+                    else
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, "", Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]),Convert.ToInt32(reader["Id"]), false);
+                        attribute.HasList = true;
+                        //attribute.listOfTypeElement = atooerp_element.getAtooerpElementByIdType(attribute.id_type, 0);
+
+                    }
+                    list.Add(attribute);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                
+                
+            }
+            reader.Close();
+            DbConnection.Deconnecter();
+            foreach (MyProfileAttrubutes attributes in list)
+            {
+                if (attributes.HasList == true)
+                {
+                    attributes.listOfTypeElement = atooerp_element.getAtooerpElementByIdType(attributes.id_type, 0);
+                }
+            }
+            return list;
+
+        }
+
 
         public static List<MyProfileAttrubutes> getMyAttributValuebyId(int id_partner)
         {
-            string sqlCmd1 = "select marketing_profile_attribut_value.Id ,  marketing_profile_attribut.label , marketing_profile_attribut.name as name_attribute ,\r\n marketing_profile_attribut_value.string_value , marketing_profile_attribut_value.boolean_value , marketing_profile_attribut_value.date_value ,\r\n  marketing_profile_attribut_value.int_value , marketing_profile_attribut_value.decimal_value , marketing_profile_attribut_value.blob_value ,\r\n  marketing_profile.name as profile_name , atooerp_type.name as name_type , atooerp_type.Id as type_id ,atooerp_type_element.Id as id_element ,\r\n  atooerp_type_element.name as type_element , atooerp_input_editors.name as editor_type from marketing_profile_attribut_value\r\n  left join marketing_profile_instances  on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\n  left join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\n  left join marketing_profile_attribut on marketing_profile_attribut_value.attribut=marketing_profile_attribut.Id\r\n  left join atooerp_type on marketing_profile_attribut.attribut_type = atooerp_type.Id\r\n  left join atooerp_type_element on atooerp_type_element.id = marketing_profile_attribut_value.type\r\n\r\n\r\n  left join atooerp_input_editors on marketing_profile_attribut.editor = atooerp_input_editors.Id\r\n  where  marketing_profile_instances.Id = (select max(instance.Id) from marketing_profile_instances instance where instance.partner = " + id_partner + " );";
+            string sqlCmd1 = "select marketing_profile_attribut_value.Id , marketing_profile_attribut.Id as attribut_id, marketing_profile_attribut.label , marketing_profile_attribut.name as name_attribute ,\r\n marketing_profile_attribut_value.string_value , marketing_profile_attribut_value.boolean_value , marketing_profile_attribut_value.date_value ,\r\n  marketing_profile_attribut_value.int_value , marketing_profile_attribut_value.decimal_value , marketing_profile_attribut_value.blob_value ,\r\n  marketing_profile.name as profile_name , atooerp_type.name as name_type , atooerp_type.Id as type_id ,atooerp_type_element.Id as id_element ,\r\n  atooerp_type_element.name as type_element , atooerp_input_editors.name as editor_type" +
+                " from marketing_profile_attribut_value\r\n  left join marketing_profile_instances  on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\n  left join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\n  left join marketing_profile_attribut on marketing_profile_attribut_value.attribut=marketing_profile_attribut.Id\r\n  left join atooerp_type on marketing_profile_attribut.attribut_type = atooerp_type.Id\r\n  left join atooerp_type_element on atooerp_type_element.id = marketing_profile_attribut_value.type\r\n\r\n\r\n  left join atooerp_input_editors on marketing_profile_attribut.editor = atooerp_input_editors.Id\r\n  where  marketing_profile_instances.Id = (select max(instance.Id) from marketing_profile_instances instance where instance.partner = " + id_partner + " );";
             DbConnection.Deconnecter();
             DbConnection.Connecter();
 
             MySqlCommand cmd = new MySqlCommand(sqlCmd1, DbConnection.con);
 
             List<MyProfileAttrubutes> list = new List<MyProfileAttrubutes>();
-
-            /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-            Avant :
-                        MySqlDataReader reader = cmd.ExecuteReader();
-
-
-
-                        while (reader.Read())
-            Après :
-                        MySqlDataReader reader = cmd.ExecuteReader();
-
-
-
-                        while (reader.Read())
-            */
             MySqlDataReader reader = cmd.ExecuteReader();
 
 
@@ -278,9 +374,25 @@ namespace SmartPharma5.Model
             {
                 MyProfileAttrubutes attribute = new MyProfileAttrubutes();
                 string str = Convert.ToString(reader["string_value"]);
-                if (Convert.ToString(reader["string_value"]) != null && Convert.ToString(reader["boolean_value"]) == "" && Convert.ToString(reader["date_value"]) == "" && Convert.ToString(reader["decimal_value"]) == "" && Convert.ToString(reader["int_value"]) == "" && Convert.ToString(reader["type_element"]) == "")
+                if (Convert.ToString(reader["editor_type"]) == "SearchLookUpEdit")
                 {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["string_value"]), Convert.ToString(reader["profile_name"]));
+                    if (Convert.ToString(reader["type_element"]) != "")
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["type_element"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]),true);
+                        attribute.HasList = true;
+                        attribute.id_element = Convert.ToInt32(reader["id_element"]);
+                    }
+                    else
+                    {
+                        attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["type_element"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]),true);
+                        attribute.HasList = true;
+
+                    }
+
+                }
+                else if (Convert.ToString(reader["string_value"]) != null && Convert.ToString(reader["boolean_value"]) == "" && Convert.ToString(reader["date_value"]) == "" && Convert.ToString(reader["decimal_value"]) == "" && Convert.ToString(reader["int_value"]) == "" && Convert.ToString(reader["type_element"]) == "")
+                {
+                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["string_value"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]),true);
                     if (Convert.ToString(reader["editor_type"]).ToLower() == "memoedit")
                     {
                         attribute.HasMemo = true;
@@ -293,43 +405,30 @@ namespace SmartPharma5.Model
                 }
                 else if (Convert.ToString(reader["boolean_value"]) != "")
                 {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["boolean_value"]), Convert.ToString(reader["profile_name"]));
+                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["boolean_value"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]), true);
                     attribute.HasCheck = true;
                 }
                 else if (Convert.ToString(reader["date_value"]) != "")
                 {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["date_value"]), Convert.ToString(reader["profile_name"]));
+                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["date_value"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]), true);
                     attribute.HasDate = true;
                 }
                 else if (Convert.ToString(reader["decimal_value"]) != "")
                 {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["decimal_value"]), Convert.ToString(reader["profile_name"]));
+                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["decimal_value"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]), true);
                     attribute.HasDecimal = true;
                 }
                 else if (Convert.ToString(reader["int_value"]) != "")
                 {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["int_value"]), Convert.ToString(reader["profile_name"]));
+                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["int_value"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]), true);
                     attribute.HasNumber = true;
 
                 }
                 else if (Convert.ToString(reader["blob_value"]) != "")
                 {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["blob_value"]), Convert.ToString(reader["profile_name"]));
+                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["blob_value"]), Convert.ToString(reader["profile_name"]), Convert.ToInt32(reader["type_id"]), Convert.ToInt32(reader["attribut_id"]), true);
                 }
-                else if (Convert.ToString(reader["type_element"]) != "")
-                {
-                    attribute = new MyProfileAttrubutes(Convert.ToInt32(reader["Id"]), Convert.ToString(reader["name_attribute"]), Convert.ToString(reader["label"]).ToUpper(), Convert.ToString(reader["name_type"]), Convert.ToString(reader["editor_type"]), true, Convert.ToString(reader["type_element"]), Convert.ToString(reader["profile_name"]));
-                    attribute.HasList = true;
-                    attribute.id_element = Convert.ToInt32(reader["id_element"]);
-
-
-
-
-
-                }
-                else
-                {
-                }
+     
                 if (Convert.ToString(attribute.id_type) == "")
                 {
                     attribute.id_type = Convert.ToInt32(reader["type_id"]);
@@ -360,7 +459,7 @@ namespace SmartPharma5.Model
                 }
                 if (attributes.HasList == true)
                 {
-                    attributes.listOfTypeElement = atooerp_element.getAtooerpElementByIdTypeForUpdate(attributes.id_element, 0);
+                    attributes.listOfTypeElement = atooerp_element.getAtooerpElementByIdType(attributes.id_type, 0);
                 }
 
             }

@@ -33,8 +33,10 @@
                     <Label Text="Loading Please wait ..." FontSize="17" HorizontalTextAlignment="Center" Margin="0,15,0,0" TextColor="#2596be"></Label>
                     <ActivityIndicator HorizontalOptions="CenterAndExpand"  IsRunning="True" BackgroundColor="White" Color="#6CC5DE" WidthRequest="15" HeightRequest="15" Margin="5,0,5,0"></ActivityIndicator>
                 </StackLayout>
+               
+                    <Image Source="workmanlogo.jpeg"  HorizontalOptions="CenterAndExpand" Margin="0,30,0,0" HeightRequest="60" WidthRequest="60"  VerticalOptions="StartAndExpand"></Image>
 
-                <Image Source="Logo.png" HorizontalOptions="CenterAndExpand" Margin="0,30,0,0" HeightRequest="60" WidthRequest="60" VerticalOptions="StartAndExpand"></Image>
+               
             </StackLayout>
         </StackLayout>
 

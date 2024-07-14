@@ -74,6 +74,49 @@ namespace SmartPharma5.Model
 
 
         }
+        public  static byte[] GetLogoFromDatabase()
+        {
+            byte[] logoBytes = null;
+            if ( DbConnection.Connecter2())
+            {
+                string querry = "SELECT logo FROM atooerp_socity;";
+
+                try
+                {
+                    MySqlCommand command = new MySqlCommand(querry, DbConnection.con);
+
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            if (!reader.IsDBNull(0))
+                            {
+                                logoBytes = (byte[])reader.GetValue(0);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions here
+                    return null;
+                }
+                finally
+                {
+                    // Ensure the reader is closed in case of an exception
+                    DbConnection.con.Close();
+                }
+            }
+            else
+            {
+                // Handle the case when the database connection fails
+                return null;
+            }
+
+            return logoBytes;
+
+        }
 
         public static void getResponsabilities()
         {

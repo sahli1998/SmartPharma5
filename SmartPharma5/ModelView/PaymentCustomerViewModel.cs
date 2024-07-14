@@ -1,5 +1,7 @@
 ﻿using MvvmHelpers;
 using MvvmHelpers.Commands;
+using MySqlConnector;
+
 
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
 Avant :
@@ -60,15 +62,66 @@ namespace SmartPharma5.ViewModel
         }
 
 
+        static async Task<bool> checkPermissionPayment(int id_user)
+        {
+            bool permissoion = false;
+            if (await DbConnection.Connecter3())
+            {
+                string sqlCmd = "SELECT max(payment_partner) as payment_partner \r\nFROM atooerp_app_permission_temp inner join\r\natooerp_user_module_group usg on usg.group = atooerp_app_permission_temp.group\r\nwhere user =" + id_user + ";";
+
+                try
+                {
+
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        if (Convert.ToInt32(reader["quiz_partner"]) == 1)
+                        {
+                            reader.Close();
+                            return true;
+                        }
+                        reader.Close();
+
+                    }
+
+                }
+
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+            }
+            return false;
+
+        }
+
         private async Task LoadCustomer()
         {
             ActPopup = true;
             //await Task.Delay(2000);
             ClientList.Clear();
+            int iduser = Preferences.Get("iduser", 0);
+
             try
             {
-                var C = Task.Run(() => Partner.GetPartnaire());
-                ClientList = new ObservableRangeCollection<Partner>(await C);
+                //if (!await checkPermissionPayment(iduser))
+                //{
+                //    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                //    var C = Task.Run(() => Partner.GetPartnerListByAgent(idagent));
+                //    ClientList = new ObservableRangeCollection<Partner>(await C);
+                //}
+                //else
+                //{
+                    var C = Task.Run(() => Partner.GetPartnaire());
+                    ClientList = new ObservableRangeCollection<Partner>(await C);
+                //}
+
+
+
+                
             }
             catch (Exception ex)
             {
@@ -86,11 +139,22 @@ namespace SmartPharma5.ViewModel
             await Task.Delay(2000);
             ActPopup = true;
             ClientList.Clear();
+            int iduser = Preferences.Get("iduser", 0);
             try
             {
-                var C = Task.Run(() => Partner.GetPartnaire());
-                ClientList = new ObservableRangeCollection<Partner>(await C);
-                TestCon = false;
+
+                if (!await checkPermissionPayment(iduser))
+                {
+                    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                    var C = Task.Run(() => Partner.GetPartnerListByAgent(idagent));
+                    ClientList = new ObservableRangeCollection<Partner>(await C);
+                }
+                else
+                {
+                    var C = Task.Run(() => Partner.GetPartnaire());
+                    ClientList = new ObservableRangeCollection<Partner>(await C);
+                }
+
             }
             catch (Exception ex)
             {

@@ -19,7 +19,10 @@ namespace SmartPharma5
                     fonts.AddFont("univia-pro-regular.ttf", "Univia-Pro");
                     fonts.AddFont("roboto-bold.ttf", "Roboto-Bold");
                     fonts.AddFont("roboto-regular.ttf", "Roboto");
-                });
+                })
+                
+
+                ;
 
             return builder.Build();
         }

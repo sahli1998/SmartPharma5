@@ -9,6 +9,7 @@ namespace SmartPharma5.Model
         public string Name { get; set; }
         public DateTime Create_Date { get; set; }
         public string Memo { get; set; }
+        public string By_ref { get; set; }
         public bool Is_Multi { get; set; }
         public bool Is_Null { get; set; }
         public bool Enable { get; set; }
@@ -16,6 +17,8 @@ namespace SmartPharma5.Model
         public uint System_Type_Id { get; set; }
         public uint Question_Type_Id { get; set; }
         public uint Input_editor { get; set; }
+
+        public bool Has_Req { get; set; }
         public Question()
         { }
 
@@ -24,7 +27,7 @@ namespace SmartPharma5.Model
             Id = id;
             System_Type_Id = system_Type_Id;
         }
-        public Question(uint id, bool is_Multi, bool is_Null, bool enable, string question_Text, uint question_type, uint system_Type_Id, uint input_editor)
+        public Question(uint id, bool is_Multi, bool is_Null, bool enable, string question_Text, uint question_type, uint system_Type_Id, uint input_editor, string by_ref)
         {
             Id = id;
             Is_Multi = is_Multi;
@@ -34,6 +37,7 @@ namespace SmartPharma5.Model
             Question_Type_Id = question_type;
             System_Type_Id = system_Type_Id;
             Input_editor = input_editor;
+            By_ref = by_ref;
         }
         public static BindingList<Question> GetQuestionById(int id)
         {
@@ -61,7 +65,8 @@ namespace SmartPharma5.Model
                             reader["question_Text"].ToString(),
                             Convert.ToUInt32(reader["question_type_id"]),
                             Convert.ToUInt32(reader["system_type_id"]),
-                            Convert.ToUInt32(reader["input_editors_id"])
+                            Convert.ToUInt32(reader["input_editors_id"]),
+                            "test"
 
                             ));
 
@@ -86,11 +91,12 @@ namespace SmartPharma5.Model
         {
             BindingList<Question> list = new BindingList<Question>();
             MySqlDataReader reader = null;
-            string sqlCmd = " SELECT marketing_quiz_question.Id as idQuestion , is_multi, is_null, marketing_quiz_question.enable, question_text, question_type_id, system_type_id, input_editors_id " +
+            string sqlCmd = " SELECT marketing_quiz_question.Id as idQuestion , is_multi, is_null, marketing_quiz_question.enable, question_text, question_type_id, system_type_id, input_editors_id , atooerp_type.by_request " +
                 " FROM marketing_quiz_question " +
                 " left outer join marketing_quiz_form_question On marketing_quiz_question.Id = marketing_quiz_form_question.question_id " +
                 " left outer join marketing_quiz_partner_form On marketing_quiz_form_question.form_id = marketing_quiz_partner_form.form_id" +
                 " left outer join marketing_quiz_form On marketing_quiz_partner_form.form_id = marketing_quiz_form.Id " +
+                "  LEFT outer join atooerp_type On marketing_quiz_question.system_type_id = atooerp_type.Id" +
                 " where marketing_quiz_partner_form.Id = " + id + " and marketing_quiz_question.enable= 1 order by question_rank ASC; ";
 
             // DbConnection.Deconnecter();
@@ -112,7 +118,8 @@ namespace SmartPharma5.Model
                             reader["question_Text"].ToString(),
                             Convert.ToUInt32(reader["question_type_id"]),
                             Convert.ToUInt32(reader["system_type_id"]),
-                            Convert.ToUInt32(reader["input_editors_id"])
+                            Convert.ToUInt32(reader["input_editors_id"]),
+                            reader["by_request"].ToString()
 
                             ));
 

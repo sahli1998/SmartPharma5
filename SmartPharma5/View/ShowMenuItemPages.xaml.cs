@@ -2,9 +2,22 @@ using Acr.UserDialogs;
 using SmartPharma5.Model;
 using SmartPharma5.ModelView;
 using SmartPharma5.ViewModel;
+using System.Globalization;
 using System.Reflection;
-
+using Microsoft.Maui.Controls.Xaml;
 namespace SmartPharma5.View;
+
+public class ByteArrayToImageConverter
+{
+    public static ImageSource Convert(byte[] bytes)
+    {
+        if (bytes != null && bytes.Length > 0)
+        {
+            return ImageSource.FromStream(() => new MemoryStream(bytes));
+        }
+        return null;
+    }
+}
 
 public partial class ShowMenuItemPages : ContentPage
 {
@@ -28,6 +41,8 @@ public partial class ShowMenuItemPages : ContentPage
        // ListGroups.Text= this. ListGroup;
         //ListModules.Text= "List of modules : "+this.ListModule;
         DataBaseName.Text= "Name DataBase : "+this.DataBase;
+        var logo = user_contrat.GetLogoFromDatabase();
+        Image.Source = ByteArrayToImageConverter.Convert(logo);
 
 
 
@@ -90,4 +105,5 @@ public partial class ShowMenuItemPages : ContentPage
         await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView()));
         UserDialogs.Instance.HideLoading();
     }
+    
 }

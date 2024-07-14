@@ -1,6 +1,7 @@
 using DevExpress.Maui.Scheduler;
 using DevExpress.Maui.Scheduler.Internal;
 using Microsoft.Maui.Controls;
+using SmartPharma5.Model;
 
 namespace SmartPharma5.View;
 
@@ -11,6 +12,7 @@ public partial class AppointmentEditPage : ContentPage, IDialogService
     const string LightThemePostfix = "_light";
     const string DarkThemePostfix = "_dark";
     const string FileResolution = ".png";
+    public List<Contact_Partner> ListContacts;
     readonly ViewModel.AppointmentEditViewModel viewModel;
     readonly bool useThemeableToolbarIcons;
 

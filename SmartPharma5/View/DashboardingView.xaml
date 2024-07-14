@@ -7,7 +7,7 @@
         <ScrollView Orientation="Vertical">
             <StackLayout x:Name="scroll" >
 
-                <StackLayout  IsVisible="{Binding DashboardIsVisible, Mode=TwoWay}">
+                <StackLayout  >
                     <ImageButton BackgroundColor="#F2798F" 
                                  CornerRadius="5" 
                                 HeightRequest="100" 
@@ -22,7 +22,7 @@
                     </ImageButton>
                     <Label VerticalTextAlignment="End" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" HorizontalTextAlignment="Center"   Text="My Dashboard" TextColor="#274476"  FontSize="12" ></Label>
                 </StackLayout>
-                <StackLayout  IsVisible="{Binding MyDashboardIsVisible, Mode=TwoWay}" >
+                <StackLayout  IsVisible="{Binding DashboardIsVisible, Mode=TwoWay}" >
                     <ImageButton BackgroundColor="#F2798F" 
                                  CornerRadius="5" 
                                 HeightRequest="100" 

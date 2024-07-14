@@ -54,6 +54,10 @@ namespace SmartPharma5.ViewModel
 
         private bool btnShow;
         public bool BtnShow { get => btnShow; set => SetProperty(ref btnShow, value); }
+
+        private bool save_config;
+        public bool Save_config { get => save_config; set => SetProperty(ref save_config, value); }
+        
         public QuizQuestionViewModel()
         {
         }
@@ -76,95 +80,104 @@ namespace SmartPharma5.ViewModel
 
         public async Task LoadQuestionFromAsync()
         {
-            bool testCon = true;
-            BtnShow = false;
-
             try
             {
+                bool testCon = true;
+                BtnShow = false;
 
-                QuestionList = await Question.GetPartnerFormQuestionByFormId((int)partner_form.Id);
-            }
-            catch (Exception ex)
-            {
-
-                //TestConnection = true;
-                testCon = false;
-                //return;
-
-
-                /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-                Avant :
-                            }
-
-
-
-                            var finalQuery = QuestionList
-                Après :
-                            }
-
-
-
-                            var finalQuery = QuestionList
-                */
-            }
-
-
-
-            var finalQuery = QuestionList
-            .GroupBy(category => category.System_Type_Id)
-            .Select(grouping => new Question { System_Type_Id = grouping.Key, Id = 0 });
-
-            BindingList<Question> Items = new BindingList<Question>(finalQuery.ToList());
-
-            foreach (Question question in Items)
-                if (question.System_Type_Id > 6)
+                try
                 {
-                    try
+
+                    QuestionList = await Question.GetPartnerFormQuestionByFormId((int)partner_form.Id);
+                }
+                catch (Exception ex)
+                {
+
+                    //TestConnection = true;
+                    testCon = false;
+                    //return;
+
+
+                    /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
+                    Avant :
+                                }
+
+
+
+                                var finalQuery = QuestionList
+                    Après :
+                                }
+
+
+
+                                var finalQuery = QuestionList
+                    */
+                }
+
+
+
+                var finalQuery = QuestionList
+                .GroupBy(category => category.System_Type_Id)
+                .Select(grouping => new Question { System_Type_Id = grouping.Key, Id = 0 });
+
+                BindingList<Question> Items = new BindingList<Question>(finalQuery.ToList());
+
+                foreach (Question question in Items)
+                    if (question.System_Type_Id > 6)
                     {
-                        ElementList.AddRange(await Type_element.GetElementByTypeId(question.System_Type_Id));
+                        try
+                        {
+                            ElementList.AddRange(await Type_element.GetElementByTypeId(question.System_Type_Id));
+                        }
+                        catch (Exception ex)
+                        {
+                            //TestConnection = true;
+                            testCon = false;
+                            // return;
+                        }
+
                     }
-                    catch (Exception ex)
-                    {
-                        //TestConnection = true;
-                        testCon = false;
-                        // return;
-                    }
+                try
+                {
+                    ResponseList.AddRange(await Response.GetresponseByFormAsync(partner_form));
+                }
+                catch (Exception ex)
+                {
+                    //TestConnection = true;
+                    testCon = false;
+                    //return;
+                }
+                if (testCon == false)
+                {
+
+                    /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
+                    Avant :
+                                    TestConnection = true;
+
+                                    QuestionList =new  BindingList<Question>();
+                    Après :
+                                    TestConnection = true;
+
+                                    QuestionList =new  BindingList<Question>();
+                    */
+                    TestConnection = true;
+
+                    QuestionList = new BindingList<Question>();
+                    ResponseList = new ObservableRangeCollection<Response>();
+                    ElementList = new ObservableRangeCollection<Type_element>();
+                    return;
+
 
                 }
-            try
-            {
-                ResponseList.AddRange(await Response.GetresponseByFormAsync(partner_form));
+                BtnShow = true;
+
+
             }
             catch (Exception ex)
             {
-                //TestConnection = true;
-                testCon = false;
-                //return;
-            }
-            if (testCon == false)
-            {
-
-                /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
-                Avant :
-                                TestConnection = true;
-
-                                QuestionList =new  BindingList<Question>();
-                Après :
-                                TestConnection = true;
-
-                                QuestionList =new  BindingList<Question>();
-                */
-                TestConnection = true;
-
-                QuestionList = new BindingList<Question>();
-                ResponseList = new ObservableRangeCollection<Response>();
-                ElementList = new ObservableRangeCollection<Type_element>();
-                return;
-
 
             }
-            BtnShow = true;
-
+          
 
 
 

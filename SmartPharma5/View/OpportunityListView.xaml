@@ -14,6 +14,7 @@
         </StackLayout>
     </NavigationPage.TitleView>
 
+
     <ContentPage.ToolbarItems>
         <ToolbarItem  Text="Home" Order="Secondary" Priority="1" Command="{Binding ExitCommand}"/>
         <ToolbarItem Text="Logout" Order="Secondary" Priority="2" Command="{Binding LogoutCommand}"/>

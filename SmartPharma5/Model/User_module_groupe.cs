@@ -49,6 +49,8 @@ namespace SmartPharma5.Model
             this.IdModule = IdModule;
             this.IdGroup = IdGroup;
         }
+
+     
         public async static void getListeByUser(int iduser)
         {
 

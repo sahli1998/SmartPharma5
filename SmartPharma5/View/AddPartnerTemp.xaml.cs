@@ -11,6 +11,95 @@ public partial class AddPartnerTemp : ContentPage
     {
         InitializeComponent();
         BindingContext = new AddPartnerTempMV();
+        var OVM = BindingContext as AddPartnerTempMV;
+       
+        foreach (var item in OVM.ListNotVisible)
+        {
+            if (item == "vat_code")
+            {
+                vat_code.IsVisible = false;
+            }
+            else if (item == "name")
+            {
+                name.IsVisible = false;
+            }
+            else if (item == "country")
+            {
+                country.IsVisible = false;
+            }
+            else if (item == "state")
+            {
+                state.IsVisible= false;
+            }
+            else if (item == "postale_code")
+            {
+                postale_code.IsVisible=false;
+            }
+            else if (item == "email")
+            {
+                email.IsVisible = false;
+            }
+            else if (item == "fax")
+            {
+                fax.IsVisible = false;
+            }
+            else if (item == "iscustomer")
+            {
+                isCustomer.IsVisible = false;
+            }
+            else if (item == "issupplier")
+            {
+                isSupplier.IsVisible = false;
+            }
+            else if (item == "category")
+            {
+                //name.LabelText += "*";
+                Category.IsVisible = false;
+            }
+        }
+        foreach (var item in OVM.ListRequired)
+        {
+            if (item == "vat_code")
+            {
+                vat_code.LabelText += "*";
+            }
+            else if (item == "name")
+            {
+                name.LabelText += "*";
+            }
+            else if (item == "country")
+            {
+                country.LabelText += "*";
+            }
+            else if (item == "state")
+            {
+                state.LabelText += "*";
+            }
+            else if (item == "postale_code")
+            {
+                postale_code.LabelText += "*";
+            }
+            else if (item == "email")
+            {
+                email.LabelText += "*";
+            }
+            else if (item == "fax")
+            {
+                fax.LabelText += "*";
+            }
+            else if (item == "iscustomer")
+            {
+                isCustomer.Text += "*";
+            }
+            else if (item == "issupplier")
+            {
+                isSupplier.Text += "*";
+            }
+            else if (item == "category")
+            {
+                //name.LabelText += "*";
+            }
+        }
     }
     private void comboBox_TouchUp(object sender, EventArgs e)
     {

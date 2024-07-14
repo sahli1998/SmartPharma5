@@ -1,4 +1,5 @@
 ﻿//using GameplayKit;
+using Acr.UserDialogs;
 using MvvmHelpers;
 
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
@@ -12,6 +13,7 @@ using SmartPharma5.View;
 using System;
 */
 using MvvmHelpers.Commands;
+using MySqlConnector;
 using SmartPharma5.
 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
 Avant :
@@ -108,8 +110,16 @@ namespace SmartPharma5.ViewModel
         public bool BtnFiltred { get => btnfiltred; set => SetProperty(ref btnfiltred, value); }
 
 
+        public static MySqlCommand cmd;
+
+
+        private bool testConnection;
+        public bool TestConnection { get => testConnection; set => SetProperty(ref testConnection, value); }
+
         public AllPartnerMV()
         {
+
+
             HomePage = new AsyncCommand(homePage);
 
             FilterCommand = new AsyncCommand(ChangeToFilter);
@@ -122,7 +132,7 @@ namespace SmartPharma5.ViewModel
             try
             {
                 Partners = new List<Partner>();
-                Task.Run(() => RefreshOnApp());
+                Task.Run(async () => await RefreshOnApp());
 
 
 
@@ -138,10 +148,56 @@ namespace SmartPharma5.ViewModel
 
 
         }
+        
         private async Task tapFonc()
         {
 
         }
+
+
+        private async Task<Boolean> ExistVatCode(string vat_code)
+        {
+            if (await DbConnection.Connecter3())
+            {
+                string sqlCmd = "select count(id) from commercial_partner where vat_code= " + vat_code + ";";
+                MySqlDataReader reader = null;
+                try
+                {
+                    cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        if (Convert.ToInt16(reader["count"]) != 0)
+                        {
+                            return true;
+
+                        }
+                        else
+                        {
+                            return false;
+                        }
+
+
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    //await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+                    reader.Close();
+
+                }
+
+
+                DbConnection.Deconnecter();
+                reader.Close();
+            }
+            return false;
+
+        }
+
+
+
         private async Task homePage()
         {
 
@@ -173,184 +229,132 @@ namespace SmartPharma5.ViewModel
         }
         public async Task Refresh()
         {
-            Partners = new List<Partner>();
-            BtnFiltred = false;
-            int CrmGroupe = 0;
-            int iduser = Preferences.Get("iduser", 0);
-            var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
-
-            if (UMG != null)
+            using (UserDialogs.Instance.Loading("Refreshing, please wait..."))
             {
-                CrmGroupe = UMG.IdGroup;
-            }
+                Partners = new List<Partner>();
+                BtnFiltred = false;
+                int CrmGroupe = 0;
+                int iduser = Preferences.Get("iduser", 0);
+                var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
 
-
-            IsPullToRefreshEnabled = false;
-           // ActPopup = true;
-            /* IsBusy = false;
-             HomeEnabled = false;
-             BtnFiltred = false;
-             bool Testcon = false;
-
-             var O = Task.Run(() => DbConnection.Connecter3());
-             Testcon = await O;
-             if (Testcon == false)
-             {
-
-
-                 //TestLoad = true;
-                 Partners = new List<Partner>();
-                 IsBusy = false;
-
-                 return;
-             }
-             Partners = new List<Partner>();
-             TestLoad = false;*/
-            try
-            {
-                if (CrmGroupe == 32)
+                if (UMG != null)
                 {
-                    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
-                    var P = Task.Run(() => Partner.GetPartnerListByAgent(idagent));
-                    Partners = new List<Partner>(await P);
-                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
-
-                }
-                else
-                {
-                    var P = Task.Run(() => Partner.GetPartnerList());
-                    Partners = new List<Partner>(await P);
-                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                    CrmGroupe = UMG.IdGroup;
                 }
 
+                IsPullToRefreshEnabled = false;
+
+                try
+                {
+                    if (!await checkPermission(iduser))
+                    {
+                        uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                        Partners = await Partner.GetPartnerListByAgent(idagent);
+                        Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                        State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                    }
+                    else
+                    {
+                        Partners = await Partner.GetPartnerList();
+                        Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                        State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TestLoad = true;
+                    ActPopup = false;
+                }
+
+                ActPopup = false;
+                IsPullToRefreshEnabled = true;
+                BtnFiltred = true;
+                HomeEnabled = true;
             }
-            catch (Exception ex)
-            {
-                TestLoad = true;
-            }
-            ActPopup = false;
-
-            IsPullToRefreshEnabled = true;
-            BtnFiltred = true;
-            HomeEnabled = true;
-
-
-            /* IsBusy = false;
-             BtnFiltred = true;
-             HomeEnabled = true;*/
-
         }
 
+        static async Task<bool> checkPermission(int id_user)
+        {
+            bool permissoion = false;
+            if (await DbConnection.Connecter3())
+            {
+                string sqlCmd = "SELECT max(opportunity_partner) as opportunity_partner \r\nFROM atooerp_app_permission_temp inner join\r\natooerp_user_module_group usg on usg.group = atooerp_app_permission_temp.group\r\nwhere user ="+id_user+";";
 
+                try
+                {
+
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        if (Convert.ToInt32(reader["opportunity_partner"]) == 1)
+                        {
+                            reader.Close();
+                            return true;
+                        }
+                        reader.Close();
+
+                    }
+                    
+                }
+                
+                catch (Exception ex)
+                {
+                    return false;
+                }
+                
+            }
+            return false;
+
+        }
         public async Task RefreshOnApp()
         {
-            BtnFiltred = false;
-
-
-            IsPullToRefreshEnabled = false;
-            ActPopup = true;
-
-
-            int CrmGroupe = 0;
-            int iduser = Preferences.Get("iduser", 0);
-            var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
-
-            if (UMG != null)
+            using (UserDialogs.Instance.Loading("Loading, please wait..."))
             {
-                CrmGroupe = UMG.IdGroup;
-            }
-            await Task.Delay(500);
-
-            /* bool Testcon = false;
-
-             var O = Task.Run(() => DbConnection.Connecter());
-             Testcon = await O;
-
-
-             if (Testcon == false)
-             {
-                 ActPopup = false;
-
-                 TestLoad = true;
-                 IsPullToRefreshEnabled = true;
-
-                 return;
-             }*/
-
-            try
-            {
-
-                if (CrmGroupe == 32)
-                {
-                    uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
-                    var P = Task.Run(() => Partner.GetPartnerListByAgent(idagent));
-                    Partners = new List<Partner>(await P);
-                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
-
-                }
-                else
-                {
-                    var P = Task.Run(() => Partner.GetPartnerList());
-                    Partners = new List<Partner>(await P);
-                    Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-                    State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
-                }
-
                
-                   // var C = Task.Run(() => Partner.GetPartnaireByIdAgent(idagent));
-                   // Partners = new List<Partner>(await C);
-              
+                BtnFiltred = false;
+                //IsPullToRefreshEnabled = false;
+                //ActPopup = true;
 
-               
+                int CrmGroupe = 0;
+                int iduser = Preferences.Get("iduser", 0);
+                var UMG = await User_Module_Groupe_Services.GetGroupeCRM(iduser);
 
+                if (UMG != null)
+                {
+                    CrmGroupe = UMG.IdGroup;
+                }
+                await Task.Delay(500);
+
+                try
+                {
+                    if (!await checkPermission(iduser))
+                    {
+                        uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                        Partners = await Partner.GetPartnerListByAgent(idagent);
+                        Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                        State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                    }
+                    else
+                    {
+                        Partners = await Partner.GetPartnerList();
+                        Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
+                        State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TestLoad = true;
+                }
+                finally
+                {
+                    ActPopup = false;
+                    IsPullToRefreshEnabled = true;
+                    BtnFiltred = true;
+                    HomeEnabled = true;
+                }
             }
-            catch (Exception ex)
-            {
-                TestLoad = true;
-            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-            ActPopup = false;
-
-            IsPullToRefreshEnabled = true;
-            BtnFiltred = true;
-            HomeEnabled = true;
-
-            // var O = Task.Run(() => Collection.GetOpportunityByAgent((uint)agentId));
-            //OpportunityList = new ObservableRangeCollection<Collection>(await O);
-
-
-
-
-
-            //  var O = Task.Run(() => Partner.GetPartnerList());
-            //  Partners = new List<Partner>(await O);
-
-
-
-
-
-            // Category_list = Partners.OrderBy(x => x.Category_Name).Select(x => x.Category_Name.ToLowerInvariant()).Distinct().ToList();
-            // State_list = Partners.OrderBy(x => x.State).Select(x => x.State.ToLowerInvariant()).Distinct().ToList();
-
-
-
-
-
         }
         public async Task ChangeConnexionState()
         {

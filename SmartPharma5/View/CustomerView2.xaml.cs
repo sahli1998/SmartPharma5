@@ -96,19 +96,31 @@ public partial class CustomerView2 : ContentPage
     }
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-        await Task.Delay(1000);
-        if (sender is Frame frame && frame.BindingContext is Partner partner)
+        UserDialogs.Instance.ShowLoading("Loading Please wait ...");
+        await Task.Delay(500);
+        if (await DbConnection.Connecter3())
         {
+            
+           
+            if (sender is Frame frame && frame.BindingContext is Partner partner)
+            {
 
-            uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
-            Opportunity = new Opportunity((int)idagent, partner as Partner);
-            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new OpportunityView(Opportunity)));
-            //await Shell.Current.GoToAsync("OpportunityView");
+                uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                Opportunity = new Opportunity((int)idagent, partner as Partner);
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new OpportunityView(Opportunity)));
+                //await Shell.Current.GoToAsync("OpportunityView");
+                UserDialogs.Instance.HideLoading();
 
+            }
 
+            UserDialogs.Instance.HideLoading();
         }
-        UserDialogs.Instance.HideLoading();
+        else
+        {
+            await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "Ok");
+            UserDialogs.Instance.HideLoading();
+        }
+        
     }
 
     private void ClientCollectionView_Tap_1(object sender, DevExpress.Maui.CollectionView.CollectionViewGestureEventArgs e)

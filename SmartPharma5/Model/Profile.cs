@@ -20,7 +20,7 @@ namespace SmartPharma5.Model
 
         public static async Task<List<Profile>> getAllProfile()
         {
-            string sqlCmd = "SELECT Id,name from marketing_profile";
+            string sqlCmd = "SELECT Id,name from marketing_profile where type = 1 ;";
             List<Profile> profiles = new List<Profile>();
 
             if (await DbConnection.Connecter3())

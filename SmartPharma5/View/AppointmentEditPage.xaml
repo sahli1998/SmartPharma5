@@ -40,7 +40,7 @@
     </ContentPage.Resources>
     <ContentPage.Content>
         <ScrollView Padding="10">
-
+           
             <StackLayout x:Name="root" Style="{StaticResource RootContainerStyle}">
                 <!-- MARK: Estimated date -->
                 <Grid Style="{DynamicResource FormItemStyle}"
@@ -58,11 +58,11 @@
                                                 IsEnabled="{Binding Edit_IsEnable}"
                                                 Grid.Column="2"
                                                 DisplayFormat="dd/MM/yyyy"
-                                                HorizontalOptions="CenterAndExpand" BorderThickness="0" IsDateIconVisible="False" Margin="0"/>
+                                                HorizontalOptions="CenterAndExpand" BorderThickness="1" BorderColor="CadetBlue" IsDateIconVisible="False" Margin="3"/>
                     <dxe:TimeEdit TimeSpan="{Binding StartTime}"
                                                 IsEnabled="{Binding Edit_IsEnable}"
                                                 Grid.Column="3"
-                                                BorderThickness="0"  Margin="0"  IsTimeIconVisible="False" HorizontalOptions="FillAndExpand"/>
+                                                BorderThickness="1"  Margin="3"  IsTimeIconVisible="False" BorderColor="CadetBlue" HorizontalOptions="FillAndExpand"/>
 
                     
                 </Grid>
@@ -105,18 +105,18 @@
                                     Style="{StaticResource FormItemIcon}" 
                                      />
                     <Label Text="Begin :" TextColor="Black"
-                                    Grid.Column="1" 
+                                    Grid.Column="1"  
                                     Style="{StaticResource FormItemPrimaryContent-Label} "
                                     VerticalOptions="Center"  />
-                    <dxe:DateEdit IsEnabled="{Binding IsAdmin}"  TextFontAttributes="Italic" x:Name="begin_date" Date="{Binding PartnerForm.Begin_date}"
+                    <dxe:DateEdit BorderColor="CadetBlue"   TextFontAttributes="Italic" x:Name="begin_date"  Date="{Binding PartnerForm.Begin_date}"
                                                 
                                                 Grid.Column="2" 
                                                 DisplayFormat="dd/MM/yyyy"
-                                                HorizontalOptions="CenterAndExpand" BorderThickness="0" IsDateIconVisible="False" Margin="0"/>
-                    <dxe:TimeEdit x:Name="begin_time" IsEnabled="{Binding IsAdmin}" TimeSpan="{Binding PartnerForm.BeginTime}"
+                                                HorizontalOptions="CenterAndExpand" BorderThickness="1"  IsDateIconVisible="False" Margin="3"/>
+                    <dxe:TimeEdit BorderColor="CadetBlue" x:Name="begin_time"  TimeSpan="{Binding PartnerForm.BeginTime}"
                                                 
                                                 Grid.Column="3"
-                                                BorderThickness="0"  Margin="0"  IsTimeIconVisible="False" HorizontalOptions="FillAndExpand"/>
+                                                BorderThickness="1"  Margin="3"  IsTimeIconVisible="False" HorizontalOptions="FillAndExpand"/>
                     <!--<dxe:TextEdit IsVisible="{Binding IsNotAdmin}"
                                        
                                         Text="{Binding PartnerForm.Begin_date,StringFormat='{0:dd/MM/yyyy HH:mm:ss}'}"
@@ -143,15 +143,15 @@
                                     Grid.Column="1" 
                                     Style="{StaticResource FormItemPrimaryContent-Label} "
                                     VerticalOptions="Center"  />
-                    <dxe:DateEdit IsEnabled="{Binding IsAdmin}"  x:Name="end_date" Date="{Binding PartnerForm.End_date }"
+                    <dxe:DateEdit   x:Name="end_date" Date="{Binding PartnerForm.End_date }"
                                                
                                                 Grid.Column="2" TextFontAttributes="Italic"
                                                 DisplayFormat="dd/MM/yyyy"
-                                                HorizontalOptions="CenterAndExpand" BorderThickness="0" IsDateIconVisible="False" Margin="0"/>
-                    <dxe:TimeEdit IsEnabled="{Binding IsAdmin}" x:Name="end_time"  TimeSpan="{Binding PartnerForm.EndTime}" TextFontAttributes="Italic"
+                                                HorizontalOptions="CenterAndExpand" BorderThickness="1" BorderColor="CadetBlue" IsDateIconVisible="False" Margin="3"/>
+                    <dxe:TimeEdit  x:Name="end_time"  TimeSpan="{Binding PartnerForm.EndTime}" TextFontAttributes="Italic"
                                                 
                                                 Grid.Column="3"
-                                                BorderThickness="0"  Margin="0"  IsTimeIconVisible="False" HorizontalOptions="FillAndExpand"/>
+                                                BorderThickness="1"  Margin="3" BorderColor="CadetBlue"  IsTimeIconVisible="False" HorizontalOptions="FillAndExpand"/>
                     <!--<dxe:TextEdit IsVisible="{Binding IsNotAdmin}"
                                        
                                         Text="{Binding PartnerForm.End_date,StringFormat='{0:dd/MM/yyyy HH:mm:ss}'}"
@@ -207,6 +207,25 @@
                                     PlaceholderText="Event name" TextFontAttributes="Italic"
                                     Style="{StaticResource FormItemPrimaryContent-Entry}"
                                     Grid.Column="2" IsReadOnly="True"/>
+                </Grid>
+
+                <StackLayout BackgroundColor="Gray" Margin="5" WidthRequest="2"></StackLayout>
+                <!-- MARK: agent -->
+                <Grid IsVisible="false" Style="{DynamicResource FormItemStyle}"
+                       ColumnDefinitions="Auto,Auto,auto">
+
+                    <ImageButton Margin="5" Source="Images/t_pichon.png"
+                            Style="{StaticResource FormItemIcon}"
+                            Grid.Column="0"/>
+                    <Label Text="Contact:" TextColor="Black"
+                            Grid.Column="1" 
+                                Style="{StaticResource FormItemPrimaryContent-Label}"
+                            VerticalOptions="Center"  />
+                    <dxe:ComboBoxEdit 
+                         ItemsSource="{Binding }"
+                         PlaceholderText="Event name" TextFontAttributes="Italic"
+                         Style="{StaticResource FormItemPrimaryContent-Entry}"
+                         Grid.Column="2" IsReadOnly="True"/>
                 </Grid>
                 <!-- MARK: Label -->
                 <!--<Grid Style="{DynamicResource FormItemStyle}" 

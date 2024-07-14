@@ -1,5 +1,6 @@
 ﻿//using Acr.UserDialogs;
 using Acr.UserDialogs;
+using DevExpress.Maui.Editors;
 using MvvmHelpers;
 using MvvmHelpers.Commands;
 using MySqlConnector;
@@ -16,6 +17,17 @@ namespace SmartPharma5.ViewModel
 
         public int id_instance_profile { get; set; }
         public int id_partner { get; set; }
+        private Dictionary<ComboBoxEdit, object> comboBoxStates = new Dictionary<ComboBoxEdit, object>();
+
+        private void ComboBox_Unfocused(object sender, FocusEventArgs e)
+        {
+            var comboBox = sender as ComboBoxEdit;
+            if (comboBox != null)
+            {
+                // Sauvegarde de l'état de la ComboBox
+                comboBoxStates[comboBox] = comboBox.SelectedItem;
+            }
+        }
 
 
         /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
@@ -155,9 +167,14 @@ namespace SmartPharma5.ViewModel
                     {
                         string sqlCmd = "";
 
-                        if (attribute.HasString && attribute.String_value != null)
+                        if (attribute.HasString)
                         {
-                            sqlCmd = "insert into marketing_profile_attribut_value_temp(profile_attribute,profile_instance_temp,user,employe,state,create_date,string_value) values (" + attribute.Id + "," + id_instance_profile + "," + user_contrat.iduser + "," + user_contrat.id_employe + ",1,'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + attribute.String_value + "');";
+                            if(attribute.String_value != null)
+                            {
+                                sqlCmd = "insert into marketing_profile_attribut_value_temp(profile_attribute,profile_instance_temp,user,employe,state,create_date,string_value) values (" + attribute.Id + "," + id_instance_profile + "," + user_contrat.iduser + "," + user_contrat.id_employe + ",1,'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "','" + attribute.String_value + "');";
+
+                            }
+                          
                         }
                         else if (attribute.HasBool)
                         {
@@ -175,9 +192,16 @@ namespace SmartPharma5.ViewModel
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value_temp(profile_attribute,profile_instance_temp,user,employe,state,create_date,decimal_value) values (" + attribute.Id + "," + id_instance_profile + "," + user_contrat.iduser + "," + user_contrat.id_employe + ",1,'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "'," + Convert.ToDecimal(attribute.Number_value) + ");";
                         }
-                        else if (attribute.HasMultiple && attribute.Selected_item != null)
+                        else if (attribute.HasMultiple)
                         {
-                            sqlCmd = "insert into marketing_profile_attribut_value_temp(profile_attribute,profile_instance_temp,user,employe,state,create_date,type) values (" + attribute.Id + "," + id_instance_profile + "," + user_contrat.iduser + "," + user_contrat.id_employe + ",1,'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "'," + attribute.Selected_item.id + ");";
+                            if(attribute.Selected_item != null)
+                            {
+                                sqlCmd = "insert into marketing_profile_attribut_value_temp(profile_attribute,profile_instance_temp,user,employe,state,create_date,type) values (" + attribute.Id + "," + id_instance_profile + "," + user_contrat.iduser + "," + user_contrat.id_employe + ",1,'" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "'," + attribute.Selected_item.id + ");";
+
+
+                            }
+                           
+
                         }
                         else
                         {

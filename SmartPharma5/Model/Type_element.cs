@@ -31,6 +31,53 @@ namespace SmartPharma5.Model
             Type_id = typeId;
         }
 
+        public async static Task<BindingList<Type_element>> GetElementByRequest(string req)
+        {
+            string sqlCmd = req;
+            BindingList<Type_element> list = new BindingList<Type_element>();
+            MySqlDataReader reader = null;
+            DbConnection.Deconnecter();
+            if (await DbConnection.Connecter3())
+            {
+
+
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+
+
+                        list.Add(new Type_element(
+                            reader.GetUInt32("Id"),
+                            reader["name"].ToString(),
+                            0
+                            ));
+
+                    }
+
+                    reader.Close();
+                    DbConnection.Deconnecter();
+
+
+                }
+                catch (Exception ex)
+                {
+                    reader.Close();
+                    return null;
+                }
+
+
+
+            }
+            else { return null; }
+            return list;
+        }
+
+
+
         public async static Task<BindingList<Type_element>> GetElementByTypeId(uint id)
         {
             string sqlCmd = " SELECT * FROM atooerp_type_element where type_id =" + id + " group by Id;";

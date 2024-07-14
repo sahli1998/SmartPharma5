@@ -132,7 +132,6 @@ namespace SmartPharma5.Model
             }
             return list;
         }
-
         public static void Insert(List<Response> list, Partner_Form.Collection partner_Form)
         {
             DbConnection.Connecter();
@@ -162,6 +161,60 @@ namespace SmartPharma5.Model
                     Console.WriteLine(ex.Message);
                 }
                 DbConnection.Deconnecter();
+
+            }
+
+        }
+
+
+        public static void Insert(List<Response> list, Partner_Form.Collection partner_Form, DateTime estilmated_date, TimeSpan estilmated_time, DateTime Start_date, TimeSpan Start_time, DateTime End_date, TimeSpan End_time)
+        {
+            DbConnection.Connecter();
+            string sqlCmd = "Delete from marketing_quiz_response where partner_form_id = " + partner_Form.Id + ";";
+            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+            try
+            {
+                cmd.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            DbConnection.Deconnecter();
+            foreach (var line in list)
+            {
+
+                try
+                {
+                    //string sqlCmd1 = "Update marketing_quiz_partner_form SET estimated_date='" + start.ToString("yyyy-MM-dd hh:mm:ss") + "',begin_date='" + begin_date.ToString("yyyy-MM-dd") + " " + begin_time + "' ,end_date ='" + end_date.ToString("yyyy-MM-dd") + " " + end_time + "' where Id=" + id + ";";
+
+                    sqlCmd = "INSERT INTO marketing_quiz_response SET create_date= NOW(),question_id= " + line.QuestionId + ",partner_form_id=" + partner_Form.Id + ",response_value_string='" + line.Response_String + "',type_element_id=" + (line.Type_Element_Id is null ? "null" : line.Type_Element_Id.ToString()) + ",response_value_int=" + (line.Response_Int is null ? "null" : line.Response_Int.ToString()) + ",response_value_decimal=" + (line.Response_Decimal is null ? "null" : line.Response_Decimal.ToString()) + ",response_value_date=" + (line.Response_Date is null ? "null" : ("'" + Convert.ToDateTime(line.Response_Date.ToString()).ToString("yyyy-MM-dd hh:mm:ss") + "'")) + ",response_value_bool=" + (line.Response_Bool is null ? "null" : line.Response_Bool.ToString()) + ";";
+
+                    cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    DbConnection.Connecter();
+                    cmd.ExecuteScalar();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                DbConnection.Deconnecter();
+
+            }
+            if (list.Count > 0)
+            {
+                try
+                {
+                    string sqlCmdUpdate = "Update marketing_quiz_partner_form SET end_date= '" + End_date.ToString("yyyy-MM-dd") + " " + End_time + "' ,begin_date= '" + Start_date.ToString("yyyy-MM-dd") + " " + Start_time + "'  ,estimated_date = '" + estilmated_date.ToString("yyyy-MM-dd") + " " + estilmated_time + "'  where Id=" + partner_Form.Id + ";";
+                    cmd = new MySqlCommand(sqlCmdUpdate, DbConnection.con);
+                    DbConnection.Connecter();
+                    cmd.ExecuteScalar();
+                }
+                catch(Exception ex)
+                {
+
+                }
+              
 
             }
 

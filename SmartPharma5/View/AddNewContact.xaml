@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartPharma5.View.AddNewContact"
+             Title="AddNewContact"
+             
+             
+             >
+    <NavigationPage.TitleView>
+        <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+            <Label HorizontalOptions="CenterAndExpand"  Text="Add New Contact" TextColor="White" FontAttributes="Bold"/>
+        </StackLayout>
+    </NavigationPage.TitleView>
+
+
+    <ContentPage.Resources>
+        <Style TargetType="Entry">
+            <Setter Property="Margin" Value="0,5" />
+            <Setter Property="HeightRequest" Value="40" />
+        </Style>
+        <Style TargetType="Editor">
+            <Setter Property="Margin" Value="0,5" />
+            <Setter Property="HeightRequest" Value="100" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="10">
+
+            <Label Text="First Name" />
+            <Entry x:Name="firstNameEntry" Placeholder="Enter first name" />
+
+            <Label Text="Last Name" />
+            <Entry x:Name="lastNameEntry" Placeholder="Enter last name" />
+
+            <Label Text="Job Position" />
+            <Picker x:Name="jobPositionPicker" SelectedIndex="{Binding id}" ItemDisplayBinding="{Binding name}" Title="Select Job Position"  />
+
+
+
+            <Label Text="Sex" />
+            <StackLayout Orientation="Horizontal" Spacing="20">
+                <RadioButton x:Name="hommeRadioButton" Content="Homme" GroupName="Sex" />
+                <RadioButton x:Name="womenRadioButton" Content="Women" GroupName="Sex" />
+            </StackLayout>
+
+            <Label Text="Marital Status" />
+            <Picker  x:Name="maritalStatusPicker" SelectedIndex="{Binding id}" ItemDisplayBinding="{Binding name}">
+            
+               
+            </Picker>
+
+            <Label Text="Birth Date" />
+            <DatePicker x:Name="birthDatePicker" />
+
+            <Label Text="Birth Place" />
+            <Entry x:Name="birthPlaceEntry" Placeholder="Enter birth place" />
+
+            <Label IsVisible="false" Text="Nationality" />
+            <Picker IsVisible="false" x:Name="nationalityPicker" Title="Select nationality"  SelectedIndexChanged="OnNationalityChanged"/>
+
+
+
+            <Label IsVisible="false" Text="Address" />
+            <Entry IsVisible="false" x:Name="addressEntry" Placeholder="Enter address" />
+
+            <Label IsVisible="false" Text="Identity" />
+            <Entry  IsVisible="false" x:Name="identityEntry" Placeholder="Enter identity" />
+
+            <Label Text="Handicap" />
+            <Switch x:Name="handicapSwitch" Toggled="OnHandicapToggled" />
+
+            <StackLayout x:Name="handicapDescriptionStack" IsVisible="False">
+                <Label Text="Handicap Description" />
+                <Editor x:Name="handicapDescriptionEditor" Placeholder="Describe the handicap" />
+            </StackLayout>
+
+            <Button Text="Confirme" Clicked="OnSubmitClicked" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

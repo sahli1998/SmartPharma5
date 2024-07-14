@@ -1,5 +1,6 @@
 using Acr.UserDialogs;
 using SmartPharma5.Model;
+using SmartPharma5.ModelView;
 using SmartPharma5.ViewModel;
 
 namespace SmartPharma5.View;
@@ -10,7 +11,7 @@ public partial class ShowTest : ContentPage
     public ShowTest()
     {
         InitializeComponent();
-        BindingContext = new AllPartnerMV();
+        BindingContext = new AllPartnerMV2();
 
 
 
@@ -47,7 +48,7 @@ public partial class ShowTest : ContentPage
         try
         {
 
-            var ovm = BindingContext as AllPartnerMV;
+            var ovm = BindingContext as AllPartnerMV2;
             if (ovm.ActPopup == false)
             {
                 await App.Current.MainPage.Navigation.PushAsync(new HomeView());
@@ -64,7 +65,7 @@ public partial class ShowTest : ContentPage
     public void Search()
     {
 
-        var list = BindingContext as AllPartnerMV;
+        var list = BindingContext as AllPartnerMV2;
         // var listOfForm = list.ListOfForm;
         var formList = list.Partners.ToList();
         //CategorySearch.ItemsSource = list.Catgory_list.ToList();
@@ -153,6 +154,13 @@ public partial class ShowTest : ContentPage
         }
 
           
+
+    }
+
+   
+
+    private void Button_Clicked_1(object sender, EventArgs e)
+    {
 
     }
 }

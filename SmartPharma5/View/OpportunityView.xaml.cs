@@ -1,3 +1,4 @@
+using Acr.UserDialogs;
 using DevExpress.Maui.Editors;
 using SmartPharma5.Model;
 using SmartPharma5.ViewModel;
@@ -22,6 +23,7 @@ public partial class OpportunityView : ContentPage
             var button = (Button)sender;
             //button.TranslationX = e.Location.X;
             //button.TranslationY = e.Location.Y;
+            
         }
     }
 
@@ -35,6 +37,9 @@ public partial class OpportunityView : ContentPage
         InitializeComponent();
         DbConnection.Deconnecter();
         Opportunity = opportunity;
+
+        if (Opportunity.Id == 0)
+            quotation.IsVisible = false;
         if (Opportunity.Id != 0)
             Opportunity = new Opportunity(Opportunity.Id);
 
@@ -137,4 +142,6 @@ public partial class OpportunityView : ContentPage
     {
         //await Shell.Current.GoToAsync("..");
     }
+
+
 }

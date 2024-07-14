@@ -212,8 +212,8 @@
 
                                 <StackLayout x:Name="comptabilite_add_payment" Grid.Row="0" Grid.Column="0" >
                                     <ImageButton BackgroundColor="#77A1F7" 
-                                 CornerRadius="5" 
-                                HeightRequest="100" 
+                                     CornerRadius="5" 
+                                    HeightRequest="100" 
                                 WidthRequest="100" 
                                 HorizontalOptions="Center" 
                                 VerticalOptions="StartAndExpand"
@@ -592,6 +592,8 @@
                                     </ImageButton>
                                     <Label VerticalTextAlignment="End" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center" Text="Add Partner" TextColor="#274476" FontAttributes="Italic" FontSize="12" ></Label>
                                 </StackLayout>
+                                
+
 
 
                                 <!--<StackLayout  Grid.Row="2" Grid.Column="0" IsVisible="{Binding AdvanceRequestIsVisible, Mode=TwoWay}" >
@@ -647,6 +649,27 @@
                                     <Label VerticalTextAlignment="End" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center" x:Name="TestEtat"  Text="TestEtat" TextColor="#274476" FontAttributes="Italic" FontSize="12" ></Label>
                                 </StackLayout>
 
+                                <StackLayout Grid.Row="1" Grid.Column="0">
+                                    <ImageButton BackgroundColor="#FFD700" 
+                 CornerRadius="5" 
+                 HeightRequest="100" 
+                 WidthRequest="100" 
+                 HorizontalOptions="Center" 
+                 VerticalOptions="StartAndExpand"
+                 Padding="20"
+                 Source="Images/notifi.png"
+                 Command="{Binding MyRequests}">
+                                    </ImageButton>
+                                    <Label VerticalTextAlignment="End" 
+           HorizontalOptions="CenterAndExpand" 
+           HorizontalTextAlignment="Center" 
+           Text="MY REQUESTS" 
+           TextColor="#274476" 
+           FontAttributes="Italic" 
+           FontSize="12">
+                                    </Label>
+                                </StackLayout>
+
 
 
 
@@ -667,7 +690,8 @@
 
 
                     <StackLayout  WidthRequest="300"  HorizontalOptions="StartAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White" IsVisible="{Binding MenuVisisble,Mode=TwoWay}">
-                        <Image Margin="0,30,0,0" Source="Images/logo.png" WidthRequest="110" HeightRequest="90"></Image>
+                        <Image Margin="3" x:Name="Image"    WidthRequest="110" HeightRequest="90"></Image>
+                        
 
                         <Label  TextColor="Black" Margin="20" FontSize="30" HorizontalOptions="CenterAndExpand">Menu</Label>
                         <StackLayout BackgroundColor="LightGray" HeightRequest="1" ></StackLayout>
@@ -690,8 +714,7 @@
                                 <Label TextColor="Black" Margin="10" HorizontalOptions="StartAndExpand">INFO SESSION</Label>
                             </StackLayout>
 
-                         
-
+                        
 
 
                             <StackLayout HeightRequest="270">

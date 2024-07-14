@@ -6,6 +6,7 @@ Après :
 using Acr.UserDialogs;
 */
 using Acr.UserDialogs;
+//using Foundation;
 using MvvmHelpers;
 //using MvvmHelpers.Commands;
 using MySqlConnector;
@@ -1731,10 +1732,17 @@ namespace SmartPharma5.Model
         #region InsertMethode
         public async static Task<int?> InsertCongé(string description, DateTime start_date, TimeSpan start_time, DateTime end_date, TimeSpan end_time, int contract, int validate, int type, int state)
         {
-            Console.WriteLine("gtgtgtgtgt");
-            string sqlCmd = "INSERT  INTO hr_day_off_request (description,start_date,end_date,create_date,date,validated,day_off_type,state,contract) VALUES (" +
+            //differenceInDays.ToString().Replace(',', '.')
+
+            DateTime START = start_date + start_time;
+            DateTime END = end_date + end_time;
+            TimeSpan difference = END - START;
+
+            // Convertir la différence en une variable de type decimal
+            decimal differenceInDays = (decimal)difference.TotalDays;
+            string sqlCmd = "INSERT  INTO hr_day_off_request (description,start_date,end_date,create_date,date,validated,day_off_type,state,contract,number) VALUES (" +
                 "'" + description + "' , '" + String.Format("{0:yyyy-M-d}", start_date) + " " + start_time.ToString() + "' , '" + String.Format("{0:yyyy-M-d}", end_date) + " " + end_time.ToString() + "' , '" +
-                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + validate + " , " + type + " , " + state + " , " + contract + "); ";
+                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + validate + " , " + type + " , " + state + " , " + contract + ","+ differenceInDays.ToString().Replace(',', '.') + "); ";
             MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
 
             if (await DbConnection.Connecter3())

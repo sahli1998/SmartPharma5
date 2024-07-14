@@ -8,6 +8,8 @@ using DevExpress.Maui.View;
 */
 //using Xamarin.Essentials;
 //using Acr.UserDialogs;
+using Acr.UserDialogs;
+//using Android.Content;
 using DevExpress.Maui.Scheduler;
 //using DevExpress.XamarinForms.DataGrid;
 using MvvmHelpers;
@@ -51,6 +53,7 @@ namespace SmartPharma5.ViewModel
 {
     public class PartnerFormViewModel : BaseViewModel
     {
+        public int opp = 0;
         public int partnerId = 0;
         public string names = "";
         public MvvmHelpers.Commands.Command<Partner_Form> TapCommand { get; }
@@ -97,6 +100,17 @@ namespace SmartPharma5.ViewModel
         public bool Loading { get => loading; set => SetProperty(ref loading, value); }
 
 
+        private bool isFiltred;
+        public bool IsFiltred { get => isFiltred; set => SetProperty(ref isFiltred, value); }
+
+
+        private bool isCreated;
+        public bool IsCreated { get => isCreated; set => SetProperty(ref isCreated, value); }
+
+
+
+
+
 
 
 
@@ -104,8 +118,29 @@ namespace SmartPharma5.ViewModel
         {
 
         }
+
+        public PartnerFormViewModel(int opp)
+        {
+
+            this.IsFiltred = false;
+            IsCreated = true;
+            this.opp = opp;
+
+            ConfigBtnCommand = new MvvmHelpers.Commands.Command<Partner_Form.Collection>(Config);
+            
+
+            RefreshCommand = new AsyncCommand(Refresh);
+           
+            Task.Run(async () => LoadPartnerFormByOpp(opp).GetAwaiter());
+
+            
+           
+        }
         public PartnerFormViewModel(string type)
         {
+
+            this.IsFiltred = true;
+            IsCreated = false;
 
 
 
@@ -145,9 +180,39 @@ namespace SmartPharma5.ViewModel
             TestLoad = false;
             try
             {
-                if (this.StrTest == "My_Forms")
+                if (this.opp == 0)
                 {
-                    var C = Task.Run(() => Partner_Form.GetMyPartnerForm());
+                    if (this.StrTest == "My_Forms")
+                    {
+                        var C = Task.Run(() => Partner_Form.GetMyPartnerForm());
+                        var c = await C;
+                        PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>(c.OrderBy(o => Math.Abs(o.dateDiff.TotalDays)));
+                        var A = Task.Run(() => Cycle.GetAllCycle());
+                        CycleList = new ObservableRangeCollection<Cycle>(await A);
+                        uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                        PartnerList = new ObservableRangeCollection<Partner>(PartnerFormList.GroupBy(p => p.Partner_id).Select(g => new Partner((uint)g.Key, g.Max(x => x.Partner_name))));
+                        StateList = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.state).Distinct());
+                        ListOfForm = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.Form_name).Distinct());
+                    }
+                    else
+                    {
+
+                        var C = Task.Run(() => Partner_Form.GetAllPartnerForm());
+                        var c = await C;
+                        PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>(c.OrderBy(o => Math.Abs(o.dateDiff.TotalDays)));
+                        var A = Task.Run(() => Cycle.GetAllCycle());
+                        CycleList = new ObservableRangeCollection<Cycle>(await A);
+                        //var D = Task.Run(() => Partner.GetPartnaire());
+                        PartnerList = new ObservableRangeCollection<Partner>(PartnerFormList.GroupBy(p => p.Partner_id).Select(g => new Partner((uint)g.Key, g.Max(x => x.Partner_name))));
+                        EmpolyeList = new ObservableRangeCollection<Empolye>(PartnerFormList.GroupBy(p => p.Agent_id).Select(g => new Empolye((int)(g.Key), g.Max(x => x.Agent_name))));
+                        StateList = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.state).Distinct());
+                        ListOfForm = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.Form_name).Distinct());
+
+                    }
+                }
+                else
+                {
+                    var C = Task.Run(() => Partner_Form.GetPartnerFormByOpp(opp));
                     var c = await C;
                     PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>(c.OrderBy(o => Math.Abs(o.dateDiff.TotalDays)));
                     var A = Task.Run(() => Cycle.GetAllCycle());
@@ -156,22 +221,9 @@ namespace SmartPharma5.ViewModel
                     PartnerList = new ObservableRangeCollection<Partner>(PartnerFormList.GroupBy(p => p.Partner_id).Select(g => new Partner((uint)g.Key, g.Max(x => x.Partner_name))));
                     StateList = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.state).Distinct());
                     ListOfForm = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.Form_name).Distinct());
-                }
-                else
-                {
-
-                    var C = Task.Run(() => Partner_Form.GetAllPartnerForm());
-                    var c = await C;
-                    PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>(c.OrderBy(o => Math.Abs(o.dateDiff.TotalDays)));
-                    var A = Task.Run(() => Cycle.GetAllCycle());
-                    CycleList = new ObservableRangeCollection<Cycle>(await A);
-                    //var D = Task.Run(() => Partner.GetPartnaire());
-                    PartnerList = new ObservableRangeCollection<Partner>(PartnerFormList.GroupBy(p => p.Partner_id).Select(g => new Partner((uint)g.Key, g.Max(x => x.Partner_name))));
-                    EmpolyeList = new ObservableRangeCollection<Empolye>(PartnerFormList.GroupBy(p => p.Agent_id).Select(g => new Empolye((int)(g.Key), g.Max(x => x.Agent_name))));
-                    StateList = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.state).Distinct());
-                    ListOfForm = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.Form_name).Distinct());
 
                 }
+            
             }
             catch (Exception ex)
             {
@@ -197,23 +249,47 @@ namespace SmartPharma5.ViewModel
         private async void Config(Partner_Form.Collection obj)
         {
 
-            Loading = true;
-            await Task.Delay(1000);
-            SchedulerDataStorage dataStorage = new SchedulerDataStorage();
-            AppointmentItem appointment = new AppointmentItem
+
+            UserDialogs.Instance.Toast("Configuration Quiz ...");
+            await Task.Delay(200);
+
+            if (await DbConnection.Connecter3())
             {
-                Id = Convert.ToInt32(obj.Id),
-                End = obj.Estimated_date,
-                Start = obj.Estimated_date,
-                LabelId = obj.Id_Calender,
-                Subject = obj.Partner_name
-            };
-            //------------------Return-----------------------------------------
 
-            View.AppointmentEditPage appEditPage = new View.AppointmentEditPage(appointment, dataStorage);
+                try
+                {
+                    Loading = true;
+                    await Task.Delay(1000);
+                    SchedulerDataStorage dataStorage = new SchedulerDataStorage();
+                    AppointmentItem appointment = new AppointmentItem
+                    {
+                        Id = Convert.ToInt32(obj.Id),
+                        End = obj.Estimated_date,
+                        Start = obj.Estimated_date,
+                        LabelId = obj.Id_Calender,
+                        Subject = obj.Partner_name
+                    };
+                    //------------------Return-----------------------------------------
 
-            await App.Current.MainPage.Navigation.PushAsync(appEditPage);
-            Loading = false;
+                    View.AppointmentEditPage appEditPage = new View.AppointmentEditPage(appointment, dataStorage);
+
+                    await App.Current.MainPage.Navigation.PushAsync(appEditPage);
+                    Loading = false;
+                }
+                catch (Exception ex)
+                {
+                    await DbConnection.ErrorConnection();
+                    UserDialogs.Instance.HideLoading();
+                }
+
+            }
+            else
+            {
+                await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
+            }
+
+           
         }
 
         private async Task LoadPartnerForm()
@@ -236,6 +312,40 @@ namespace SmartPharma5.ViewModel
             try
             {
                 var C = Task.Run(() => Partner_Form.GetMyPartnerForm());
+                var c = await C;
+                PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>(c.OrderBy(o => Math.Abs(o.dateDiff.TotalDays)));
+                var A = Task.Run(() => Cycle.GetAllCycle());
+                CycleList = new ObservableRangeCollection<Cycle>(await A);
+                uint idagent = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
+                PartnerList = new ObservableRangeCollection<Partner>(PartnerFormList.GroupBy(p => p.Partner_id).Select(g => new Partner((uint)g.Key, g.Max(x => x.Partner_name))));
+                StateList = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.state).Distinct());
+                ListOfForm = new ObservableRangeCollection<String>(PartnerFormList.Select(x => x.Form_name).Distinct());
+            }
+            catch (Exception ex)
+            {
+                TestLoad = true;
+
+            }
+
+
+
+            ActPopup = false;
+            //IsBusy = false;
+            IsPullToRefreshEnabled = true;
+
+            //FillState();
+        }
+        public async Task LoadPartnerFormByOpp(int opp)
+        {
+            PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>();
+            IsPullToRefreshEnabled = false;
+            ActPopup = true;
+            PartnerFormList.Clear();
+
+            await Task.Delay(500);
+            try
+            {
+                var C = Task.Run(() => Partner_Form.GetPartnerFormByOpp(opp));
                 var c = await C;
                 PartnerFormList = new ObservableRangeCollection<Partner_Form.Collection>(c.OrderBy(o => Math.Abs(o.dateDiff.TotalDays)));
                 var A = Task.Run(() => Cycle.GetAllCycle());

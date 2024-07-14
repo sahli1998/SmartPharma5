@@ -1,5 +1,6 @@
 using Acr.UserDialogs;
 using SmartPharma5.Model;
+using SmartPharma5.ModelView;
 using SmartPharma5.ViewModel;
 
 namespace SmartPharma5.View;
@@ -7,36 +8,57 @@ namespace SmartPharma5.View;
 public partial class PartnerFormView : ContentPage
 {
     public string type;
+    public int oppId;
+    public int id_partner;
     public DataTemplate ItemTemplate { get; set; }
     public PartnerFormView(string type)
     {
         InitializeComponent();
         this.type = type;
         BindingContext = new PartnerFormViewModel(type);
+        added.IsVisible = false;
 
+    }
+    public PartnerFormView(int opp, int id_partner)
+    {
+        this.oppId = opp;
+        InitializeComponent();
+        this.type = type;
+        BindingContext = new PartnerFormViewModel(opp);
+        this.id_partner = id_partner;
+       
     }
 
     private async void DXCollectionView_Tap(object sender, DevExpress.Maui.CollectionView.CollectionViewGestureEventArgs e)
     {
-        Popup.IsOpen = true;
-        await Task.Delay(1000);
-        var Item = e.Item as Partner_Form.Collection;
-        if (Item != null)
+        try
         {
-            if (await DbConnection.Connecter3())
+            Popup.IsOpen = true;
+            await Task.Delay(1000);
+            var Item = e.Item as Partner_Form.Collection;
+            if (Item != null)
             {
-                await App.Current.MainPage.Navigation.PushAsync(new QuizQuestionView((Item)));
+                if (await DbConnection.Connecter3())
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new QuizQuestionView((Item)));
+
+                }
+                else
+                {
+                    PopupConnection.IsOpen = true;
+
+
+                }
 
             }
-            else
-            {
-                PopupConnection.IsOpen = true;
-
-
-            }
+            Popup.IsOpen = false;
+        }
+        catch(Exception ex)
+        {
+            Popup.IsOpen = false;
 
         }
-        Popup.IsOpen = false;
+       
 
 
 
@@ -186,27 +208,62 @@ public partial class PartnerFormView : ContentPage
 
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        Popup.IsOpen = true;
-        await Task.Delay(1000);
-        if (sender is Frame frame && frame.BindingContext is Partner_Form.Collection tappedItem)
+        UserDialogs.Instance.Toast("Quiz Form ...");
+        await Task.Delay(200);
+
+        if (await DbConnection.Connecter3())
         {
-            if (await DbConnection.Connecter3())
+            try
             {
                 try
                 {
-                    await App.Current.MainPage.Navigation.PushAsync(new QuizQuestionView((tappedItem)));
-                }
-                catch(Exception ex) 
-                { }
-               
+                    Popup.IsOpen = true;
+                    await Task.Delay(300);
+                    if (sender is Frame frame && frame.BindingContext is Partner_Form.Collection tappedItem)
+                    {
+                        if (await DbConnection.Connecter3())
+                        {
+                            try
+                            {
+                                await App.Current.MainPage.Navigation.PushAsync(new QuizForm2(tappedItem));
+                            }
+                            catch (Exception ex)
+                            { }
 
+
+                        }
+                        else
+                        {
+                            PopupConnection.IsOpen = true;
+                        }
+                    }
+                    Popup.IsOpen = false;
+                }
+                catch (Exception ex)
+                {
+                    Popup.IsOpen = false;
+
+                }
             }
-            else
+            
+
+            
+            catch (Exception ex)
             {
-                PopupConnection.IsOpen = true;
+                await DbConnection.ErrorConnection();
+                UserDialogs.Instance.HideLoading();
             }
+
         }
-        Popup.IsOpen = false;
+        else
+        {
+            await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
+        }
+
+
+       
+       
     }
 
     private void SimpleButton_Clicked(object sender, EventArgs e)
@@ -226,5 +283,49 @@ public partial class PartnerFormView : ContentPage
     private void SimpleButton_Clicked_1(object sender, EventArgs e)
     {
         filtredPannel.IsOpen = false;
+    }
+
+    private async void Button_Clicked_1(object sender, EventArgs e)
+    {
+        try
+        {
+            Partner partner = Partner.GetCommercialPartnerById(id_partner).Result;
+            List<Contact_Partner> partners = ContactPartnerMV.getContactsOfPartner(id_partner).Result.ToList();
+            if(partners.Count > 0)
+            {
+                
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+                await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new ContactPartnerPage(partner, oppId)));
+                UserDialogs.Instance.HideLoading();
+
+            }
+            else
+            {
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+
+                if (oppId == 0)
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new FormListView(partner, 0));
+                }
+                else
+                {
+                    await App.Current.MainPage.Navigation.PushAsync(new FormListView(partner, 0, this.oppId));
+                }
+
+                
+                
+                UserDialogs.Instance.HideLoading();
+
+            }
+
+           
+        }
+        catch (Exception ex)
+        {
+            await DbConnection.ErrorConnection();
+        }
+
     }
 }

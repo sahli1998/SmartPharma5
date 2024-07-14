@@ -93,7 +93,11 @@ namespace SmartPharma5.Model
 
         public async Task<List<values>> getValuesByProfile(int instance_profile)
         {
-            string sqlcmd = "select marketing_profile_attribut_value.* from marketing_profile_attribut_value where marketing_profile_attribut_value.profile_instance = " + instance_profile + " ;";
+            string sqlcmd = "select marketing_profile_attribut_value.* , atooerp_type.id as type_attribute  " +
+                "from marketing_profile_attribut_value\r\n" +
+                "left join marketing_profile_attribut on marketing_profile_attribut.id = marketing_profile_attribut_value.attribut\r\n" +
+                "left join atooerp_type on atooerp_type.id = marketing_profile_attribut.attribut_type " +
+                "where marketing_profile_attribut_value.profile_instance = " + instance_profile + " ;";
             DbConnection.Deconnecter();
             DbConnection.Connecter();
 
@@ -117,6 +121,7 @@ namespace SmartPharma5.Model
 
                 attribute.name = Convert.ToString(reader["name"]); ;
                 attribute.memo = Convert.ToString(reader["memo"]);
+                attribute.attribut_type= Convert.ToInt32(reader["type_attribute"]);
 
                 /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
                 Avant :
@@ -142,7 +147,7 @@ namespace SmartPharma5.Model
 
 
 
-                if (Convert.ToString(reader["string_value"]) != null && Convert.ToString(reader["boolean_value"]) == "" && Convert.ToString(reader["date_value"]) == "" && Convert.ToString(reader["decimal_value"]) == "" && Convert.ToString(reader["int_value"]) == "" && Convert.ToString(reader["type"]) == "")
+                if (attribute.attribut_type==1)
                 {
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
@@ -156,7 +161,7 @@ namespace SmartPharma5.Model
 
 
                 }
-                else if (Convert.ToString(reader["boolean_value"]) != "")
+                else if (attribute.attribut_type == 4)
                 {
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
@@ -171,7 +176,7 @@ namespace SmartPharma5.Model
 
 
                 }
-                else if (Convert.ToString(reader["date_value"]) != "")
+                else if (attribute.attribut_type == 6)
                 {
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
@@ -186,7 +191,7 @@ namespace SmartPharma5.Model
 
 
                 }
-                else if (Convert.ToString(reader["decimal_value"]) != "")
+                else if (attribute.attribut_type == 3)
                 {
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
@@ -201,7 +206,7 @@ namespace SmartPharma5.Model
 
 
                 }
-                else if (Convert.ToString(reader["int_value"]) != "")
+                else if (attribute.attribut_type == 2)
                 {
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
@@ -217,7 +222,7 @@ namespace SmartPharma5.Model
 
 
                 }
-                else if (Convert.ToString(reader["blob_value"]) != "")
+                else if (attribute.attribut_type == 5)
                 {
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
@@ -231,8 +236,9 @@ namespace SmartPharma5.Model
                     }
 
                 }
-                else if (Convert.ToString(reader["type"]) != "")
+                else
                 {
+                    var a = Convert.ToInt32(reader["Id"]);
 
                     if (Convert.ToInt32(reader["Id"]) == this.id_current_value)
                     {
@@ -240,7 +246,24 @@ namespace SmartPharma5.Model
                     }
                     else
                     {
-                        attribute.type = Convert.ToInt32(reader["type"]);
+                        try
+                        {
+                            if (Convert.ToString(reader["type"])=="")
+                            {
+                                attribute.type = null;
+
+                            }
+                            else
+                            {
+                                attribute.type = Convert.ToInt32(reader["type"]);
+
+                            }
+                           
+                        }
+                        catch (Exception ex) 
+                        { 
+                        }
+                        
                     }
 
                 }
@@ -298,6 +321,8 @@ namespace SmartPharma5.Model
 
             if (await App.Current.MainPage.DisplayAlert("INFO", "DO YOU WANT TO ACCEPT CHANGES", "YES", "NO"))
             {
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
                 if (this.IsPartnerAttribute)
                 {
                     await this.insertNewInstance(this.id_partner, this.id_profile);
@@ -309,51 +334,91 @@ namespace SmartPharma5.Model
                         string sqlCmd = "";
                         DbConnection.Deconnecter();
                         DbConnection.Connecter();
-                        if (val.string_value != null)
+                        if (val.attribut_type==1)
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,string_value) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
                                 " " + last_instance + " , '" + val.string_value + "');update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
 
 
                         }
-                        else if (val.int_value != null)
+                        else if (val.attribut_type == 2)
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,int_value) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
                                " " + last_instance + " , " + val.int_value + ");update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
                         }
-                        else if (val.decimal_value != null)
+                        else if (val.attribut_type == 3)
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,decimal_value) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
                                " " + last_instance + " , " + val.decimal_value.ToString().Replace(',', '.') + ");update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
                         }
-                        else if (val.bloob_value != null)
+                        else if (val.attribut_type == 5)
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,bloob_value) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
                                " " + last_instance + " , '" + val.bloob_value + "');update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
                         }
-                        else if (val.boolean_value != null)
+                        else if (val.attribut_type == 4)
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,boolean_value) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
                                " " + last_instance + " , " + val.boolean_value + ");update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
                         }
-                        else if (val.date_value != null)
+                        else if (val.attribut_type==6)
                         {
                             sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,date_value) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
                                " " + last_instance + " , '" + val.date_value?.ToString("yyyy-MM-dd HH:mm:ss") + "');update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
                         }
-                        else if (val.type != null)
+                        else 
                         {
-                            sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,type) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
-                               " " + last_instance + " , " + val.type + ");update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+                            if (val.type == null)
+                            {
+                                sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,type) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
+                            " " + last_instance + " , null);update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+
+                            }
+                            else
+                            {
+                                sqlCmd = "insert into marketing_profile_attribut_value(name,memo,create_date,attribut,profile_instance,type) values ('" + val.name + "' , '" + val.memo + "' , '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "' , " + val.attribute + " ," +
+                            " " + last_instance + " , " + val.type + ");update marketing_profile_attribut_value_temp set state = 2 where id =" + id_temp + ";";
+
+                            }
+                         
+                            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                            cmd.ExecuteReader();
+                            DbConnection.Deconnecter();
+                            int lastValue = await getLastIdValue();
+                            await updateTempValue(val.id, lastValue);
                         }
-                        else
-                        {
-                        }
-                        MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
-                        cmd.ExecuteReader();
-                        DbConnection.Deconnecter();
-                        int lastValue = await getLastIdValue();
-                        await updateTempValue(val.id, lastValue);
+                    
+                   
 
 
                     }
@@ -447,9 +512,8 @@ namespace SmartPharma5.Model
             }
 
 
-            UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-            await Task.Delay(500);
-            await App.Current.MainPage.Navigation.PushAsync(new TabPageValidationUpdates()) ;
+            
+            await App.Current.MainPage.Navigation.PushAsync(new TabPageValidationUpdates());
             UserDialogs.Instance.HideLoading();
 
 
@@ -516,9 +580,625 @@ namespace SmartPharma5.Model
             cmd.ExecuteReader();
             DbConnection.Deconnecter();
         }
+        
+        public static List<NotificationProfilePartner> getMyHistoryTempValues()
+        {
+            int id = user_contrat.id_employe;
+            //string  sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id="+user_contrat.id_employe+ "   \r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.employe="+id+" and marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand (marketing_profile_attribut_value_temp.state = 2 or marketing_profile_attribut_value_temp.state = 3 )\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            DbConnection.Deconnecter();
+            DbConnection.Connecter();
 
+            MySqlCommand cmd = new MySqlCommand(sqlcmd, DbConnection.con);
+
+            List<NotificationProfilePartner> list = new List<NotificationProfilePartner>();
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+
+
+            while (reader.Read())
+            {
+                try
+                {
+                    NotificationProfilePartner attribute = new NotificationProfilePartner();
+                    if (reader["attribut_name"].ToString() == "")
+                    {
+                        attribute.IsPartnerAttribute = true;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]);
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["partner_name"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["id_partner"]);
+                        attribute.id_profile = Convert.ToInt32(reader["id_profile"]);
+                        attribute.id_current_value = Convert.ToInt32(reader["id_value"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["label_attribut"]).ToUpper();
+                        attribute.id_instance = Convert.ToInt32(reader["id_instance"]);
+                    }
+                    else
+                    {
+                        attribute.IsPartnerAttribute = false;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]).ToUpper();
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["name_partner2"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["partner"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["attribut_name"]).ToUpper();
+
+
+                    }
+
+                    if (Convert.ToString(reader["state"]) == "2")
+                    {
+                        attribute.HasAccepted = true;
+
+                    }
+                    else if (Convert.ToString(reader["state"]) == "3")
+                    {
+                        attribute.HasRefused = true;
+
+                    }
+                    else
+                    {
+                        attribute.HasNoState = true;
+                    }
+
+
+                    if (attribute.IsPartnerAttribute)
+                    {
+                        if (Convert.ToString(reader["string_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["string_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["boolean_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["boolean_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["boolean_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["date_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["date_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["date_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["decimal_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["decimal_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["decimal_value"]);
+                        }
+                        else if (Convert.ToString(reader["int_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["int_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["blob_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["blob_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["blob_value"]);
+                        }
+                        else if (Convert.ToString(reader["type"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_current_type"]);
+                            attribute.Temp_Value = Convert.ToString(reader["name_type"]);
+                            attribute.id_type = Convert.ToInt32(reader["type"]);
+                            attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+
+                        }
+
+                    }
+                    else
+                    {
+                        if (Convert.ToString(reader["attribut_name"]) == "name")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_partner"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "category")
+                        {
+                            attribute.current_value = Convert.ToString(reader["category_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["category_temp"]);
+                            attribute.value_temp = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "number")
+                        {
+                            attribute.current_value = Convert.ToString(reader["number"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "street")
+                        {
+                            attribute.current_value = Convert.ToString(reader["street"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "city")
+                        {
+                            attribute.current_value = Convert.ToString(reader["city"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "state")
+                        {
+                            attribute.current_value = Convert.ToString(reader["state_name"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "country")
+                        {
+                            attribute.current_value = Convert.ToString(reader["country"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "postal_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["postal_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "email")
+                        {
+                            attribute.current_value = Convert.ToString(reader["email"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "fax")
+                        {
+                            attribute.current_value = Convert.ToString(reader["fax"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "customer")
+                        {
+                            attribute.current_value = Convert.ToString(reader["customer"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "supplier")
+                        {
+                            attribute.current_value = Convert.ToString(reader["supplier"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "vat_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["vat_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+
+
+                    }
+
+
+                    list.Add(attribute);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
+
+            }
+            reader.Close();
+            DbConnection.Deconnecter();
+            return list;
+        }
+        public static List<NotificationProfilePartner> getMyAccepteHistoryTempValues()
+        {
+            int id = user_contrat.id_employe;
+            //string  sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id="+user_contrat.id_employe+ "   \r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.employe=" + id + " and marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand (marketing_profile_attribut_value_temp.state = 2  )\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            DbConnection.Deconnecter();
+            DbConnection.Connecter();
+
+            MySqlCommand cmd = new MySqlCommand(sqlcmd, DbConnection.con);
+
+            List<NotificationProfilePartner> list = new List<NotificationProfilePartner>();
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+
+
+            while (reader.Read())
+            {
+                try
+                {
+                    NotificationProfilePartner attribute = new NotificationProfilePartner();
+                    if (reader["attribut_name"].ToString() == "")
+                    {
+                        attribute.IsPartnerAttribute = true;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]);
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["partner_name"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["id_partner"]);
+                        attribute.id_profile = Convert.ToInt32(reader["id_profile"]);
+                        attribute.id_current_value = Convert.ToInt32(reader["id_value"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["label_attribut"]).ToUpper();
+                        attribute.id_instance = Convert.ToInt32(reader["id_instance"]);
+                    }
+                    else
+                    {
+                        attribute.IsPartnerAttribute = false;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]).ToUpper();
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["name_partner2"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["partner"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["attribut_name"]).ToUpper();
+
+
+                    }
+
+                    if (Convert.ToString(reader["state"]) == "2")
+                    {
+                        attribute.HasAccepted = true;
+
+                    }
+                    else if (Convert.ToString(reader["state"]) == "3")
+                    {
+                        attribute.HasRefused = true;
+
+                    }
+                    else
+                    {
+                        attribute.HasNoState = true;
+                    }
+
+
+                    if (attribute.IsPartnerAttribute)
+                    {
+                        if (Convert.ToString(reader["string_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["string_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["boolean_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["boolean_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["boolean_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["date_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["date_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["date_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["decimal_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["decimal_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["decimal_value"]);
+                        }
+                        else if (Convert.ToString(reader["int_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["int_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["blob_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["blob_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["blob_value"]);
+                        }
+                        else if (Convert.ToString(reader["type"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_current_type"]);
+                            attribute.Temp_Value = Convert.ToString(reader["name_type"]);
+                            attribute.id_type = Convert.ToInt32(reader["type"]);
+                            attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+
+                        }
+
+                    }
+                    else
+                    {
+                        if (Convert.ToString(reader["attribut_name"]) == "name")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_partner"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "category")
+                        {
+                            attribute.current_value = Convert.ToString(reader["category_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["category_temp"]);
+                            attribute.value_temp = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "number")
+                        {
+                            attribute.current_value = Convert.ToString(reader["number"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "street")
+                        {
+                            attribute.current_value = Convert.ToString(reader["street"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "city")
+                        {
+                            attribute.current_value = Convert.ToString(reader["city"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "state")
+                        {
+                            attribute.current_value = Convert.ToString(reader["state_name"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "country")
+                        {
+                            attribute.current_value = Convert.ToString(reader["country"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "postal_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["postal_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "email")
+                        {
+                            attribute.current_value = Convert.ToString(reader["email"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "fax")
+                        {
+                            attribute.current_value = Convert.ToString(reader["fax"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "customer")
+                        {
+                            attribute.current_value = Convert.ToString(reader["customer"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "supplier")
+                        {
+                            attribute.current_value = Convert.ToString(reader["supplier"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "vat_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["vat_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+
+
+                    }
+
+
+                    list.Add(attribute);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
+
+            }
+            reader.Close();
+            DbConnection.Deconnecter();
+            return list;
+        }
+        public static List<NotificationProfilePartner> getMyRefuseHistoryTempValues()
+        {
+            int id = user_contrat.id_employe;
+            //string  sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id="+user_contrat.id_employe+ "   \r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.employe=" + id + " and marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand (marketing_profile_attribut_value_temp.state = 3 )\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            DbConnection.Deconnecter();
+            DbConnection.Connecter();
+
+            MySqlCommand cmd = new MySqlCommand(sqlcmd, DbConnection.con);
+
+            List<NotificationProfilePartner> list = new List<NotificationProfilePartner>();
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+
+
+            while (reader.Read())
+            {
+                try
+                {
+                    NotificationProfilePartner attribute = new NotificationProfilePartner();
+                    if (reader["attribut_name"].ToString() == "")
+                    {
+                        attribute.IsPartnerAttribute = true;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]);
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["partner_name"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["id_partner"]);
+                        attribute.id_profile = Convert.ToInt32(reader["id_profile"]);
+                        attribute.id_current_value = Convert.ToInt32(reader["id_value"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["label_attribut"]).ToUpper();
+                        attribute.id_instance = Convert.ToInt32(reader["id_instance"]);
+                    }
+                    else
+                    {
+                        attribute.IsPartnerAttribute = false;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]).ToUpper();
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["name_partner2"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["partner"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["attribut_name"]).ToUpper();
+
+
+                    }
+
+                    if (Convert.ToString(reader["state"]) == "2")
+                    {
+                        attribute.HasAccepted = true;
+
+                    }
+                    else if (Convert.ToString(reader["state"]) == "3")
+                    {
+                        attribute.HasRefused = true;
+
+                    }
+                    else
+                    {
+                        attribute.HasNoState = true;
+                    }
+
+
+                    if (attribute.IsPartnerAttribute)
+                    {
+                        if (Convert.ToString(reader["string_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["string_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["boolean_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["boolean_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["boolean_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["date_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["date_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["date_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["decimal_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["decimal_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["decimal_value"]);
+                        }
+                        else if (Convert.ToString(reader["int_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["int_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["blob_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["blob_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["blob_value"]);
+                        }
+                        else if (Convert.ToString(reader["type"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_current_type"]);
+                            attribute.Temp_Value = Convert.ToString(reader["name_type"]);
+                            attribute.id_type = Convert.ToInt32(reader["type"]);
+                            attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+
+                        }
+
+                    }
+                    else
+                    {
+                        if (Convert.ToString(reader["attribut_name"]) == "name")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_partner"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "category")
+                        {
+                            attribute.current_value = Convert.ToString(reader["category_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["category_temp"]);
+                            attribute.value_temp = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "number")
+                        {
+                            attribute.current_value = Convert.ToString(reader["number"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "street")
+                        {
+                            attribute.current_value = Convert.ToString(reader["street"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "city")
+                        {
+                            attribute.current_value = Convert.ToString(reader["city"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "state")
+                        {
+                            attribute.current_value = Convert.ToString(reader["state_name"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "country")
+                        {
+                            attribute.current_value = Convert.ToString(reader["country"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "postal_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["postal_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "email")
+                        {
+                            attribute.current_value = Convert.ToString(reader["email"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "fax")
+                        {
+                            attribute.current_value = Convert.ToString(reader["fax"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "customer")
+                        {
+                            attribute.current_value = Convert.ToString(reader["customer"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "supplier")
+                        {
+                            attribute.current_value = Convert.ToString(reader["supplier"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "vat_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["vat_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+
+
+                    }
+
+
+                    list.Add(attribute);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+
+
+
+            }
+            reader.Close();
+            DbConnection.Deconnecter();
+            return list;
+        }
         public static List<NotificationProfilePartner> getAllHistoryTempValues()
         {
+            
             //string  sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id="+user_contrat.id_employe+ "   \r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
             string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand (marketing_profile_attribut_value_temp.state = 2 or marketing_profile_attribut_value_temp.state = 3 )\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
             DbConnection.Deconnecter();
@@ -533,6 +1213,218 @@ namespace SmartPharma5.Model
 
             while (reader.Read())
             {
+                try
+                {
+                    NotificationProfilePartner attribute = new NotificationProfilePartner();
+                    if (reader["attribut_name"].ToString() == "")
+                    {
+                        attribute.IsPartnerAttribute = true;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]);
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["partner_name"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["id_partner"]);
+                        attribute.id_profile = Convert.ToInt32(reader["id_profile"]);
+                        attribute.id_current_value = Convert.ToInt32(reader["id_value"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["label_attribut"]).ToUpper();
+                        attribute.id_instance = Convert.ToInt32(reader["id_instance"]);
+                    }
+                    else
+                    {
+                        attribute.IsPartnerAttribute = false;
+                        attribute.id_temp = Convert.ToInt32(reader["id"]);
+                        attribute.created_by = Convert.ToString(reader["user_name"]).ToUpper();
+                        attribute.profile = Convert.ToString(reader["profile_name"]);
+                        attribute.profile_user = Convert.ToString(reader["name_partner2"]);
+                        attribute.create_date = Convert.ToString(reader["create_date"]);
+                        attribute.id_partner = Convert.ToInt32(reader["partner"]);
+                        attribute.state = Convert.ToInt32(reader["state"]);
+                        attribute.name_attribute = Convert.ToString(reader["attribut_name"]).ToUpper();
+
+
+                    }
+
+                    if (Convert.ToString(reader["state"]) == "2")
+                    {
+                        attribute.HasAccepted = true;
+
+                    }
+                    else if (Convert.ToString(reader["state"]) == "3")
+                    {
+                        attribute.HasRefused = true;
+
+                    }
+                    else
+                    {
+                        attribute.HasNoState = true;
+                    }
+
+
+                    if (attribute.IsPartnerAttribute)
+                    {
+                        if (Convert.ToString(reader["string_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["string_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["boolean_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["boolean_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["boolean_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["date_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["date_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["date_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["decimal_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["decimal_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["decimal_value"]);
+                        }
+                        else if (Convert.ToString(reader["int_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["int_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["blob_value"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["blob_value_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["blob_value"]);
+                        }
+                        else if (Convert.ToString(reader["type"]) != "")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_current_type"]);
+                            attribute.Temp_Value = Convert.ToString(reader["name_type"]);
+                            attribute.id_type = Convert.ToInt32(reader["type"]);
+                            attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+
+                        }
+
+                    }
+                    else
+                    {
+                        if (Convert.ToString(reader["attribut_name"]) == "name")
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_partner"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "category")
+                        {
+                            attribute.current_value = Convert.ToString(reader["category_current"]);
+                            attribute.Temp_Value = Convert.ToString(reader["category_temp"]);
+                            attribute.value_temp = Convert.ToString(reader["int_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "number")
+                        {
+                            attribute.current_value = Convert.ToString(reader["number"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "street")
+                        {
+                            attribute.current_value = Convert.ToString(reader["street"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "city")
+                        {
+                            attribute.current_value = Convert.ToString(reader["city"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "state")
+                        {
+                            attribute.current_value = Convert.ToString(reader["state_name"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "country")
+                        {
+                            attribute.current_value = Convert.ToString(reader["country"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "postal_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["postal_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "email")
+                        {
+                            attribute.current_value = Convert.ToString(reader["email"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "fax")
+                        {
+                            attribute.current_value = Convert.ToString(reader["fax"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "customer")
+                        {
+                            attribute.current_value = Convert.ToString(reader["customer"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "supplier")
+                        {
+                            attribute.current_value = Convert.ToString(reader["supplier"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+                        else if (Convert.ToString(reader["attribut_name"]) == "vat_code")
+                        {
+                            attribute.current_value = Convert.ToString(reader["vat_code"]);
+                            attribute.Temp_Value = Convert.ToString(reader["string_value"]);
+                        }
+
+
+                    }
+
+
+                    list.Add(attribute);
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                
+
+
+
+            }
+            reader.Close();
+            DbConnection.Deconnecter();
+            return list;
+        }
+        public static List<NotificationProfilePartner> getAllTempValues()
+        {
+
+            string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            // string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=" + user_contrat.id_employe + "   \r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand (marketing_profile_attribut_value_temp.state = 2 or marketing_profile_attribut_value_temp.state = 3 )\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;"; 
+            DbConnection.Deconnecter();
+            DbConnection.Connecter();
+
+            MySqlCommand cmd = new MySqlCommand(sqlcmd, DbConnection.con);
+
+            List<NotificationProfilePartner> list = new List<NotificationProfilePartner>();
+            MySqlDataReader reader = cmd.ExecuteReader();
+
+
+
+            while (reader.Read())
+            {
+                try
+                {
+
+                }catch (Exception ex)
+                {
+
+                }
                 NotificationProfilePartner attribute = new NotificationProfilePartner();
                 if (reader["attribut_name"].ToString() == "")
                 {
@@ -618,10 +1510,19 @@ namespace SmartPharma5.Model
                     }
                     else if (Convert.ToString(reader["type"]) != "")
                     {
-                        attribute.current_value = Convert.ToString(reader["name_current_type"]);
-                        attribute.Temp_Value = Convert.ToString(reader["name_type"]);
-                        attribute.id_type = Convert.ToInt32(reader["type"]);
-                        attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+                        try
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_current_type"]);
+                            attribute.Temp_Value = Convert.ToString(reader["name_type"]);
+                            attribute.id_type = Convert.ToInt32(reader["type"]);
+                            attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+                       
 
                     }
 
@@ -712,9 +1613,10 @@ namespace SmartPharma5.Model
             DbConnection.Deconnecter();
             return list;
         }
-        public static List<NotificationProfilePartner> getAllTempValues()
+        public static List<NotificationProfilePartner> getMyTempValues()
         {
-            string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
+            int id = user_contrat.id_employe;
+            string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=marketing_profile_attribut_value_temp.employe\r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.employe="+id+" and marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand marketing_profile_attribut_value_temp.state = 1\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;";
             // string sqlcmd = "SELECT marketing_profile_attribut_value_temp.*  ,marketing_profile_attribut.label as label_attribut , marketing_profile.Id as id_profile,com2.name as name_partner2 ,com2.*,com2.name as name_partner, com2.state as state_name,\r\nmarketing_profile_attribut_value.Id as id_value ,marketing_profile_instances.Id id_instance, commercial_partner.Id as id_partner ,current_category.name as category_current ,\r\ncommercial_partner.name as partner_name , concat(person.first_name,' ',person.last_name) as user_name , marketing_profile.name as profile_name,temp_category.name as category_temp ,\r\nmarketing_profile_attribut_value.string_value as string_value_current, marketing_profile_attribut_value.boolean_value as boolean_value_current ,\r\nmarketing_profile_attribut_value.date_value as date_value_current , marketing_profile_attribut_value.int_value  as int_value_current ,\r\nmarketing_profile_attribut_value.decimal_value decimal_value_current , marketing_profile_attribut_value.blob_value as blob_value_current ,element1.name as name_type,element2.name as name_current_type,\r\nmarketing_profile_attribut_value.type as type_current from marketing_profile_attribut_value_temp\r\nleft join atooerp_user on   atooerp_user.Id = marketing_profile_attribut_value_temp.user\r\nleft join  marketing_profile_attribut_value on marketing_profile_attribut_value_temp.attribut_value =marketing_profile_attribut_value.Id\r\nleft join marketing_profile_attribut on marketing_profile_attribut_value.attribut= marketing_profile_attribut.Id\r\nleft join marketing_profile_instances on marketing_profile_attribut_value.profile_instance=marketing_profile_instances.Id\r\nleft join marketing_profile on marketing_profile_instances.profil = marketing_profile.Id\r\nleft join commercial_partner on marketing_profile_instances.partner=commercial_partner.Id\r\nleft join commercial_partner as com2 on marketing_profile_attribut_value_temp.partner=com2.Id\r\nleft join commercial_partner_category as current_category on com2.category=current_category.id\r\nleft join atooerp_type_element as element1 on marketing_profile_attribut_value_temp.type = element1.id\r\nleft join atooerp_type_element as element2 on marketing_profile_attribut_value.type = element2.id\r\nleft join atooerp_person as person on person.id=" + user_contrat.id_employe + "   \r\n\r\nleft join commercial_partner_category as temp_category on marketing_profile_attribut_value_temp.int_value=temp_category.id\r\nwhere marketing_profile_attribut_value_temp.profile_instance_temp is null and  marketing_profile_attribut_value_temp.partner_temp is null\r\nand (marketing_profile_attribut_value_temp.state = 2 or marketing_profile_attribut_value_temp.state = 3 )\r\nand (marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance  group by instance.partner) or marketing_profile_attribut_value_temp.attribut_name is not null) order by marketing_profile_attribut_value_temp.create_date desc;"; 
             DbConnection.Deconnecter();
             DbConnection.Connecter();
@@ -728,6 +1630,14 @@ namespace SmartPharma5.Model
 
             while (reader.Read())
             {
+                try
+                {
+
+                }
+                catch (Exception ex)
+                {
+
+                }
                 NotificationProfilePartner attribute = new NotificationProfilePartner();
                 if (reader["attribut_name"].ToString() == "")
                 {
@@ -813,10 +1723,19 @@ namespace SmartPharma5.Model
                     }
                     else if (Convert.ToString(reader["type"]) != "")
                     {
-                        attribute.current_value = Convert.ToString(reader["name_current_type"]);
-                        attribute.Temp_Value = Convert.ToString(reader["name_type"]);
-                        attribute.id_type = Convert.ToInt32(reader["type"]);
-                        attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+                        try
+                        {
+                            attribute.current_value = Convert.ToString(reader["name_current_type"]);
+                            attribute.Temp_Value = Convert.ToString(reader["name_type"]);
+                            attribute.id_type = Convert.ToInt32(reader["type"]);
+                            attribute.id_current_type = Convert.ToInt32(reader["type_current"]);
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
 
                     }
 
@@ -924,6 +1843,7 @@ namespace SmartPharma5.Model
         public byte? bloob_value { get; set; } = null;
         public DateTime? date_value { get; set; } = null;
         public int? type { get; set; } = null;
+        public int attribut_type { get; set; } 
 
         public values() { }
     }

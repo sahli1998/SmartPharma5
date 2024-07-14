@@ -13,7 +13,7 @@ public partial class TabPageValidationUpdates : TabbedPage
         InitializeComponent();
         var ovm = BindingContext as TabMV;
 
-        first.Title = "(" + ovm.Number_Info_change + ") INFO";
+        //first.Title = "(" + ovm.Number_Info_change + ") INFO";
         second.Title = "(" + ovm.Number_profile_change.ToString() + ") PROFILE";
         third.Title = "(" + ovm.Number_partner_add.ToString() + ") NEW PARTNER";
     }

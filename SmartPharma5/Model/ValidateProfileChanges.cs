@@ -30,6 +30,7 @@ namespace SmartPharma5.Model
         public int partner_id { get; set; }
 
         public AsyncCommand ShowAttributes { get; set; }
+        public AsyncCommand ShowMyAttributes { get; set; }
 
 
         //add state to separte betwwen valid and réfused
@@ -46,6 +47,7 @@ namespace SmartPharma5.Model
         public ValidateProfileChanges(int id, string profile, string current, string user_name, DateTime create_date, int? user_id, int? employe_id, string partner_name, int partner, int profile_id)
         {
             ShowAttributes = new AsyncCommand(showAttributes);
+            ShowMyAttributes = new AsyncCommand(showMyAttributes);
             Id = id;
             Profile = profile;
             Current_profile = current;
@@ -58,7 +60,26 @@ namespace SmartPharma5.Model
             this.profile_id = profile_id;
 
         }
+        
 
+
+        private async Task showMyAttributes()
+        {
+            try
+            {
+
+                UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                await Task.Delay(500);
+                await App.Current.MainPage.Navigation.PushAsync(new MyValidateAttributeChangeProfile(this.Id, this.partner_id, this.profile_id));
+                UserDialogs.Instance.HideLoading();
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
         private async Task showAttributes()
         {
             try
@@ -76,9 +97,10 @@ namespace SmartPharma5.Model
 
             }
         }
-
+        
         public static async Task<List<ValidateProfileChanges>> GetAllChangesHistoryProfile()
         {
+            int id = user_contrat.id_employe;
             List<ValidateProfileChanges> list = new List<ValidateProfileChanges>();
             //string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=employe.id\r\nwhere m.partner_temp is null and m.instance is null and m.state=1\r\norder by m.create_date desc;";
             string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=m.employe\r\nwhere m.partner_temp is null and (m.state=2 or m.state=3)\r\norder by m.create_date desc;";
@@ -131,12 +153,260 @@ namespace SmartPharma5.Model
                 return null;
             }
         }
+        public static async Task<List<ValidateProfileChanges>> GetMyChangesHistoryProfile()
+        {
+            int id = user_contrat.id_employe;
+            List<ValidateProfileChanges> list = new List<ValidateProfileChanges>();
+            //string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=employe.id\r\nwhere m.partner_temp is null and m.instance is null and m.state=1\r\norder by m.create_date desc;";
+            string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=m.employe\r\nwhere m.employe="+id+" and  m.partner_temp is null and (m.state=2 or m.state=3)\r\norder by m.create_date desc;";
+            if (await DbConnection.Connecter3())
+            {
 
+
+                MySqlDataReader reader;
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ValidateProfileChanges attribute = new ValidateProfileChanges(Convert.ToInt32(reader["id"]), reader["change_profile"].ToString(), reader["current_profile"].ToString(), reader["user_name"].ToString(), Convert.ToDateTime(reader["create_date"]), Convert.ToInt32(reader["user"]), Convert.ToInt32(reader["employe"]), reader["partner_name"].ToString(), Convert.ToInt32(reader["partner"]), Convert.ToInt32(reader["profile"]));
+                        if (Convert.ToInt32(reader["state"]) == 2)
+                        {
+                            attribute.Validated = true;
+
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 3)
+                        {
+                            attribute.Réfused = true;
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 1)
+                        {
+                            attribute.Current = true;
+                        }
+                        list.Add(attribute);
+
+
+                    }
+                    reader.Close();
+                    return list;
+
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                {
+                    return null;
+
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static async Task<List<ValidateProfileChanges>> GetMyChangesAcceptedHistoryProfile()
+        {
+            int id = user_contrat.id_employe;
+            List<ValidateProfileChanges> list = new List<ValidateProfileChanges>();
+            //string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=employe.id\r\nwhere m.partner_temp is null and m.instance is null and m.state=1\r\norder by m.create_date desc;";
+            string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=m.employe\r\nwhere m.employe=" + id + " and  m.partner_temp is null and m.state=2 \r\norder by m.create_date desc;";
+            if (await DbConnection.Connecter3())
+            {
+
+
+                MySqlDataReader reader;
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ValidateProfileChanges attribute = new ValidateProfileChanges(Convert.ToInt32(reader["id"]), reader["change_profile"].ToString(), reader["current_profile"].ToString(), reader["user_name"].ToString(), Convert.ToDateTime(reader["create_date"]), Convert.ToInt32(reader["user"]), Convert.ToInt32(reader["employe"]), reader["partner_name"].ToString(), Convert.ToInt32(reader["partner"]), Convert.ToInt32(reader["profile"]));
+                        if (Convert.ToInt32(reader["state"]) == 2)
+                        {
+                            attribute.Validated = true;
+
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 3)
+                        {
+                            attribute.Réfused = true;
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 1)
+                        {
+                            attribute.Current = true;
+                        }
+                        list.Add(attribute);
+
+
+                    }
+                    reader.Close();
+                    return list;
+
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                {
+                    return null;
+
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static async Task<List<ValidateProfileChanges>> GetMyChangesRefusedHistoryProfile()
+        {
+            int id = user_contrat.id_employe;
+            List<ValidateProfileChanges> list = new List<ValidateProfileChanges>();
+            //string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=employe.id\r\nwhere m.partner_temp is null and m.instance is null and m.state=1\r\norder by m.create_date desc;";
+            string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=m.employe\r\nwhere m.employe=" + id + " and  m.partner_temp is null and m.state=3 \r\norder by m.create_date desc;";
+            if (await DbConnection.Connecter3())
+            {
+
+
+                MySqlDataReader reader;
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ValidateProfileChanges attribute = new ValidateProfileChanges(Convert.ToInt32(reader["id"]), reader["change_profile"].ToString(), reader["current_profile"].ToString(), reader["user_name"].ToString(), Convert.ToDateTime(reader["create_date"]), Convert.ToInt32(reader["user"]), Convert.ToInt32(reader["employe"]), reader["partner_name"].ToString(), Convert.ToInt32(reader["partner"]), Convert.ToInt32(reader["profile"]));
+                        if (Convert.ToInt32(reader["state"]) == 2)
+                        {
+                            attribute.Validated = true;
+
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 3)
+                        {
+                            attribute.Réfused = true;
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 1)
+                        {
+                            attribute.Current = true;
+                        }
+                        list.Add(attribute);
+
+
+                    }
+                    reader.Close();
+                    return list;
+
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                {
+                    return null;
+
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
         public static async Task<List<ValidateProfileChanges>> GetAllChangesProfile()
         {
 
             List<ValidateProfileChanges> list = new List<ValidateProfileChanges>();
             string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=m.employe\r\nwhere m.partner_temp is null and m.instance is null and m.state=1\r\norder by m.create_date desc;";
+            // string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name \r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=employe.id\r\nwhere m.partner_temp is null and (m.state=2 or m.state=3)\r\norder by m.create_date desc;";
+            if (await DbConnection.Connecter3())
+            {
+
+
+                MySqlDataReader reader;
+                try
+                {
+                    MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                    reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ValidateProfileChanges attribute = new ValidateProfileChanges(Convert.ToInt32(reader["id"]), reader["change_profile"].ToString(), reader["current_profile"].ToString(), reader["user_name"].ToString(), Convert.ToDateTime(reader["create_date"]), Convert.ToInt32(reader["user"]), Convert.ToInt32(reader["employe"]), reader["partner_name"].ToString(), Convert.ToInt32(reader["partner"]), Convert.ToInt32(reader["profile"]));
+                        if (Convert.ToInt32(reader["state"]) == 2)
+                        {
+                            attribute.Validated = true;
+
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 3)
+                        {
+                            attribute.Réfused = true;
+                        }
+                        else if (Convert.ToInt32(reader["state"]) == 1)
+                        {
+                            attribute.Current = true;
+                        }
+                        list.Add(attribute);
+
+
+                    }
+                    reader.Close();
+
+                    /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
+                    Avant :
+                                        return list;
+
+
+                                        }catch(Exception ex)
+                    Après :
+                                        return list;
+
+
+                                    }
+                                    catch(Exception ex)
+                    */
+                    return list;
+
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                {
+                    return null;
+
+                }
+            }
+            else
+            {
+                return null;
+
+                /* Modification non fusionnée à partir du projet 'SmartPharma5 (net7.0-ios)'
+                Avant :
+                            }
+
+
+                        }
+                Après :
+                            }
+
+
+                        }
+                */
+            }
+
+
+        }
+        public static async Task<List<ValidateProfileChanges>> GetMyChangesProfile()
+        {
+            int id = user_contrat.id_employe;
+            List<ValidateProfileChanges> list = new List<ValidateProfileChanges>();
+            string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name\r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=m.employe\r\nwhere  m.employe="+id+" and m.partner_temp is null and m.instance is null and m.state=1\r\norder by m.create_date desc;";
             // string sqlCmd = "select m.*,marketing_profile.name as change_profile , profile.name  as current_profile ,concat(atooerp_person.first_name,\" \",atooerp_person.last_name) as user_name ,partner.name as partner_name \r\nFROM marketing_profile_instance_temp m\r\nleft join commercial_partner partner on partner.id = m.partner\r\nleft join marketing_profile on marketing_profile.id=m.profile\r\nleft join marketing_profile_instances on marketing_profile_instances.partner=m.partner and marketing_profile_instances.Id in (select max(instance.Id)from marketing_profile_instances instance group by instance.partner)\r\nleft join marketing_profile profile on profile.id=marketing_profile_instances.profil\r\nleft join hr_employe employe on employe.user=m.user\r\nleft join atooerp_person on atooerp_person.id=employe.id\r\nwhere m.partner_temp is null and (m.state=2 or m.state=3)\r\norder by m.create_date desc;";
             if (await DbConnection.Connecter3())
             {

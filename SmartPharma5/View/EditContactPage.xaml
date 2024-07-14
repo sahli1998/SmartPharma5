@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:dxe="clr-namespace:DevExpress.Maui.Editors;assembly=DevExpress.Maui.Editors"
+             x:Class="SmartPharma5.View.EditContactPage"
+             xmlns:local="clr-namespace:SmartPharma5.ViewModel"
+             Title="EditContactPage">
+    <NavigationPage.TitleView>
+        <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+            <Label HorizontalOptions="CenterAndExpand"  Text="Add New Contact" TextColor="White" FontAttributes="Bold"/>
+        </StackLayout>
+    </NavigationPage.TitleView>
+
+
+    <ContentPage.Resources>
+        <Style TargetType="Entry">
+            <Setter Property="Margin" Value="0,5" />
+            <Setter Property="HeightRequest" Value="40" />
+        </Style>
+        <Style TargetType="Editor">
+            <Setter Property="Margin" Value="0,5" />
+            <Setter Property="HeightRequest" Value="100" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="10">
+
+            <Label Text="First Name" />
+            <StackLayout Orientation="Horizontal">
+                <Entry HorizontalOptions="FillAndExpand" x:Name="firstNameEntry" Text="{Binding Contact.FirstName,Mode=TwoWay}" Placeholder="Enter first name" />
+                <Button Command="{Binding updateFirstNameCommand}" BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+            
+
+            <Label Text="Last Name" />
+            <StackLayout Orientation="Horizontal">
+                <Entry HorizontalOptions="FillAndExpand" Text="{Binding Contact.LastName,Mode=TwoWay}" x:Name="lastNameEntry" Placeholder="Enter last name" />
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+           
+            
+
+            <Label Text="Sex" />
+            <StackLayout Orientation="Horizontal">
+                <StackLayout  HorizontalOptions="FillAndExpand" Orientation="Horizontal" Spacing="20">
+                    <RadioButton  x:Name="hommeRadioButton" Content="Homme" GroupName="Sex" />
+                    <RadioButton x:Name="womenRadioButton" Content="Women" GroupName="Sex" />
+                </StackLayout>
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+ 
+
+            <Label Text="Marital Status" />
+            <StackLayout Orientation="Horizontal">
+                <Picker SelectedIndex="{Binding Contact.martal_status}"  ItemsSource="{Binding Martinal,Mode=TwoWay}" ItemDisplayBinding="{Binding Name,Mode=TwoWay}" HorizontalOptions="FillAndExpand"  x:Name="maritalStatusPicker" >
+                </Picker>
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+
+
+            <Label Text="Birth Date" />
+            <StackLayout  Orientation="Horizontal">
+                <DatePicker Date="{Binding Contact.birth_date ,Mode=TwoWay}"  HorizontalOptions="FillAndExpand" x:Name="birthDatePicker" />
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+
+            <Label Text="Birth Place" />
+            <StackLayout Orientation="Horizontal">
+                <Entry Text="{Binding Contact.birth_place,Mode=TwoWay}"  HorizontalOptions="FillAndExpand" x:Name="birthPlaceEntry" Placeholder="Enter birth place" />
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+
+            <Label Text="Nationality" />
+            <StackLayout Orientation="Horizontal">
+                <Picker SelectedIndex="{Binding Contact.nationality}" HorizontalOptions="FillAndExpand" x:Name="nationalityPicker" Title="Select nationality"  />
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+
+
+            <Label Text="Address" />
+            <StackLayout Orientation="Horizontal">
+                <Entry Text="{Binding adress}" HorizontalOptions="FillAndExpand" x:Name="addressEntry" Placeholder="Enter address" />
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+           
+
+            <Label Text="Identity" />
+            <StackLayout Orientation="Horizontal">
+                <Entry Keyboard="Numeric" Text="{Binding identity,Mode=TwoWay}" HorizontalOptions="FillAndExpand" x:Name="identityEntry" Placeholder="Enter identity" >
+
+                </Entry>
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+           
+
+            <Label Text="Handicap" />
+            <StackLayout Orientation="Horizontal">
+                <Switch IsToggled="{Binding handicap,Mode=TwoWay}" HorizontalOptions="FillAndExpand" x:Name="handicapSwitch"  />
+                <Button BackgroundColor="Orange" Padding="3,0,3,0" HorizontalOptions="End" Text="Update"></Button>
+            </StackLayout>
+            
+
+            <StackLayout x:Name="handicapDescriptionStack" IsVisible="False">
+                <Label Text="Handicap Description" />
+                <Editor Text="{Binding handicap_description,Mode=TwoWay}" x:Name="handicapDescriptionEditor" Placeholder="Describe the handicap" />
+            </StackLayout>
+
+            <Button Text="Confirme"  />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

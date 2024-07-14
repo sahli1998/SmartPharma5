@@ -4,6 +4,7 @@ using DevExpress.Maui.Editors;
 using MvvmHelpers;
 using SmartPharma5.Model;
 using SmartPharma5.ViewModel;
+using System.Collections.Generic;
 
 namespace SmartPharma5.View;
 
@@ -40,6 +41,24 @@ public partial class ProductListView : ContentPage
 
         }
      
+    }
+
+    public ProductListView(SaleQuotation quotation, ObservableRangeCollection<Product> productList,List<SaleQuotationLine> salesQuotationLines,List<int> ListDeleted, List<int> ListUpdated, List<SaleQuotationLine> ListNew)
+    {
+        try
+        {
+            InitializeComponent();
+            BindingContext = new ProductListViewModel(quotation,productList,  salesQuotationLines,  ListDeleted,  ListUpdated,  ListNew);
+
+
+            //double largeurEcran = DeviceDisplay.MainDisplayInfo.Width;
+            //DexPoop.WidthRequest = largeurEcran;
+        }
+        catch (Exception ex)
+        {
+
+        }
+
     }
 
     private void Slider_ValueChanged(object sender, ValueChangedEventArgs e)

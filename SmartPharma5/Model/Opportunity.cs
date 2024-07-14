@@ -112,6 +112,7 @@ namespace SmartPharma5.Model
         public string dealerName { get => dealername; set => SetProperty(ref dealername, value); }
         public string stateName { get; set; }
         public int state { get; set; }
+        public decimal purchase_probability { get; set; }
         private BindingList<OpportunityLine> opportunity_lines;
         public BindingList<OpportunityLine> Opportunity_lines { get => opportunity_lines; set => SetProperty(ref opportunity_lines, value); }
         //public BindingList<OpportunityLine> OpportunityLines { get => opportunity_lines; set => SetProperty(ref opportunity_lines, value); }
@@ -127,7 +128,7 @@ namespace SmartPharma5.Model
         }
         public Opportunity(int id)
         {
-            string sqlCmd = "select crm_opportunity.Id,crm_opportunity.code,crm_opportunity.create_date,crm_opportunity.date," +
+            string sqlCmd = "select crm_opportunity.purchase_probability,crm_opportunity.Id,crm_opportunity.code,crm_opportunity.create_date,crm_opportunity.date," +
                 "crm_opportunity.reference,crm_opportunity.memo,crm_opportunity.general_condition,crm_opportunity.partner," +
                 "crm_opportunity.payment_condition,crm_opportunity.payment_method,crm_opportunity.validated," +
                 "crm_opportunity.agent,crm_opportunity.revenue_stamp,crm_opportunity.to_invoice," +
@@ -174,6 +175,7 @@ namespace SmartPharma5.Model
                 this.IdPayment_condition = Convert.ToInt32(dt.Rows[0]["payment_condition"].ToString()); ;
                 this.IdPayment_method = Convert.ToInt32(dt.Rows[0]["payment_method"].ToString());
                 this.validated = Convert.ToBoolean(dt.Rows[0]["validated"]);
+                this.purchase_probability = Convert.ToDecimal(dt.Rows[0]["purchase_probability"]);
                 try
                 {
                     this.delivred = Convert.ToBoolean(dt.Rows[0]["delivred"]);
@@ -232,7 +234,74 @@ namespace SmartPharma5.Model
             Dealer = opportunity.Dealer;
             dealerName = opportunity.dealerName;
         }
+        public void TransferToQuotation()
+        {
+            int IDBC = 0;
+            string Code = CreatCodeQuotation();
+            string totalAmount = this.totalAmount.ToString().Replace(',', '.');
 
+            string sqlCmd = "INSERT INTO sale_quotation SET code ='" + Code + "',create_date= NOW(), date= NOW(),tva_chec=" + true + ",memo='" + memo + "',partner=" + (int)IdPartner + ",payment_method=" + (int)IdPayment_method + ",payment_condition=" + (int)IdPayment_condition + ",validated=false,total_amount=" + totalAmount + "" +
+                ",agent=" + (int)IdAgent + ",tax1=true,tax2=true,tax3=true,revenue_stamp=0,crm_opportunity="+Id+";SELECT MAX(Id) FROM " + DbConnection.Database + ".sale_quotation;";
+            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+            DbConnection.Connecter();
+            try
+            {
+
+                IDBC = int.Parse(cmd.ExecuteScalar().ToString());
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("err");
+            }
+            DbConnection.Deconnecter();
+            sqlCmd = "UPDATE crm_opportunity SET crm_opportunity.quotation = " + IDBC + " WHERE Id = " + Id + ";";
+            cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+            DbConnection.Connecter();
+            try
+            {
+
+                cmd.ExecuteScalar();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            DbConnection.Deconnecter();
+            foreach (var line in opportunity_lines)
+            {
+                string price = line.price.ToString().Replace(',', '.');
+                string discount = line.discount.ToString().Replace(',', '.');
+                string quantity = line.quantity.ToString().Replace(',', '.');
+                string tax1_base = line.tax1_base.ToString().Replace(',', '.');
+                string tax1_amount = line.tax1_amount.ToString().Replace(',', '.');
+                string tax2_base = line.tax2_base.ToString().Replace(',', '.');
+                string tax2_amount = line.tax2_amount.ToString().Replace(',', '.');
+                string tax3_base = line.tax3_base.ToString().Replace(',', '.');
+                string tax3_amount = line.tax3_amount.ToString().Replace(',', '.');
+                string tax4_base = line.tax4_base.ToString().Replace(',', '.');
+                string tax4_amount = line.tax4_amount.ToString().Replace(',', '.');
+                string tax5_base = line.tax5_base.ToString().Replace(',', '.');
+                string tax5_amount = line.tax5_amount.ToString().Replace(',', '.');
+
+                sqlCmd = "INSERT INTO sale_quotation_line SET description='" + line.description + "', price=" + price + ", discount=" + discount + ", piece=" + IDBC + ",product=" + line.IdProduct + ",quantity=" + quantity + ",tax1=" + (line.tax1 is uint ? (string)line.tax1.Value.ToString() : "NULL") + ",tax1_base=" + tax1_base + ",tax1_amount=" + tax1_amount + ",tax2=" + (line.tax2 is uint ? (string)line.tax2.Value.ToString() : "NULL") + ",tax2_base=" + tax2_base + ",tax2_amount=" + tax2_amount + ",tax3=" + (line.tax3 is uint ? (string)line.tax3.Value.ToString() : "NULL") + ",tax3_base=" + tax3_base + ",tax3_amount=" + tax3_amount + ",tax4=" + (line.tax4 is uint ? (string)line.tax4.Value.ToString() : "NULL") + ",tax4_base=" + tax4_base + ",tax4_amount=" + tax4_amount + ",tax5=" + (line.tax5 is uint ? (string)line.tax5.Value.ToString() : "NULL") + ",tax5_base=" + tax5_base + ",tax5_amount=" + tax5_amount + ";";
+                cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+                DbConnection.Connecter();
+                try
+                {
+
+                    cmd.ExecuteScalar();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                DbConnection.Deconnecter();
+            }
+            //ModifyState(2);
+        }
         public void TransferToBc()
         {
             int IDBC = 0;
@@ -311,6 +380,39 @@ namespace SmartPharma5.Model
             }
             totalAmount = opportunity.getTotalAmount(opportunity_lines);
             return opportunity;
+        }
+        private string CreatCodeQuotation()
+        {
+            string year = string.Empty;
+            string sqlCmd = "SELECT prefix,separator1,year,separator2,final_number,separator3,suffixe FROM commercial_dialing where piece_type like 'Sale.Quotation%';";
+
+            MySqlDataAdapter adapter = new MySqlDataAdapter(sqlCmd, DbConnection.con);
+            adapter.SelectCommand.CommandType = CommandType.Text;
+            DataTable dt = new DataTable();
+            adapter.Fill(dt);
+
+
+            if (int.Parse(dt.Rows[0]["year"].ToString()) == 1)
+                year = DateTime.Now.Year.ToString();
+
+            int BCID = int.Parse(dt.Rows[0]["final_number"].ToString()) + 1;
+
+            DbConnection.Deconnecter();
+            DbConnection.Connecter();
+            sqlCmd = "Update commercial_dialing Set final_number = final_number + 1 where piece_type like '%Sale.Quotation%';";
+            MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
+            try
+            {
+                cmd.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            DbConnection.Deconnecter();
+
+            return _ = dt.Rows[0]["prefix"].ToString() + dt.Rows[0]["separator1"].ToString() + year + dt.Rows[0]["separator2"].ToString() + (int.Parse(dt.Rows[0]["final_number"].ToString())).ToString() + dt.Rows[0]["separator3"].ToString() + dt.Rows[0]["suffixe"].ToString();
         }
         private string CreatCodeBc()
         {
@@ -546,7 +648,7 @@ namespace SmartPharma5.Model
 
             string totalAmount = this.totalAmount.ToString().Replace(',', '.');
 
-            string sqlCmd = "INSERT INTO crm_opportunity SET code ='" + code + "',create_date= NOW(), date= NOW(),tva_chec=" + true + ",memo='" + memo + "',partner=" + (int)IdPartner + ",payment_method=" + (int)IdPayment_method + ",payment_condition=" + (int)IdPayment_condition + ",validated=" + validated + ",total_amount=" + totalAmount + ",due_date=Now(),delivred_date=now(),agent=" + (int)IdAgent + ",tax1=true,tax2=true,tax3=true,revenue_stamp=0,closing_date=Now(),to_invoice=" + toinvoice + ",dealer=" + Dealer + ", parent=" + parent + ";SELECT MAX(Id) FROM " + DbConnection.Database + ".crm_opportunity;";
+            string sqlCmd = "INSERT INTO crm_opportunity SET purchase_probability="+(decimal)purchase_probability+",code ='" + code + "',create_date= NOW(), date= NOW(),tva_chec=" + true + ",memo='" + memo + "',partner=" + (int)IdPartner + ",payment_method=" + (int)IdPayment_method + ",payment_condition=" + (int)IdPayment_condition + ",validated=" + validated + ",total_amount=" + totalAmount + ",due_date=Now(),delivred_date=now(),agent=" + (int)IdAgent + ",tax1=true,tax2=true,tax3=true,revenue_stamp=0,closing_date=Now(),to_invoice=" + toinvoice + ",dealer=" + Dealer + ", parent=" + parent + ";SELECT MAX(Id) FROM " + DbConnection.Database + ".crm_opportunity;";
             MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
             DbConnection.Connecter();
             try
@@ -592,7 +694,7 @@ namespace SmartPharma5.Model
         public void update()
         {
             string totalAmount = this.totalAmount.ToString().Replace(',', '.');
-            string sqlCmd = "Update crm_opportunity crm_opportunity SET tva_chec=" + true + ",code= '" + code + "' ,memo='" + memo + "',partner=" + (int)IdPartner + ",payment_method=" + (int)IdPayment_method + ",payment_condition=" + (int)IdPayment_condition + ",validated=" + validated + ",total_amount=" + totalAmount + ",due_date=Now(),delivred_date=now(),agent=" + (int)IdAgent + ",revenue_stamp=0,closing_date=Now(),to_invoice=" + toinvoice + ",dealer=" + Dealer + ", parent=" + parent + " where Id = " + Id + ";";
+            string sqlCmd = "Update crm_opportunity crm_opportunity SET purchase_probability="+(decimal)purchase_probability+", tva_chec=" + true + ",code= '" + code + "' ,memo='" + memo + "',partner=" + (int)IdPartner + ",payment_method=" + (int)IdPayment_method + ",payment_condition=" + (int)IdPayment_condition + ",validated=" + validated + ",total_amount=" + totalAmount + ",due_date=Now(),delivred_date=now(),agent=" + (int)IdAgent + ",revenue_stamp=0,closing_date=Now(),to_invoice=" + toinvoice + ",dealer=" + Dealer + ", parent=" + parent + " where Id = " + Id + ";";
             MySqlCommand cmd = new MySqlCommand(sqlCmd, DbConnection.con);
             DbConnection.Connecter();
             try

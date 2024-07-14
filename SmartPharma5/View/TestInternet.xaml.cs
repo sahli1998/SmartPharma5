@@ -18,7 +18,8 @@ public partial class TestInternet : ContentPage
         if (DbConnection.Connecter() == false)
         {
             t = 0;
-            App.Current.MainPage = new TestInternet();
+            //App.Current.MainPage = new TestInternet();
+            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new TestInternet()));
             await App.Current.MainPage.DisplayAlert("Warning", "Connection failed", "Ok");
             return;
 
@@ -26,7 +27,8 @@ public partial class TestInternet : ContentPage
         var IdEmploye = (uint)Preferences.Get("idagent", Convert.ToUInt32(null));
         if (IdEmploye == 0)
         {
-            App.Current.MainPage = new LoginView();
+            //App.Current.MainPage = new LoginView();
+            await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new LoginView()));
 
         }
         else
@@ -34,23 +36,29 @@ public partial class TestInternet : ContentPage
             switch (t)
             {
                 case 27:
+                    //await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new ShowTest()));
 
-                    App.Current.MainPage = new NavigationPage(new HomeView());
+                    //App.Current.MainPage = new NavigationPage(new HomeView());
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new HomeView()));
                     break;
                 case 28:
 
-                    App.Current.MainPage = new NavigationPage(new SammaryView());
+                    //App.Current.MainPage = new NavigationPage(new SammaryView());
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView()));
                     break;
                 case 32:
-                    App.Current.MainPage = new NavigationPage(new SammaryView());
+                    //App.Current.MainPage = new NavigationPage(new SammaryView());
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView()));
                     break;
                 case 37:
 
-                    App.Current.MainPage = new NavigationPage(new SammaryView());
+                    //App.Current.MainPage = new NavigationPage(new SammaryView());
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new SammaryView()));
                     break;
                 default:
 
-                    App.Current.MainPage = new NavigationPage(new HomeView());
+                    //App.Current.MainPage = new NavigationPage(new HomeView());
+                    await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new HomeView()));
                     break;
             }
 

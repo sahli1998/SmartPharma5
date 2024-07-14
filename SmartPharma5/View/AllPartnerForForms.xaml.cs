@@ -1,6 +1,8 @@
 using Acr.UserDialogs;
 using SmartPharma5.Model;
+using SmartPharma5.ModelView;
 using SmartPharma5.ViewModel;
+using System.Security.Cryptography;
 
 namespace SmartPharma5.View;
 
@@ -9,7 +11,7 @@ public partial class AllPartnerForForms : ContentPage
     public AllPartnerForForms()
     {
         InitializeComponent();
-        BindingContext = new AllPartnerMV();
+        BindingContext = new AllPartnerMV1();
     }
     private void OnItemTapped(object sender, EventArgs e)
     {
@@ -43,7 +45,7 @@ public partial class AllPartnerForForms : ContentPage
         try
         {
 
-            var ovm = BindingContext as AllPartnerMV;
+            var ovm = BindingContext as AllPartnerMV1;
             if (ovm.ActPopup == false)
             {
                 await App.Current.MainPage.Navigation.PushAsync(new HomeView());
@@ -59,49 +61,57 @@ public partial class AllPartnerForForms : ContentPage
     }
     public void Search()
     {
-
-        var list = BindingContext as AllPartnerMV;
-        // var listOfForm = list.ListOfForm;
-        var formList = list.Partners.ToList();
-        //CategorySearch.ItemsSource = list.Catgory_list.ToList();
-
-        // listOfForm = (ObservableRangeCollection<string>)formList.Select(x => x.Form_name).Distinct();
-        if (PartnerSearch.Text != null)
+        try
         {
-            string[] motsCles = PartnerSearch.Text.Split(' ');
-            string partner_string = PartnerSearch.Text;
-            formList = formList.Where(x => motsCles.All(mc => x.Name.ToLower().Contains(mc.ToLower()))).ToList();
-            //formList = formList.Where(i => i.Name.ToLower().Contains(partner_string.ToLower())).ToList();
+            //formList = new List<Partner>();
 
-            // var resultats = formList.Where(x => motsCles.All(mc => x.Name.Contains(mc)));
+            var list = BindingContext as AllPartnerMV1;
+            // var listOfForm = list.ListOfForm;
+            var formList = list.Partners.ToList();
+            //CategorySearch.ItemsSource = list.Catgory_list.ToList();
+
+            // listOfForm = (ObservableRangeCollection<string>)formList.Select(x => x.Form_name).Distinct();
+            if (PartnerSearch.Text != null)
+            {
+                string[] motsCles = PartnerSearch.Text.Split(' ');
+                string partner_string = PartnerSearch.Text;
+                formList = formList.Where(x => motsCles.All(mc => x.Name.ToLower().Contains(mc.ToLower()))).ToList();
+                //formList = formList.Where(i => i.Name.ToLower().Contains(partner_string.ToLower())).ToList();
+
+                // var resultats = formList.Where(x => motsCles.All(mc => x.Name.Contains(mc)));
+
+
+            }
+            if (EmailSearch.Text != null)
+            {
+                string email_string = EmailSearch.Text;
+                formList = formList.Where(i => i.Email.ToLower().Contains(email_string.ToLower())).ToList();
+
+
+            }
+            if (CategorySearch.SelectedItem != null)
+            {
+                string category_name = CategorySearch.SelectedItem.ToString();
+                formList = formList.Where(i => i.Category_Name.ToLower().Contains(category_name.ToLower())).ToList();
+
+
+            }
+            if (StateShearch.SelectedItem != null)
+            {
+                string state_name = StateShearch.SelectedItem.ToString();
+                formList = formList.Where(i => i.State.ToLower().Contains(state_name.ToLower())).ToList();
+
+
+            }
+
+            ClientCollectionView.ItemsSource = formList.ToList();
 
 
         }
-        if (EmailSearch.Text != null)
+        catch (Exception ex)
         {
-            string email_string = EmailSearch.Text;
-            formList = formList.Where(i => i.Email.ToLower().Contains(email_string.ToLower())).ToList();
-
 
         }
-        if (CategorySearch.SelectedItem != null)
-        {
-            string category_name = CategorySearch.SelectedItem.ToString();
-            formList = formList.Where(i => i.Category_Name.ToLower().Contains(category_name.ToLower())).ToList();
-
-
-        }
-        if (StateShearch.SelectedItem != null)
-        {
-            string state_name = StateShearch.SelectedItem.ToString();
-            formList = formList.Where(i => i.State.ToLower().Contains(state_name.ToLower())).ToList();
-
-
-        }
-
-        ClientCollectionView.ItemsSource = formList.ToList();
-
-
 
     }
     private void SimpleButton_Clicked(object sender, EventArgs e)
@@ -138,11 +148,67 @@ public partial class AllPartnerForForms : ContentPage
 
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        //UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
-        //await Task.Delay(1000);
-        if (sender is Frame frame && frame.BindingContext is SmartPharma5.Model.Partner Partner)
-        { await App.Current.MainPage.Navigation.PushAsync(new FormListView(Partner)); }
-       // UserDialogs.Instance.HideLoading();
+        
+
+        if (await DbConnection.Connecter3())
+        {
+
+            try
+            {
+                if (sender is Frame frame && frame.BindingContext is SmartPharma5.Model.Partner Partner)
+                {
+
+                    
+                    List<Contact_Partner> partners = ContactPartnerMV.getContactsOfPartner(Convert.ToInt32(Partner.Id)).Result.ToList();
+                    if (partners.Count > 0)
+                    {
+                        UserDialogs.Instance.Toast("List Contacts ...");
+                        await Task.Delay(200);
+
+                        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                        await Task.Delay(500);
+                        await App.Current.MainPage.Navigation.PushAsync(new NavigationPage(new ContactPartnerPage(Partner)));
+                        UserDialogs.Instance.HideLoading();
+
+                    }
+                    else
+                    {
+                        UserDialogs.Instance.Toast("List Forms ...");
+                        await Task.Delay(200);
+
+                        UserDialogs.Instance.ShowLoading("Loading Pleae wait ...");
+                        await Task.Delay(500);
+
+                        
+                            await App.Current.MainPage.Navigation.PushAsync(new FormListView(Partner, 0));
+                        
+                       
+
+
+
+                        UserDialogs.Instance.HideLoading();
+
+                    }
+
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                await DbConnection.ErrorConnection();
+                UserDialogs.Instance.HideLoading();
+            }
+
+        }
+        else
+        {
+            await App.Current.MainPage.DisplayAlert("Warning", "Connection Failed", "OK");
+
+        }
+
+       
+       
 
 
     }
